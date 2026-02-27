@@ -1,15 +1,25 @@
 # Node
 node_modules/
 npm-debug.log
+package-lock.json
+
+# Server build files
+dist/
+*.tsbuildinfo
 
 # Ionic / Angular
 www/
-dist/
 .idea/
 .vscode/
 *.sublime-workspace
 *.sublime-project
 
+# Environment variables
+.env
+
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
