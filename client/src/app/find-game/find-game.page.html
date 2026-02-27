@@ -1,17 +1,39 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Tab 2
+      Find Game
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
+      <ion-title size="large">Find Game</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  <ion-button expand="block" class="create-btn">
+    + Create Game
+  </ion-button>
+
+  <ion-card *ngFor="let game of games" class="game-card">
+    <ion-card-header>
+      <ion-card-title>{{ game.title }}</ion-card-title>
+      <ion-card-subtitle>{{ game.location }}</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      {{ game.players }} / {{ game.maxPlayers }} players
+    </ion-card-content>
+
+    <ion-button 
+      expand="block" 
+      fill="outline"
+      (click)="joinGame(game)">
+      Join Game
+    </ion-button>
+  </ion-card>
+
 </ion-content>
