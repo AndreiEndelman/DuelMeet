@@ -1,4 +1,12 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+
+interface Game {
+  title: string;
+  location: string;
+  players: number;
+  maxPlayers: number;
+}
 
 @Component({
   selector: 'app-find-game',
@@ -7,7 +15,7 @@ import { Component } from '@angular/core';
   standalone: false,
 })
 export class FindGamePage { 
-  games = [
+  games: Game[] = [
   {
     title: 'Magic: The Gathering - Commander Night',
     location: 'CoolStuff Games - Miami',
@@ -28,9 +36,13 @@ export class FindGamePage {
   }
 ];  // <-- PascalCase, no hyphen
 
-  constructor() {}
+  constructor(private readonly router: Router) {}
+
+  openCreateGamePage(): void {
+    this.router.navigate(['/tabs/find-game/create-game']);
+  }
   
-   joinGame(game: any) {
+   joinGame(game: Game) {
     alert(`You joined: ${game.title}`);
   }
 }

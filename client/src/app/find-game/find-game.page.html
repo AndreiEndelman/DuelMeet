@@ -14,7 +14,11 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-button expand="block" class="create-btn">
+  <ion-button
+    expand="block"
+    class="create-btn"
+    (click)="openCreateGamePage()"
+    (keydown.enter)="openCreateGamePage()">
     + Create Game
   </ion-button>
 
@@ -31,7 +35,8 @@
     <ion-button 
       expand="block" 
       fill="outline"
-      (click)="joinGame(game)">
+      (click)="joinGame(game)"
+      (keydown.enter)="joinGame(game)">
       Join Game
     </ion-button>
   </ion-card>

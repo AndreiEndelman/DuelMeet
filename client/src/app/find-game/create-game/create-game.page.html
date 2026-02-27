@@ -1,0 +1,57 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Create Game</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-item>
+    <ion-label position="stacked">Game Title</ion-label>
+    <ion-input
+      [(ngModel)]="form.title"
+      placeholder="e.g. Commander Night">
+    </ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Location</ion-label>
+    <ion-input
+      [(ngModel)]="form.location"
+      placeholder="e.g. CoolStuff Games">
+    </ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Max Players</ion-label>
+    <ion-input
+      type="number"
+      min="2"
+      [(ngModel)]="form.maxPlayers">
+    </ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Notes (optional)</ion-label>
+    <ion-textarea
+      [(ngModel)]="form.notes"
+      placeholder="Any details players should know">
+    </ion-textarea>
+  </ion-item>
+
+  <ion-button
+    expand="block"
+    class="ion-margin-top"
+    [disabled]="!form.title || !form.location || form.maxPlayers < 2"
+    (click)="saveGame()"
+    (keydown.enter)="saveGame()">
+    Create Game
+  </ion-button>
+
+  <ion-button
+    expand="block"
+    fill="clear"
+    (click)="cancel()"
+    (keydown.enter)="cancel()">
+    Cancel
+  </ion-button>
+</ion-content>

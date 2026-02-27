@@ -6,6 +6,10 @@ const routes: Routes = [
   {
     path: '',
     component: FindGamePage,
+  },
+  {
+    path: 'create-game',
+    loadComponent: () => import('./create-game/create-game.page').then(m => m.CreateGamePage),
   }
 ];
 
