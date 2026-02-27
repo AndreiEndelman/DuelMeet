@@ -1,0 +1,15 @@
+# Node
+node_modules/
+npm-debug.log
+
+# Ionic / Angular
+www/
+dist/
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# OS
+.DS_Store
+Thumbs.db
