@@ -1,2 +1,68 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+// ── TCG Duel Meet – Dark Theme ──────────────────────────────
+:root {
+  --ion-font-family: 'Inter', 'Segoe UI', sans-serif;
+
+  --ion-color-primary:         #7c6fff;
+  --ion-color-primary-rgb:     124, 111, 255;
+  --ion-color-primary-contrast:      #ffffff;
+  --ion-color-primary-shade:   #6a5fe0;
+  --ion-color-primary-tint:    #8f80ff;
+
+  --ion-color-secondary:       #4fc3f7;
+  --ion-color-secondary-rgb:   79, 195, 247;
+
+  --ion-color-success:         #4caf82;
+  --ion-color-success-rgb:     76, 175, 130;
+
+  --ion-color-warning:         #f5a623;
+  --ion-color-danger:          #f05252;
+
+  --ion-color-dark:            #e8eaf6;
+  --ion-color-medium:          #8f92a8;
+  --ion-color-light:           #1e2040;
+  --ion-color-light-shade:     #252850;
+  --ion-color-light-tint:      #2a2d5a;
+
+  --ion-background-color:      #0c0e1e;
+  --ion-background-color-rgb:  12, 14, 30;
+
+  --ion-text-color:            #e8eaf6;
+  --ion-text-color-rgb:        232, 234, 246;
+
+  --ion-card-background:       #161830;
+  --ion-toolbar-background:    #0c0e1e;
+  --ion-toolbar-border-color:  #2a2d5a;
+  --ion-tab-bar-background:    #0c0e1e;
+  --ion-tab-bar-border-color:  #2a2d5a;
+  --ion-item-background:       #161830;
+  --ion-border-color:          #2a2d5a;
+
+  // game-type accent colours
+  --color-magic:          #3a8ef6;
+  --color-magic-glow:     rgba(58, 142, 246, 0.45);
+  --color-magic-dark:     #0d2652;
+  --color-pokemon:        #3dba6f;
+  --color-pokemon-glow:   rgba(61, 186, 111, 0.45);
+  --color-pokemon-dark:   #0a3320;
+  --color-yugioh:         #a855f7;
+  --color-yugioh-glow:    rgba(168, 85, 247, 0.45);
+  --color-yugioh-dark:    #1e0a3a;
+  --color-onepiece:       #f05252;
+  --color-onepiece-glow:  rgba(240, 82, 82, 0.45);
+  --color-onepiece-dark:  #3e0d0d;
+}
+
+// keep dark even on light-mode devices
+@media (prefers-color-scheme: light) {
+  :root {
+    --ion-background-color:     #0c0e1e;
+    --ion-text-color:           #e8eaf6;
+    --ion-card-background:      #161830;
+    --ion-toolbar-background:   #0c0e1e;
+    --ion-tab-bar-background:   #0c0e1e;
+    --ion-item-background:      #161830;
+  }
+}

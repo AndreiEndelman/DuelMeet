@@ -1,0 +1,169 @@
+ion-toolbar { --background: #0a0c1a; }
+
+// ── Hero ─────────────────────────────────────────────────────
+.hero {
+  position: relative;
+  padding: 28px 20px 24px;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,111,255,0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-sub {
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+.hero-name {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 2px 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.hero-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--ion-color-medium);
+  margin: 0;
+
+  ion-icon { font-size: 0.9rem; color: var(--ion-color-primary); }
+}
+
+// ── Quick actions ─────────────────────────────────────────────
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 16px 24px;
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  border-radius: 14px;
+  background: #12142a;
+  border: 1px solid rgba(255,255,255,0.07);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  -webkit-appearance: none;
+  outline: none;
+  transition: transform 0.12s;
+
+  &:active { transform: scale(0.96); }
+}
+
+.action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+
+  &--find   { background: rgba(58,142,246,0.15);  color: var(--color-magic); }
+  &--create { background: rgba(124,111,255,0.15); color: var(--ion-color-primary); }
+  &--profile{ background: rgba(61,186,111,0.15);  color: var(--color-pokemon); }
+}
+
+// ── Section ───────────────────────────────────────────────────
+.section {
+  padding: 0 16px 32px;
+}
+
+.section-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ion-color-medium);
+  margin: 0 0 12px;
+}
+
+// ── Mini card ─────────────────────────────────────────────────
+.mini-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #12142a;
+  margin-bottom: 10px;
+
+  &--magic    { box-shadow: 0 0 0 1px var(--color-magic),    0 2px 12px var(--color-magic-glow); }
+  &--pokemon  { box-shadow: 0 0 0 1px var(--color-pokemon),  0 2px 12px var(--color-pokemon-glow); }
+  &--yugioh   { box-shadow: 0 0 0 1px var(--color-yugioh),   0 2px 12px var(--color-yugioh-glow); }
+  &--onepiece { box-shadow: 0 0 0 1px var(--color-onepiece), 0 2px 12px var(--color-onepiece-glow); }
+}
+
+.mini-art {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+
+  &--magic    { background: radial-gradient(circle, #1a3a7a, #060d24); }
+  &--pokemon  { background: radial-gradient(circle, #14502e, #051a10); }
+  &--yugioh   { background: radial-gradient(circle, #3a1060, #0d0520); }
+  &--onepiece { background: radial-gradient(circle, #5a1010, #1a0404); }
+}
+
+.mini-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mini-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: var(--ion-color-medium);
+  margin: 0;
+
+  ion-icon { font-size: 0.8rem; }
+}
+
+.status-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
+
+  &--joined  { background: rgba(61,186,111,0.15);  color: var(--color-pokemon);  border: 1px solid var(--color-pokemon); }
+  &--hosting { background: rgba(168,85,247,0.15);  color: var(--color-yugioh);   border: 1px solid var(--color-yugioh); }
+}

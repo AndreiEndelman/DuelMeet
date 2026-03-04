@@ -1,17 +1,88 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Tab 3
-    </ion-title>
+    <ion-title class="page-title">Profile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
 
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+  <!-- Avatar + identity -->
+  <div class="profile-hero">
+    <div class="avatar-wrap">
+      <div class="avatar">
+        <ion-icon name="person" class="avatar-icon"></ion-icon>
+      </div>
+      <div class="avatar-ring"></div>
+    </div>
+    <h2 class="profile-name">{{ username }}</h2>
+    <p class="profile-location">
+      <ion-icon name="location"></ion-icon>
+      {{ location }}
+    </p>
+    <div class="fav-games">
+      <span class="fav-label">Favorite Games:</span>
+      <span *ngFor="let g of favoriteGames" class="fav-icon" [attr.title]="g.label">{{ g.icon }}</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-block">
+      <span class="stat-value">{{ gamesHosted }}</span>
+      <span class="stat-label">Games Hosted</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-block">
+      <span class="stat-value">{{ gamesJoined }}</span>
+      <span class="stat-label">Games Joined</span>
+    </div>
+  </div>
+
+  <!-- Reputation -->
+  <div class="reputation-row">
+    <span class="rep-label">Reputation</span>
+    <div class="stars">
+      <ion-icon
+        *ngFor="let s of reputationStars"
+        [name]="isFullStar(s) ? 'star' : isHalfStar(s) ? 'star-half' : 'star-outline'"
+        class="star-icon">
+      </ion-icon>
+    </div>
+  </div>
+
+  <!-- Edit Profile -->
+  <div class="edit-wrap">
+    <ion-button expand="block" fill="outline" class="edit-btn">
+      Edit Profile
+    </ion-button>
+  </div>
+
+  <!-- Upcoming games -->
+  <div class="section">
+    <p class="section-title">My Upcoming Games</p>
+
+    <div *ngFor="let g of upcomingGames"
+         class="mini-card"
+         [ngClass]="'mini-card--' + g.type">
+      <div class="mini-art" [ngClass]="'mini-art--' + g.type">
+        <span>{{ g.type === 'magic' ? '🧙' : g.type === 'pokemon' ? '⚡' : g.type === 'yugioh' ? '👁️' : '☠️' }}</span>
+      </div>
+      <div class="mini-info">
+        <p class="mini-title">{{ g.title }}</p>
+        <p class="mini-date">
+          <ion-icon name="time-outline"></ion-icon>
+          {{ g.date }}
+        </p>
+      </div>
+      <span class="status-badge" [ngClass]="'status-badge--' + g.status">
+        {{ g.status === 'joined' ? 'Joined' : 'Hosting' }}
+      </span>
+    </div>
+  </div>
+
 </ion-content>

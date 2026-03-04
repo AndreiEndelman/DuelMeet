@@ -1,44 +1,79 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Find Game
-    </ion-title>
+    <ion-title class="page-title">Find Games</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        class="locate-btn"
+        (click)="openCreateGamePage()"
+        (keydown.enter)="openCreateGamePage()">
+        <ion-icon name="locate" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Find Game</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <!-- Filter chips -->
+  <div class="filter-bar">
+    <button
+      *ngFor="let f of filters"
+      class="filter-chip"
+      [class.active]="activeFilter === f.value"
+      (click)="activeFilter = f.value"
+      (keydown.enter)="activeFilter = f.value"
+      type="button">
+      <ion-icon *ngIf="f.ionIcon" [name]="f.ionIcon" class="filter-icon-ion"></ion-icon>
+      <span *ngIf="f.emoji" class="filter-icon">{{ f.emoji }}</span>
+      <span>{{ f.label }}</span>
+    </button>
+  </div>
 
-  <ion-button
-    expand="block"
-    class="create-btn"
-    (click)="openCreateGamePage()"
-    (keydown.enter)="openCreateGamePage()">
-    + Create Game
-  </ion-button>
+  <!-- Game Cards -->
+  <div class="cards-list">
+    <div
+      *ngFor="let game of filteredGames"
+      class="game-card"
+      [ngClass]="'game-card--' + game.type">
 
-  <ion-card *ngFor="let game of games" class="game-card">
-    <ion-card-header>
-      <ion-card-title>{{ game.title }}</ion-card-title>
-      <ion-card-subtitle>{{ game.location }}</ion-card-subtitle>
-    </ion-card-header>
+      <!-- Left: art panel -->
+      <div class="card-art" [ngClass]="'card-art--' + game.type">
+        <div class="card-stack">
+          <div class="stack-card stack-card--back2"></div>
+          <div class="stack-card stack-card--back1"></div>
+          <div class="stack-card stack-card--front">
+            <span class="card-emoji">{{ game.type === 'magic' ? '🧙' : game.type === 'pokemon' ? '⚡' : game.type === 'yugioh' ? '👁️' : '🏴‍☠️' }}</span>
+          </div>
+        </div>
+        <div class="art-overlay"></div>
+      </div>
 
-    <ion-card-content>
-      {{ game.players }} / {{ game.maxPlayers }} players
-    </ion-card-content>
+      <!-- Right: info panel -->
+      <div class="card-info">
+        <p class="card-title">{{ game.title }}</p>
+        <p class="card-meta">
+          <ion-icon name="location-outline"></ion-icon>
+          {{ game.location }}
+        </p>
+        <p class="card-meta">
+          <ion-icon name="time-outline"></ion-icon>
+          {{ game.date }}
+        </p>
+        <p class="spots-left">
+          <ion-icon name="people-outline"></ion-icon>
+          {{ game.maxPlayers - game.players }} Spots Left
+        </p>
+        <ion-button
+          expand="block"
+          class="join-btn"
+          [ngClass]="'join-btn--' + game.type"
+          (click)="joinGame(game)"
+          (keydown.enter)="joinGame(game)">
+          Join Game
+        </ion-button>
+      </div>
 
-    <ion-button 
-      expand="block" 
-      fill="outline"
-      (click)="joinGame(game)"
-      (keydown.enter)="joinGame(game)">
-      Join Game
-    </ion-button>
-  </ion-card>
+    </div>
+  </div>
 
 </ion-content>

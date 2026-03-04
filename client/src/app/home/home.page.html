@@ -1,17 +1,70 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+    <ion-title class="page-title">Home</ion-title>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="notifications-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <!-- Hero greeting -->
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <p class="hero-sub">Welcome back,</p>
+    <h1 class="hero-name">{{ username }}</h1>
+    <p class="hero-location">
+      <ion-icon name="location"></ion-icon>
+      {{ location }}
+    </p>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="quick-actions">
+    <button class="action-card" type="button" (click)="goToFindGame()">
+      <div class="action-icon action-icon--find">
+        <ion-icon name="search"></ion-icon>
+      </div>
+      <span>Find Game</span>
+    </button>
+    <button class="action-card" type="button" (click)="goToCreateGame()">
+      <div class="action-icon action-icon--create">
+        <ion-icon name="add-circle"></ion-icon>
+      </div>
+      <span>Create Game</span>
+    </button>
+    <button class="action-card" type="button">
+      <div class="action-icon action-icon--profile">
+        <ion-icon name="person"></ion-icon>
+      </div>
+      <span>Profile</span>
+    </button>
+  </div>
+
+  <!-- Upcoming games -->
+  <div class="section">
+    <p class="section-title">My Upcoming Games</p>
+
+    <div *ngFor="let g of upcomingGames"
+         class="mini-card"
+         [ngClass]="'mini-card--' + g.type">
+      <div class="mini-art" [ngClass]="'mini-art--' + g.type">
+        <span>{{ g.type === 'magic' ? '🧙' : g.type === 'pokemon' ? '⚡' : g.type === 'yugioh' ? '👁️' : '☠️' }}</span>
+      </div>
+      <div class="mini-info">
+        <p class="mini-title">{{ g.title }}</p>
+        <p class="mini-date">
+          <ion-icon name="time-outline"></ion-icon>
+          {{ g.date }}
+        </p>
+      </div>
+      <span class="status-badge" [ngClass]="'status-badge--' + g.status">
+        {{ g.status === 'joined' ? 'Joined' : 'Hosting' }}
+      </span>
+    </div>
+  </div>
+
 </ion-content>

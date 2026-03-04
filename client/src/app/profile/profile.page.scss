@@ -1,0 +1,231 @@
+ion-toolbar { --background: #0a0c1a; }
+
+// ── Profile Hero ──────────────────────────────────────────────
+.profile-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 20px 20px;
+  background: linear-gradient(180deg, rgba(124,111,255,0.12) 0%, transparent 100%);
+}
+
+.avatar-wrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 14px;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a2060, #0e0c2a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.avatar-icon {
+  font-size: 3rem;
+  color: rgba(255,255,255,0.6);
+}
+
+.avatar-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(var(--ion-color-primary), #a855f7, var(--ion-color-primary));
+  z-index: 0;
+  opacity: 0.85;
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+}
+
+.profile-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.profile-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--ion-color-medium);
+  margin: 0 0 14px;
+
+  ion-icon { color: var(--ion-color-primary); font-size: 0.9rem; }
+}
+
+.fav-games {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fav-label {
+  font-size: 0.78rem;
+  color: var(--ion-color-medium);
+  font-weight: 600;
+}
+
+.fav-icon {
+  font-size: 1.3rem;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));
+}
+
+// ── Stats row ─────────────────────────────────────────────────
+.stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #12142a;
+  margin: 0 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 16px 0;
+}
+
+.stat-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: var(--ion-color-medium);
+  font-weight: 600;
+  text-align: center;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255,255,255,0.1);
+}
+
+// ── Reputation ────────────────────────────────────────────────
+.reputation-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+}
+
+.rep-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ion-color-medium);
+}
+
+.stars { display: flex; gap: 3px; }
+
+.star-icon {
+  font-size: 1.1rem;
+  color: #f5a623;
+}
+
+// ── Edit button ───────────────────────────────────────────────
+.edit-wrap {
+  padding: 0 16px 20px;
+}
+
+.edit-btn {
+  --border-color: var(--ion-color-primary);
+  --color: var(--ion-color-primary);
+  --border-radius: 12px;
+  font-weight: 700;
+}
+
+// ── Section / mini cards (shared with home) ───────────────────
+.section {
+  padding: 0 16px 32px;
+}
+
+.section-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ion-color-medium);
+  margin: 0 0 12px;
+}
+
+.mini-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #12142a;
+  margin-bottom: 10px;
+
+  &--magic    { box-shadow: 0 0 0 1px var(--color-magic),    0 2px 12px var(--color-magic-glow); }
+  &--pokemon  { box-shadow: 0 0 0 1px var(--color-pokemon),  0 2px 12px var(--color-pokemon-glow); }
+  &--yugioh   { box-shadow: 0 0 0 1px var(--color-yugioh),   0 2px 12px var(--color-yugioh-glow); }
+  &--onepiece { box-shadow: 0 0 0 1px var(--color-onepiece), 0 2px 12px var(--color-onepiece-glow); }
+}
+
+.mini-art {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+
+  &--magic    { background: radial-gradient(circle, #1a3a7a, #060d24); }
+  &--pokemon  { background: radial-gradient(circle, #14502e, #051a10); }
+  &--yugioh   { background: radial-gradient(circle, #3a1060, #0d0520); }
+  &--onepiece { background: radial-gradient(circle, #5a1010, #1a0404); }
+}
+
+.mini-info   { flex: 1; min-width: 0; }
+
+.mini-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: var(--ion-color-medium);
+  margin: 0;
+  ion-icon { font-size: 0.8rem; }
+}
+
+.status-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
+
+  &--joined  { background: rgba(61,186,111,0.15); color: var(--color-pokemon);  border: 1px solid var(--color-pokemon); }
+  &--hosting { background: rgba(168,85,247,0.15); color: var(--color-yugioh);   border: 1px solid var(--color-yugioh); }
+}
