@@ -50,7 +50,7 @@ router.post(
       res.status(201).json({ token: generateToken(user._id), user: safeUser(user) });
     } catch (err) {
       console.error('[register]', err);
-      res.status(500).json({ message: 'Server error during registration' });
+      res.status(500).json({ message: 'Server error during registration', detail: err.message });
     }
   }
 );
