@@ -60,6 +60,10 @@
     <ion-button expand="block" fill="outline" class="edit-btn">
       Edit Profile
     </ion-button>
+    <ion-button expand="block" fill="clear" class="logout-btn" (click)="logout()" (keydown.enter)="logout()">
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+      Log Out
+    </ion-button>
   </div>
 
   <!-- Upcoming games -->

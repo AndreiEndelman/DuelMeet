@@ -96,3 +96,18 @@ ion-header ion-toolbar {
   margin-top: 8px;
   margin-bottom: 4px;
 }
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(235, 68, 90, 0.15);
+  border: 1px solid rgba(235, 68, 90, 0.5);
+  border-radius: 10px;
+  color: #f47b8a;
+  font-size: 0.84rem;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+
+  ion-icon { font-size: 1rem; flex-shrink: 0; }
+}

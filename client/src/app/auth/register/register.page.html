@@ -1,0 +1,76 @@
+<ion-content class="auth-content">
+  <div class="auth-glow"></div>
+
+  <div class="auth-card">
+    <!-- Logo -->
+    <div class="auth-logo">
+      <span class="auth-logo-emoji">🃏</span>
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-sub">Join the TCG community</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error-banner" *ngIf="errorMsg">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      {{ errorMsg }}
+    </div>
+
+    <!-- Form -->
+    <div class="form-group">
+      <label class="form-label" for="reg-username">Username</label>
+      <ion-input
+        id="reg-username"
+        class="form-input"
+        type="text"
+        placeholder="CardMaster"
+        [(ngModel)]="username"
+        autocomplete="username">
+      </ion-input>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="reg-email">Email</label>
+      <ion-input
+        id="reg-email"
+        class="form-input"
+        type="email"
+        placeholder="you@example.com"
+        [(ngModel)]="email"
+        autocomplete="email">
+      </ion-input>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="reg-password">Password</label>
+      <ion-input
+        id="reg-password"
+        class="form-input"
+        type="password"
+        placeholder="At least 6 characters"
+        [(ngModel)]="password"
+        autocomplete="new-password">
+      </ion-input>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="reg-location">Location <span class="optional">(optional)</span></label>
+      <ion-input
+        id="reg-location"
+        class="form-input"
+        type="text"
+        placeholder="Miami, FL"
+        [(ngModel)]="location">
+      </ion-input>
+    </div>
+
+    <button class="btn-primary" [disabled]="loading" (click)="register()">
+      <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+      <span *ngIf="!loading">Create Account</span>
+    </button>
+
+    <p class="auth-footer">
+      Already have an account?
+      <a routerLink="/auth/login" class="auth-link">Log in</a>
+    </p>
+  </div>
+</ion-content>

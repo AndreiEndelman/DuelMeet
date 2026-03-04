@@ -1,0 +1,55 @@
+<ion-content class="auth-content">
+  <div class="auth-glow"></div>
+
+  <div class="auth-card">
+    <!-- Logo -->
+    <div class="auth-logo">
+      <span class="auth-logo-emoji">🃏</span>
+      <h1 class="auth-title">TCG Duel Meet</h1>
+      <p class="auth-sub">Find your next game</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error-banner" *ngIf="errorMsg">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      {{ errorMsg }}
+    </div>
+
+    <!-- Form -->
+    <div class="form-group">
+      <label class="form-label" for="login-email">Email</label>
+      <ion-input
+        id="login-email"
+        class="form-input"
+        type="email"
+        placeholder="you@example.com"
+        [(ngModel)]="email"
+        autocomplete="email"
+        (keyup.enter)="login()">
+      </ion-input>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="login-password">Password</label>
+      <ion-input
+        id="login-password"
+        class="form-input"
+        type="password"
+        placeholder="••••••••"
+        [(ngModel)]="password"
+        autocomplete="current-password"
+        (keyup.enter)="login()">
+      </ion-input>
+    </div>
+
+    <button class="btn-primary" [disabled]="loading" (click)="login()">
+      <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+      <span *ngIf="!loading">Log In</span>
+    </button>
+
+    <p class="auth-footer">
+      Don't have an account?
+      <a routerLink="/auth/register" class="auth-link">Sign up</a>
+    </p>
+  </div>
+</ion-content>

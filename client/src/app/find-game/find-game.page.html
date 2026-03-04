@@ -29,8 +29,27 @@
     </button>
   </div>
 
+  <!-- Loading -->
+  <div class="state-msg" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Finding games near you…</p>
+  </div>
+
+  <!-- Error -->
+  <div class="state-msg state-msg--error" *ngIf="error && !loading">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <p>{{ error }}</p>
+    <ion-button fill="outline" size="small" (click)="loadGames()">Retry</ion-button>
+  </div>
+
+  <!-- Empty state -->
+  <div class="state-msg" *ngIf="!loading && !error && filteredGames.length === 0">
+    <span class="state-emoji">🃏</span>
+    <p>No games found. Be the first to create one!</p>
+  </div>
+
   <!-- Game Cards -->
-  <div class="cards-list">
+  <div class="cards-list" *ngIf="!loading && !error && filteredGames.length > 0">
     <div
       *ngFor="let game of filteredGames"
       class="game-card"
@@ -61,7 +80,7 @@
         </p>
         <p class="spots-left">
           <ion-icon name="people-outline"></ion-icon>
-          {{ game.maxPlayers - game.players }} Spots Left
+          {{ game.spotsLeft }} Spots Left
         </p>
         <ion-button
           expand="block"

@@ -1,18 +1,66 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
+const express  = require('express');
+const mongoose = require('mongoose');
+const dotenv   = require('dotenv');
+const cors     = require('cors');
 
 dotenv.config();
 
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
-// Test route
-app.get("/", (req, res) => {
-  res.send("API is running...");
+// ── Validate required env vars ───────────────────────────────────────────────
+const required = ['MONGO_URI', 'JWT_SECRET'];
+required.forEach((key) => {
+  if (!process.env[key]) {
+    console.error(`Missing required env var: ${key}`);
+    process.exit(1);
+  }
 });
 
+// ── App setup ────────────────────────────────────────────────────────────────
+const app = express();
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:8100', 'http://localhost:4200'];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow requests with no origin (mobile apps, Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+  })
+);
+app.use(express.json());
+
+// ── Routes ───────────────────────────────────────────────────────────────────
+app.use('/api/auth',  require('./routes/auth'));
+app.use('/api/games', require('./routes/games'));
+
+// Health check
+app.get('/', (_req, res) => res.json({ status: 'API running' }));
+
+// 404 handler
+app.use((_req, res) => res.status(404).json({ message: 'Route not found' }));
+
+// Global error handler
+app.use((err, _req, res, _next) => {
+  console.error('[unhandled error]', err);
+  res.status(500).json({ message: err.message || 'Internal server error' });
+});
+
+// ── Database + server start ───────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('MongoDB connected');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error('MongoDB connection failed:', err.message);
+    process.exit(1);
+  });

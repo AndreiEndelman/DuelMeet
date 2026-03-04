@@ -145,11 +145,10 @@ ion-toolbar { --background: #0a0c1a; }
   padding: 0 16px 20px;
 }
 
-.edit-btn {
-  --border-color: var(--ion-color-primary);
-  --color: var(--ion-color-primary);
-  --border-radius: 12px;
-  font-weight: 700;
+.logout-btn {
+  --color: var(--ion-color-medium);
+  font-weight: 600;
+  margin-top: 4px;
 }
 
 // ── Section / mini cards (shared with home) ───────────────────

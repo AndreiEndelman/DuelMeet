@@ -55,6 +55,26 @@ ion-toolbar {
   .filter-icon-ion { font-size: 0.95rem; }
 }
 
+// ── State messages (loading / error / empty) ─────────────────
+.state-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 60px 24px;
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+  text-align: center;
+
+  ion-spinner { width: 36px; height: 36px; color: var(--ion-color-primary); }
+  ion-icon    { font-size: 2rem; }
+  .state-emoji { font-size: 2.5rem; }
+  p           { margin: 0; }
+
+  &--error { color: #f47b8a; ion-icon { color: #f47b8a; } }
+}
+
 // ── Cards list ───────────────────────────────────────────────
 .cards-list {
   padding: 8px 14px 24px;
