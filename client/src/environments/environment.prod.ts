@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-production-api.com/api', // TODO: replace with real deployed URL
+  apiUrl: 'https://duelmeet-production.up.railway.app/api',
 };
 
