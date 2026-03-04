@@ -12,21 +12,33 @@ import { IonicModule } from '@ionic/angular';
   imports: [IonicModule, CommonModule, FormsModule],
 })
 export class CreateGamePage {
+  today = new Date().toISOString();
+
+  cardGames = [
+    { label: 'Magic: The Gathering', value: 'magic', icon: '🧙' },
+    { label: 'Pokémon TCG', value: 'pokemon', icon: '⚡' },
+    { label: 'Yu-Gi-Oh!', value: 'yugioh', icon: '👁️' },
+    { label: 'One Piece TCG', value: 'onepiece', icon: '🏴‍☠️' },
+  ];
+
+  playerOptions = [2, 4, 6, 8];
+
   form = {
-    title: '',
+    cardGame: '',
+    maxPlayers: 0,
+    date: this.today,
+    time: this.today,
     location: '',
-    maxPlayers: 4,
     notes: '',
   };
 
   constructor(private readonly router: Router) {}
 
   saveGame(): void {
-    if (!this.form.title.trim() || !this.form.location.trim() || this.form.maxPlayers < 2) {
+    if (!this.form.cardGame || !this.form.location.trim() || this.form.maxPlayers < 2) {
       return;
     }
-
-    alert(`Game created: ${this.form.title}`);
+    alert(`Game created! ${this.form.cardGame} · ${this.form.maxPlayers} players · ${this.form.location}`);
     this.router.navigate(['/tabs/find-game']);
   }
 

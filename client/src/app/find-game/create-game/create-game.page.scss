@@ -1,3 +1,94 @@
-ion-item {
-  margin-bottom: 10px;
+.form-container {
+  padding: 16px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ion-color-medium);
+  margin: 0 0 10px 4px;
+}
+
+.optional {
+  font-weight: 400;
+  text-transform: none;
+  font-size: 0.8rem;
+}
+
+/* Card game chips */
+.game-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.game-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 8px;
+  border-radius: 12px;
+  border: 2px solid var(--ion-color-light-shade);
+  background: var(--ion-color-light);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+
+  &.selected {
+    border-color: var(--ion-color-primary);
+    background: rgba(var(--ion-color-primary-rgb), 0.08);
+  }
+
+  .chip-icon {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+  }
+
+  .chip-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--ion-color-dark);
+  }
+}
+
+/* Player count chips */
+.player-chips {
+  display: flex;
+  gap: 10px;
+}
+
+.player-chip {
+  flex: 1;
+  text-align: center;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: 2px solid var(--ion-color-light-shade);
+  background: var(--ion-color-light);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+
+  &.selected {
+    border-color: var(--ion-color-primary);
+    background: rgba(var(--ion-color-primary-rgb), 0.08);
+    color: var(--ion-color-primary);
+  }
+}
+
+.datetime-item {
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+.submit-btn {
+  margin-top: 8px;
+  margin-bottom: 4px;
 }

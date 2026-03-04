@@ -1,57 +1,126 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="cancel()">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Create Game</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <ion-item>
-    <ion-label position="stacked">Game Title</ion-label>
-    <ion-input
-      [(ngModel)]="form.title"
-      placeholder="e.g. Commander Night">
-    </ion-input>
-  </ion-item>
+<ion-content [fullscreen]="true">
+  <div class="form-container">
 
-  <ion-item>
-    <ion-label position="stacked">Location</ion-label>
-    <ion-input
-      [(ngModel)]="form.location"
-      placeholder="e.g. CoolStuff Games">
-    </ion-input>
-  </ion-item>
+    <!-- Card Game -->
+    <div class="section">
+      <p class="section-label">Card Game</p>
+      <div class="game-chips">
+        <div
+          *ngFor="let g of cardGames"
+          class="game-chip"
+          [class.selected]="form.cardGame === g.value"
+          (click)="form.cardGame = g.value"
+          (keydown.enter)="form.cardGame = g.value"
+          tabindex="0"
+          role="button">
+          <span class="chip-icon">{{ g.icon }}</span>
+          <span class="chip-label">{{ g.label }}</span>
+        </div>
+      </div>
+    </div>
 
-  <ion-item>
-    <ion-label position="stacked">Max Players</ion-label>
-    <ion-input
-      type="number"
-      min="2"
-      [(ngModel)]="form.maxPlayers">
-    </ion-input>
-  </ion-item>
+    <!-- Number of Players -->
+    <div class="section">
+      <p class="section-label">Number of Players</p>
+      <div class="player-chips">
+        <div
+          *ngFor="let n of playerOptions"
+          class="player-chip"
+          [class.selected]="form.maxPlayers === n"
+          (click)="form.maxPlayers = n"
+          (keydown.enter)="form.maxPlayers = n"
+          tabindex="0"
+          role="button">
+          {{ n }}
+        </div>
+      </div>
+    </div>
 
-  <ion-item>
-    <ion-label position="stacked">Notes (optional)</ion-label>
-    <ion-textarea
-      [(ngModel)]="form.notes"
-      placeholder="Any details players should know">
-    </ion-textarea>
-  </ion-item>
+    <!-- Date & Time -->
+    <div class="section">
+      <p class="section-label">Date &amp; Time</p>
+      <ion-item lines="full" class="datetime-item">
+        <ion-label>Date</ion-label>
+        <ion-datetime-button datetime="datePicker"></ion-datetime-button>
+      </ion-item>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime
+            id="datePicker"
+            [(ngModel)]="form.date"
+            presentation="date"
+            [min]="today">
+          </ion-datetime>
+        </ng-template>
+      </ion-modal>
 
-  <ion-button
-    expand="block"
-    class="ion-margin-top"
-    [disabled]="!form.title || !form.location || form.maxPlayers < 2"
-    (click)="saveGame()"
-    (keydown.enter)="saveGame()">
-    Create Game
-  </ion-button>
+      <ion-item lines="full" class="datetime-item">
+        <ion-label>Time</ion-label>
+        <ion-datetime-button datetime="timePicker"></ion-datetime-button>
+      </ion-item>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime
+            id="timePicker"
+            [(ngModel)]="form.time"
+            presentation="time">
+          </ion-datetime>
+        </ng-template>
+      </ion-modal>
+    </div>
 
-  <ion-button
-    expand="block"
-    fill="clear"
-    (click)="cancel()"
-    (keydown.enter)="cancel()">
-    Cancel
-  </ion-button>
+    <!-- Location -->
+    <div class="section">
+      <p class="section-label">Location</p>
+      <ion-item lines="full">
+        <ion-icon name="location-outline" slot="start"></ion-icon>
+        <ion-input
+          [(ngModel)]="form.location"
+          placeholder="e.g. CoolStuff Games, Miami">
+        </ion-input>
+      </ion-item>
+    </div>
+
+    <!-- Notes -->
+    <div class="section">
+      <p class="section-label">Notes <span class="optional">(optional)</span></p>
+      <ion-item lines="full">
+        <ion-textarea
+          [(ngModel)]="form.notes"
+          placeholder="Any details players should know..."
+          [rows]="3">
+        </ion-textarea>
+      </ion-item>
+    </div>
+
+    <!-- Actions -->
+    <ion-button
+      expand="block"
+      class="submit-btn"
+      [disabled]="!form.cardGame || !form.location || form.maxPlayers < 2"
+      (click)="saveGame()"
+      (keydown.enter)="saveGame()">
+      Create Game
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      fill="clear"
+      (click)="cancel()"
+      (keydown.enter)="cancel()">
+      Cancel
+    </ion-button>
+
+  </div>
 </ion-content>
