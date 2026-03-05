@@ -1,7 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { Subject, interval } from 'rxjs';
+import { takeUntil, switchMap } from 'rxjs/operators';
 import { GamesService, Game } from '../../services/games.service';
 import { AuthService } from '../../services/auth.service';
+import { ChatService, ChatMessage } from '../../services/chat.service';
 
 @Component({
   selector: 'app-game-detail',
@@ -9,7 +12,8 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['game-detail.component.scss'],
   standalone: false,
 })
-export class GameDetailComponent implements OnInit {
+export class GameDetailComponent implements OnInit, OnDestroy {
+  @ViewChild('chatEnd') chatEnd!: ElementRef;
   @Input() gameId!: string;
 
   game: Game | null = null;
@@ -17,6 +21,14 @@ export class GameDetailComponent implements OnInit {
   error = '';
   actionLoading = false;
   actionError = '';
+
+  // ── Chat ──────────────────────────────────────────────────
+  messages: ChatMessage[] = [];
+  chatText = '';
+  chatLoading = false;
+  sendingMessage = false;
+  private lastMessageTime: string | null = null;
+  private readonly destroy$ = new Subject<void>();
 
   reputationStars = [1, 2, 3, 4, 5];
 
@@ -41,6 +53,10 @@ export class GameDetailComponent implements OnInit {
 
   get isApplicant(): boolean {
     return !!this.game && (this.game.applicants ?? []).some(a => a._id === this.currentUserId);
+  }
+
+  get canChat(): boolean {
+    return this.isPlayer;
   }
 
   get isFull(): boolean {
@@ -71,6 +87,7 @@ export class GameDetailComponent implements OnInit {
     private readonly modalCtrl: ModalController,
     private readonly gamesService: GamesService,
     private readonly auth: AuthService,
+    private readonly chatService: ChatService,
   ) {}
 
   ngOnInit(): void {
@@ -84,12 +101,72 @@ export class GameDetailComponent implements OnInit {
       next: (res) => {
         this.game = res.game;
         this.loading = false;
+        if (this.canChat) { this.startChat(); }
       },
       error: () => {
         this.error = 'Failed to load game details.';
         this.loading = false;
       },
     });
+  }
+
+  startChat(): void {
+    this.chatLoading = true;
+    this.chatService.getMessages(this.gameId).subscribe({
+      next: (res) => {
+        this.messages = res.messages;
+        this.lastMessageTime = this.messages.length ? this.messages[this.messages.length - 1].createdAt : null;
+        this.chatLoading = false;
+        this.scrollChatToBottom();
+        // Poll for new messages every 4 seconds
+        interval(4000)
+          .pipe(
+            takeUntil(this.destroy$),
+            switchMap(() =>
+              this.chatService.getMessages(this.gameId, this.lastMessageTime ?? undefined)
+            ),
+          )
+          .subscribe({
+            next: (r) => {
+              if (r.messages.length) {
+                this.messages.push(...r.messages);
+                this.lastMessageTime = this.messages[this.messages.length - 1].createdAt;
+                this.scrollChatToBottom();
+              }
+            },
+          });
+      },
+      error: () => { this.chatLoading = false; },
+    });
+  }
+
+  sendChatMessage(): void {
+    const text = this.chatText.trim();
+    if (!text || this.sendingMessage) return;
+    this.sendingMessage = true;
+    this.chatService.sendMessage(this.gameId, text).subscribe({
+      next: (res) => {
+        this.messages.push(res.message);
+        this.lastMessageTime = res.message.createdAt;
+        this.chatText = '';
+        this.sendingMessage = false;
+        this.scrollChatToBottom();
+      },
+      error: () => { this.sendingMessage = false; },
+    });
+  }
+
+  handleChatKey(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.sendChatMessage();
+    }
+  }
+
+  private scrollChatToBottom(): void {
+    setTimeout(() => {
+      this.chatEnd?.nativeElement?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
   }
 
   applyToGame(): void {
@@ -139,5 +216,10 @@ export class GameDetailComponent implements OnInit {
 
   dismiss(refreshNeeded = false): void {
     void this.modalCtrl.dismiss({ refreshNeeded });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

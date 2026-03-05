@@ -166,6 +166,62 @@
 
     </div>
 
+    <!-- ── GAME CHAT (accepted players + host only) ── -->
+    <div class="chat-section" *ngIf="canChat">
+      <div class="detail-section">
+        <p class="section-label">
+          <ion-icon name="chatbubbles-outline"></ion-icon>
+          Game Chat
+        </p>
+      </div>
+
+      <!-- Loading state -->
+      <div class="chat-loading" *ngIf="chatLoading">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+
+      <!-- Messages list -->
+      <div class="chat-messages" *ngIf="!chatLoading">
+        <div class="chat-empty" *ngIf="messages.length === 0">
+          <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+          <p>No messages yet. Say hello!</p>
+        </div>
+        <div
+          *ngFor="let msg of messages"
+          class="chat-msg"
+          [class.chat-msg--self]="msg.sender._id === currentUserId">
+          <div class="chat-avatar" *ngIf="msg.sender._id !== currentUserId">
+            <img *ngIf="msg.sender.avatar" [src]="msg.sender.avatar" [alt]="msg.sender.username" />
+            <ion-icon *ngIf="!msg.sender.avatar" name="person"></ion-icon>
+          </div>
+          <div class="chat-bubble-wrap">
+            <span class="chat-sender" *ngIf="msg.sender._id !== currentUserId">{{ msg.sender.username }}</span>
+            <div class="chat-bubble">{{ msg.text }}</div>
+            <span class="chat-time">{{ msg.createdAt | date:'h:mm a' }}</span>
+          </div>
+        </div>
+        <div #chatEnd></div>
+      </div>
+
+      <!-- Input bar -->
+      <div class="chat-input-row">
+        <textarea
+          class="chat-input"
+          placeholder="Message…"
+          rows="1"
+          [(ngModel)]="chatText"
+          (keydown)="handleChatKey($event)"
+          [disabled]="sendingMessage">
+        </textarea>
+        <button
+          class="chat-send-btn"
+          (click)="sendChatMessage()"
+          [disabled]="!chatText.trim() || sendingMessage">
+          <ion-icon name="send"></ion-icon>
+        </button>
+      </div>
+    </div>
+
   </ng-container>
 
 </ion-content>

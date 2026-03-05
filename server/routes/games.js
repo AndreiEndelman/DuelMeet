@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { body, validationResult } = require('express-validator');
 const Game = require('../models/Game');
+const Message = require('../models/Message');
 const { protect } = require('../middleware/auth');
 const { geocode } = require('../utils/geocode');
 
@@ -354,3 +355,59 @@ router.delete('/:id', protect, async (req, res) => {
 });
 
 module.exports = router;
+
+// ── GET /api/games/:id/messages ───────────────────────────────────────────────
+// Only players/host of the game can read chat
+
+router.get('/:id/messages', protect, async (req, res) => {
+  try {
+    const game = await Game.findById(req.params.id);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+
+    const userId = req.user._id.toString();
+    const isParticipant = game.players.map(String).includes(userId);
+    if (!isParticipant) {
+      return res.status(403).json({ message: 'Only accepted players can view chat' });
+    }
+
+    const query = { game: req.params.id };
+    if (req.query.after) query.createdAt = { $gt: new Date(req.query.after) };
+
+    const messages = await Message.find(query)
+      .sort({ createdAt: 1 })
+      .limit(200)
+      .populate('sender', 'username avatar');
+
+    res.json({ messages });
+  } catch (err) {
+    console.error('[getMessages]', err);
+    res.status(500).json({ message: 'Server error fetching messages' });
+  }
+});
+
+// ── POST /api/games/:id/messages ──────────────────────────────────────────────
+// Send a chat message — must be an accepted player (in players array)
+
+router.post('/:id/messages', protect, async (req, res) => {
+  try {
+    const game = await Game.findById(req.params.id);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+
+    const userId = req.user._id.toString();
+    const isParticipant = game.players.map(String).includes(userId);
+    if (!isParticipant) {
+      return res.status(403).json({ message: 'Only accepted players can send messages' });
+    }
+
+    const text = (req.body.text || '').trim().slice(0, 1000);
+    if (!text) return res.status(400).json({ message: 'Message cannot be empty' });
+
+    const msg = await Message.create({ game: req.params.id, sender: req.user._id, text });
+    await msg.populate('sender', 'username avatar');
+
+    res.status(201).json({ message: msg });
+  } catch (err) {
+    console.error('[sendMessage]', err);
+    res.status(500).json({ message: 'Server error sending message' });
+  }
+});
