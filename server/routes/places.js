@@ -33,11 +33,6 @@ router.get('/autocomplete', (req, res) => {
     apiRes.on('end', () => {
       try {
         const json = JSON.parse(data);
-        // Expose status for debugging
-        if (json.status !== 'OK' && json.status !== 'ZERO_RESULTS') {
-          console.error('[places/autocomplete] Google status:', json.status, json.error_message);
-          return res.status(502).json({ predictions: [], status: json.status, error: json.error_message });
-        }
         // Return only what the frontend needs
         const predictions = (json.predictions || []).map((p) => ({
           placeId:     p.place_id,
