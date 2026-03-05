@@ -84,7 +84,8 @@ router.get('/:id', async (req, res) => {
   try {
     const game = await Game.findById(req.params.id)
       .populate('host', 'username avatar location reputation')
-      .populate('players', 'username avatar');
+      .populate('players', 'username avatar')
+      .populate('applicants', 'username avatar');
 
     if (!game) return res.status(404).json({ message: 'Game not found' });
     res.json({ game });
@@ -143,6 +144,105 @@ router.post(
     }
   }
 );
+
+// ── POST /api/games/:id/apply ───────────────────────────────────────────────
+// Any logged-in user can apply; host must then accept them
+
+router.post('/:id/apply', protect, async (req, res) => {
+  try {
+    const game = await Game.findById(req.params.id);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+
+    const userId = req.user._id.toString();
+    if (game.host.toString() === userId) {
+      return res.status(400).json({ message: 'You are the host of this game' });
+    }
+    if (game.players.map(String).includes(userId)) {
+      return res.status(400).json({ message: 'You are already in this game' });
+    }
+    if (game.applicants.map(String).includes(userId)) {
+      return res.status(400).json({ message: 'You have already applied to this game' });
+    }
+    if (game.players.length >= game.maxPlayers) {
+      return res.status(400).json({ message: 'This game is full' });
+    }
+
+    game.applicants.push(req.user._id);
+    await game.save();
+
+    await game.populate([
+      { path: 'host', select: 'username avatar location reputation' },
+      { path: 'players', select: 'username avatar' },
+      { path: 'applicants', select: 'username avatar' },
+    ]);
+    res.json({ game });
+  } catch (err) {
+    console.error('[applyGame]', err);
+    res.status(500).json({ message: 'Server error applying to game' });
+  }
+});
+
+// ── POST /api/games/:id/accept/:userId ───────────────────────────────────────
+// Host accepts an applicant → moves them from applicants → players
+
+router.post('/:id/accept/:userId', protect, async (req, res) => {
+  try {
+    const game = await Game.findById(req.params.id);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+    if (game.host.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Only the host can accept players' });
+    }
+    if (game.players.length >= game.maxPlayers) {
+      return res.status(400).json({ message: 'Game is already full' });
+    }
+
+    const targetId = req.params.userId;
+    if (!game.applicants.map(String).includes(targetId)) {
+      return res.status(400).json({ message: 'User has not applied to this game' });
+    }
+
+    game.applicants = game.applicants.filter((a) => a.toString() !== targetId);
+    game.players.push(targetId);
+    await game.save();
+
+    await game.populate([
+      { path: 'host', select: 'username avatar location reputation' },
+      { path: 'players', select: 'username avatar' },
+      { path: 'applicants', select: 'username avatar' },
+    ]);
+    res.json({ game });
+  } catch (err) {
+    console.error('[acceptPlayer]', err);
+    res.status(500).json({ message: 'Server error accepting player' });
+  }
+});
+
+// ── POST /api/games/:id/deny/:userId ─────────────────────────────────────────
+// Host removes a user from the applicants list
+
+router.post('/:id/deny/:userId', protect, async (req, res) => {
+  try {
+    const game = await Game.findById(req.params.id);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+    if (game.host.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Only the host can deny players' });
+    }
+
+    const targetId = req.params.userId;
+    game.applicants = game.applicants.filter((a) => a.toString() !== targetId);
+    await game.save();
+
+    await game.populate([
+      { path: 'host', select: 'username avatar location reputation' },
+      { path: 'players', select: 'username avatar' },
+      { path: 'applicants', select: 'username avatar' },
+    ]);
+    res.json({ game });
+  } catch (err) {
+    console.error('[denyPlayer]', err);
+    res.status(500).json({ message: 'Server error denying player' });
+  }
+});
 
 // ── POST /api/games/:id/join ─────────────────────────────────────────────────
 

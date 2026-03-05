@@ -66,3 +66,19 @@
     --ion-item-background:      #161830;
   }
 }
+
+// Override Ionic dark.always.css platform overrides — it sets :root.ios to #000000
+// and :root.md to #121212 which have higher specificity than plain :root
+:root.ios, :root.md {
+  --ion-background-color:     #0c0e1e;
+  --ion-background-color-rgb: 12, 14, 30;
+  --ion-text-color:           #e8eaf6;
+  --ion-text-color-rgb:       232, 234, 246;
+  --ion-card-background:      #161830;
+  --ion-toolbar-background:   #0c0e1e;
+  --ion-toolbar-border-color: #2a2d5a;
+  --ion-tab-bar-background:   #0c0e1e;
+  --ion-tab-bar-border-color: #2a2d5a;
+  --ion-item-background:      #161830;
+  --ion-border-color:         #2a2d5a;
+}

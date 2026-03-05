@@ -65,18 +65,6 @@
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="edit-wrap">
-      <ion-button expand="block" fill="outline" class="edit-btn" (click)="openEdit()">
-        <ion-icon name="create-outline" slot="start"></ion-icon>
-        Edit Profile
-      </ion-button>
-      <ion-button expand="block" fill="clear" class="logout-btn" (click)="logout()">
-        <ion-icon name="log-out-outline" slot="start"></ion-icon>
-        Log Out
-      </ion-button>
-    </div>
-
     <!-- Upcoming games -->
     <div class="section">
       <p class="section-title">My Upcoming Games</p>
@@ -95,6 +83,18 @@
           {{ g.status === 'joined' ? 'Joined' : 'Hosting' }}
         </span>
       </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="edit-wrap">
+      <ion-button expand="block" fill="outline" class="edit-btn" (click)="openEdit()">
+        <ion-icon name="create-outline" slot="start"></ion-icon>
+        Edit Profile
+      </ion-button>
+      <ion-button expand="block" fill="clear" class="logout-btn" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        Log Out
+      </ion-button>
     </div>
 
   </ng-container>

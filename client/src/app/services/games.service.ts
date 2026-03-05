@@ -9,6 +9,7 @@ export interface GameHost {
   username: string;
   avatar: string;
   location: string;
+  reputation: number;
 }
 
 export interface GamePlayer {
@@ -27,6 +28,7 @@ export interface Game {
   notes: string;
   host: GameHost;
   players: GamePlayer[];
+  applicants: GamePlayer[];
   spotsLeft: number;
   createdAt: string;
 }
@@ -99,6 +101,30 @@ export class GamesService {
   deleteGame(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
       `${environment.apiUrl}/games/${id}`,
+      this.auth.getAuthHeaders()
+    );
+  }
+
+  applyToGame(id: string): Observable<{ game: Game }> {
+    return this.http.post<{ game: Game }>(
+      `${environment.apiUrl}/games/${id}/apply`,
+      {},
+      this.auth.getAuthHeaders()
+    );
+  }
+
+  acceptPlayer(gameId: string, userId: string): Observable<{ game: Game }> {
+    return this.http.post<{ game: Game }>(
+      `${environment.apiUrl}/games/${gameId}/accept/${userId}`,
+      {},
+      this.auth.getAuthHeaders()
+    );
+  }
+
+  denyPlayer(gameId: string, userId: string): Observable<{ game: Game }> {
+    return this.http.post<{ game: Game }>(
+      `${environment.apiUrl}/games/${gameId}/deny/${userId}`,
+      {},
       this.auth.getAuthHeaders()
     );
   }

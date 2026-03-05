@@ -10,27 +10,5 @@
   --color-selected: #fff;
 }
 
-.tab-btn--create {
-  --color: var(--ion-color-primary);
-  --color-selected: var(--ion-color-primary);
 
-  .create-tab-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: rgba(124, 111, 255, 0.15);
-    border: 1.5px solid rgba(124, 111, 255, 0.4);
-    margin-bottom: 2px;
-    box-shadow: 0 0 14px rgba(124, 111, 255, 0.3);
-    margin-top: -10px;
-
-    ion-icon {
-      font-size: 1.5rem;
-      color: var(--ion-color-primary);
-    }
-  }
-}
 

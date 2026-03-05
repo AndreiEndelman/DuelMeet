@@ -1,0 +1,172 @@
+<ion-header>
+  <ion-toolbar [ngClass]="'toolbar--' + (game?.type ?? '')">
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Game Details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="game-detail-content">
+
+  <!-- Loading -->
+  <div class="state-msg" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading game details…</p>
+  </div>
+
+  <!-- Error -->
+  <div class="state-msg state-msg--error" *ngIf="error && !loading">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <p>{{ error }}</p>
+    <ion-button fill="outline" size="small" (click)="loadGame()">Retry</ion-button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error && game">
+
+    <!-- Hero banner -->
+    <div class="hero-banner" [ngClass]="'hero-banner--' + game.type">
+      <div class="hero-emoji">{{ typeEmoji }}</div>
+      <div class="hero-type-label">{{ typeLabels[game.type] }}</div>
+    </div>
+
+    <!-- Title block -->
+    <div class="detail-section">
+      <h1 class="game-title">{{ game.title }}</h1>
+
+      <div class="meta-row">
+        <ion-icon name="location-outline"></ion-icon>
+        <span>{{ game.location }}</span>
+      </div>
+      <div class="meta-row">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>{{ formattedDate }}</span>
+      </div>
+      <div class="meta-row spots-row" [class.full]="isFull">
+        <ion-icon name="people-outline"></ion-icon>
+        <span>{{ isFull ? 'Game Full' : spotsLeft + ' Spot' + (spotsLeft === 1 ? '' : 's') + ' Left' }}</span>
+        <!-- Player bubbles -->
+        <div class="player-bubbles">
+          <div *ngFor="let _ of [].constructor(game.maxPlayers); let i = index" class="player-slot"
+               [class.filled]="i < game.players.length">
+          </div>
+        </div>
+      </div>
+      <p class="game-notes" *ngIf="game.notes">{{ game.notes }}</p>
+    </div>
+
+    <!-- Host info -->
+    <div class="detail-section">
+      <p class="section-label">Host</p>
+      <div class="host-row">
+        <div class="host-avatar">
+          <img *ngIf="game.host.avatar" [src]="game.host.avatar" alt="Host avatar" />
+          <ion-icon *ngIf="!game.host.avatar" name="person"></ion-icon>
+        </div>
+        <div class="host-info">
+          <p class="host-name">{{ game.host.username }}</p>
+          <p class="host-location" *ngIf="game.host.location">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ game.host.location }}
+          </p>
+          <div class="stars">
+            <ion-icon
+              *ngFor="let s of reputationStars"
+              [name]="isFullStar(s) ? 'star' : isHalfStar(s) ? 'star-half' : 'star-outline'"
+              class="star-icon">
+            </ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accepted players -->
+    <div class="detail-section" *ngIf="game.players.length > 0">
+      <p class="section-label">Players ({{ game.players.length }}/{{ game.maxPlayers }})</p>
+      <div class="players-list">
+        <div *ngFor="let p of game.players" class="player-row">
+          <div class="mini-avatar">
+            <img *ngIf="p.avatar" [src]="p.avatar" alt="{{ p.username }}" />
+            <ion-icon *ngIf="!p.avatar" name="person"></ion-icon>
+          </div>
+          <span class="player-name">{{ p.username }}</span>
+          <span class="player-badge" *ngIf="p._id === game.host._id">Host</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HOST VIEW: Applicants ── -->
+    <div class="detail-section" *ngIf="isHost">
+      <p class="section-label">
+        Applications
+        <span class="badge-count" *ngIf="(game.applicants ?? []).length > 0">{{ (game.applicants ?? []).length }}</span>
+      </p>
+      <div *ngIf="(game.applicants ?? []).length === 0" class="empty-applicants">
+        <ion-icon name="hourglass-outline"></ion-icon>
+        No applications yet
+      </div>
+      <div *ngFor="let a of (game.applicants ?? [])" class="applicant-row">
+        <div class="mini-avatar">
+          <img *ngIf="a.avatar" [src]="a.avatar" alt="{{ a.username }}" />
+          <ion-icon *ngIf="!a.avatar" name="person"></ion-icon>
+        </div>
+        <span class="player-name">{{ a.username }}</span>
+        <div class="applicant-actions">
+          <button class="accept-btn" (click)="acceptPlayer(a._id)" [disabled]="actionLoading || isFull">
+            <ion-icon name="checkmark"></ion-icon>
+            Accept
+          </button>
+          <button class="deny-btn" (click)="denyPlayer(a._id)" [disabled]="actionLoading">
+            <ion-icon name="close"></ion-icon>
+            Deny
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action error -->
+    <div class="action-error" *ngIf="actionError">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      {{ actionError }}
+    </div>
+
+    <!-- ── PLAYER VIEW: status / apply ── -->
+    <div class="cta-section" *ngIf="!isHost">
+
+      <!-- Already a confirmed player -->
+      <div class="status-chip status-chip--in" *ngIf="isPlayer">
+        <ion-icon name="checkmark-circle"></ion-icon>
+        You're confirmed for this game!
+      </div>
+
+      <!-- Application pending -->
+      <div class="status-chip status-chip--pending" *ngIf="!isPlayer && isApplicant">
+        <ion-icon name="hourglass-outline"></ion-icon>
+        Application sent — waiting for host approval
+      </div>
+
+      <!-- Game full, hasn't applied -->
+      <div class="status-chip status-chip--full" *ngIf="!isPlayer && !isApplicant && isFull">
+        <ion-icon name="lock-closed-outline"></ion-icon>
+        This game is full
+      </div>
+
+      <!-- Can apply -->
+      <ion-button
+        expand="block"
+        class="apply-btn"
+        [ngClass]="'apply-btn--' + game.type"
+        *ngIf="!isPlayer && !isApplicant && !isFull"
+        (click)="applyToGame()"
+        [disabled]="actionLoading">
+        <ion-spinner *ngIf="actionLoading" name="crescent" slot="start"></ion-spinner>
+        {{ actionLoading ? 'Applying…' : 'Apply to Join' }}
+      </ion-button>
+
+    </div>
+
+  </ng-container>
+
+</ion-content>

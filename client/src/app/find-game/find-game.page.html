@@ -125,9 +125,9 @@
           expand="block"
           class="join-btn"
           [ngClass]="'join-btn--' + game.type"
-          (click)="joinGame(game)"
-          (keydown.enter)="joinGame(game)">
-          Join Game
+          (click)="openGameDetail(game)"
+          (keydown.enter)="openGameDetail(game)">
+          View Game
         </ion-button>
       </div>
 

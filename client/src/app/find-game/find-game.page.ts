@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 import { GamesService, Game as ApiGame } from '../services/games.service';
+import { GameDetailComponent } from './game-detail/game-detail.component';
 
 interface DisplayGame {
   _id: string;
@@ -44,6 +46,7 @@ export class FindGamePage {
   constructor(
     private readonly router: Router,
     private readonly gamesService: GamesService,
+    private readonly modalCtrl: ModalController,
   ) {}
 
   ionViewWillEnter(): void {
@@ -106,10 +109,18 @@ export class FindGamePage {
     this.router.navigate(['/tabs/find-game/create-game']);
   }
 
-  joinGame(game: DisplayGame): void {
-    this.gamesService.joinGame(game._id).subscribe({
-      next: () => this.loadGames(),
-      error: (err) => alert(err.error?.message || 'Failed to join game'),
+  async openGameDetail(game: DisplayGame): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: GameDetailComponent,
+      componentProps: { gameId: game._id },
+      breakpoints: [0, 0.92, 1],
+      initialBreakpoint: 0.92,
+      handleBehavior: 'cycle',
     });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data?.refreshNeeded) {
+      this.loadGames();
+    }
   }
 }
