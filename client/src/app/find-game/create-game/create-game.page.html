@@ -83,13 +83,30 @@
     <!-- Location -->
     <div class="section">
       <p class="section-label">Location</p>
-      <ion-item lines="full">
-        <ion-icon name="location-outline" slot="start"></ion-icon>
-        <ion-input
-          [(ngModel)]="form.location"
-          placeholder="e.g. CoolStuff Games, Miami">
-        </ion-input>
-      </ion-item>
+      <div class="location-autocomplete">
+        <div class="location-input-wrap">
+          <ion-icon name="location-outline" class="loc-icon"></ion-icon>
+          <input
+            class="loc-input"
+            type="text"
+            placeholder="e.g. CoolStuff Games, Miami"
+            [(ngModel)]="form.location"
+            (input)="onLocationInput()"
+            (blur)="hideSuggestions()"
+            autocomplete="off"
+          />
+        </div>
+        <ul class="suggestions-list" *ngIf="showSuggestions">
+          <li
+            *ngFor="let p of predictions"
+            class="suggestion-item"
+            (mousedown)="selectPrediction(p)">
+            <ion-icon name="location-outline" class="sug-icon"></ion-icon>
+            <span class="sug-main">{{ p.mainText }}</span>
+            <span class="sug-secondary" *ngIf="p.secondaryText">{{ p.secondaryText }}</span>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <!-- Notes -->

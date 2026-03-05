@@ -36,8 +36,9 @@ app.use(
 app.use(express.json());
 
 // ── Routes ───────────────────────────────────────────────────────────────────
-app.use('/api/auth',  require('./routes/auth'));
-app.use('/api/games', require('./routes/games'));
+app.use('/api/auth',   require('./routes/auth'));
+app.use('/api/games',  require('./routes/games'));
+app.use('/api/places', require('./routes/places'));
 
 // Health check
 app.get('/', (_req, res) => res.json({ status: 'API running' }));
