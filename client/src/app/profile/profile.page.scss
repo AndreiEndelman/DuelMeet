@@ -228,3 +228,264 @@ ion-toolbar { --background: #0a0c1a; }
   &--joined  { background: rgba(61,186,111,0.15); color: var(--color-pokemon);  border: 1px solid var(--color-pokemon); }
   &--hosting { background: rgba(168,85,247,0.15); color: var(--color-yugioh);   border: 1px solid var(--color-yugioh); }
 }
+
+// ── Avatar image ──────────────────────────────────────────────
+.avatar-img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+// ── Bio + Quote (view mode) ───────────────────────────────────
+.profile-quote {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+  margin: 0 24px 14px;
+  line-height: 1.4;
+}
+
+.bio-section {
+  padding: 0 20px 16px;
+}
+
+.bio-text {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.6;
+  margin: 0;
+  background: #12142a;
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+// ── Edit form wrapper ─────────────────────────────────────────
+.edit-form-wrap {
+  padding: 20px 16px 40px;
+}
+
+// ── Edit avatar ───────────────────────────────────────────────
+.edit-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.edit-avatar-label {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  cursor: pointer;
+  display: block;
+}
+
+.edit-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a2060, #0e0c2a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ion-icon {
+    font-size: 1.6rem;
+    color: rgba(255,255,255,0.85);
+  }
+}
+
+.avatar-file-input {
+  display: none;
+}
+
+.avatar-hint {
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+// ── Error banner ──────────────────────────────────────────────
+.edit-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(235,68,90,0.12);
+  border: 1px solid rgba(235,68,90,0.4);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: #eb445a;
+  margin-bottom: 18px;
+  ion-icon { font-size: 1rem; flex-shrink: 0; }
+}
+
+// ── Field group ───────────────────────────────────────────────
+.field-group {
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.field-hint {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.74rem;
+  color: rgba(255,255,255,0.35);
+}
+
+.field-input {
+  display: block;
+  width: 100%;
+  background: #12142a;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+  color: #fff;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+
+  &::placeholder { color: rgba(255,255,255,0.25); }
+  &:focus { border-color: var(--ion-color-primary); }
+}
+
+.field-textarea {
+  display: block;
+  width: 100%;
+  background: #12142a;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+  color: #fff;
+  outline: none;
+  box-sizing: border-box;
+  resize: none;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+
+  &::placeholder { color: rgba(255,255,255,0.25); }
+  &:focus { border-color: var(--ion-color-primary); }
+}
+
+// ── Location autocomplete ─────────────────────────────────────
+.autocomplete-group { position: relative; }
+
+.suggestions-dropdown {
+  position: absolute;
+  top: calc(100% - 4px);
+  left: 0;
+  right: 0;
+  background: #1a1d3a;
+  border: 1px solid rgba(124,111,255,0.4);
+  border-radius: 0 0 10px 10px;
+  z-index: 50;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.06); }
+  &:hover, &:active { background: rgba(124,111,255,0.15); }
+
+  ion-icon {
+    font-size: 0.95rem;
+    color: var(--ion-color-primary);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+}
+
+.suggestion-text { display: flex; flex-direction: column; gap: 1px; }
+
+.suggestion-main {
+  font-size: 0.88rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.suggestion-secondary {
+  font-size: 0.76rem;
+  color: var(--ion-color-medium);
+}
+
+// ── Favorite game toggles ─────────────────────────────────────
+.game-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.game-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #12142a;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+
+  &--active {
+    border-color: var(--ion-color-primary);
+    background: rgba(124,111,255,0.12);
+  }
+}
+
+.toggle-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.toggle-label {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+}
+
+// ── Edit actions ──────────────────────────────────────────────
+.edit-actions {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

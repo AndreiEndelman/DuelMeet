@@ -2,8 +2,8 @@
   <ion-toolbar>
     <ion-title class="page-title">Profile</ion-title>
     <ion-buttons slot="end">
-      <ion-button>
-        <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
+      <ion-button *ngIf="!editMode" (click)="openEdit()">
+        <ion-icon name="create-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -11,82 +11,192 @@
 
 <ion-content [fullscreen]="true">
 
-  <!-- Avatar + identity -->
-  <div class="profile-hero">
-    <div class="avatar-wrap">
-      <div class="avatar">
-        <ion-icon name="person" class="avatar-icon"></ion-icon>
+  <!-- ═══════════════ VIEW MODE ═══════════════ -->
+  <ng-container *ngIf="!editMode">
+
+    <!-- Avatar + identity -->
+    <div class="profile-hero">
+      <div class="avatar-wrap">
+        <div class="avatar">
+          <img *ngIf="avatar" [src]="avatar" class="avatar-img" alt="Profile picture" />
+          <ion-icon *ngIf="!avatar" name="person" class="avatar-icon"></ion-icon>
+        </div>
+        <div class="avatar-ring"></div>
       </div>
-      <div class="avatar-ring"></div>
-    </div>
-    <h2 class="profile-name">{{ username }}</h2>
-    <p class="profile-location">
-      <ion-icon name="location"></ion-icon>
-      {{ location }}
-    </p>
-    <div class="fav-games">
-      <span class="fav-label">Favorite Games:</span>
-      <span *ngFor="let g of favoriteGames" class="fav-icon" [attr.title]="g.label">{{ g.icon }}</span>
-    </div>
-  </div>
-
-  <!-- Stats -->
-  <div class="stats-row">
-    <div class="stat-block">
-      <span class="stat-value">{{ gamesHosted }}</span>
-      <span class="stat-label">Games Hosted</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-block">
-      <span class="stat-value">{{ gamesJoined }}</span>
-      <span class="stat-label">Games Joined</span>
-    </div>
-  </div>
-
-  <!-- Reputation -->
-  <div class="reputation-row">
-    <span class="rep-label">Reputation</span>
-    <div class="stars">
-      <ion-icon
-        *ngFor="let s of reputationStars"
-        [name]="isFullStar(s) ? 'star' : isHalfStar(s) ? 'star-half' : 'star-outline'"
-        class="star-icon">
-      </ion-icon>
-    </div>
-  </div>
-
-  <!-- Edit Profile -->
-  <div class="edit-wrap">
-    <ion-button expand="block" fill="outline" class="edit-btn">
-      Edit Profile
-    </ion-button>
-    <ion-button expand="block" fill="clear" class="logout-btn" (click)="logout()" (keydown.enter)="logout()">
-      <ion-icon name="log-out-outline" slot="start"></ion-icon>
-      Log Out
-    </ion-button>
-  </div>
-
-  <!-- Upcoming games -->
-  <div class="section">
-    <p class="section-title">My Upcoming Games</p>
-
-    <div *ngFor="let g of upcomingGames"
-         class="mini-card"
-         [ngClass]="'mini-card--' + g.type">
-      <div class="mini-art" [ngClass]="'mini-art--' + g.type">
-        <span>{{ g.type === 'magic' ? '🧙' : g.type === 'pokemon' ? '⚡' : g.type === 'yugioh' ? '👁️' : '☠️' }}</span>
+      <h2 class="profile-name">{{ username }}</h2>
+      <p class="profile-location" *ngIf="location">
+        <ion-icon name="location"></ion-icon>
+        {{ location }}
+      </p>
+      <p class="profile-quote" *ngIf="quote">"{{ quote }}"</p>
+      <div class="fav-games" *ngIf="favoriteGames.length">
+        <span class="fav-label">Favorite Games:</span>
+        <span *ngFor="let g of favoriteGames" class="fav-icon" [attr.title]="g.label">{{ g.icon }}</span>
       </div>
-      <div class="mini-info">
-        <p class="mini-title">{{ g.title }}</p>
-        <p class="mini-date">
-          <ion-icon name="time-outline"></ion-icon>
-          {{ g.date }}
-        </p>
-      </div>
-      <span class="status-badge" [ngClass]="'status-badge--' + g.status">
-        {{ g.status === 'joined' ? 'Joined' : 'Hosting' }}
-      </span>
     </div>
-  </div>
+
+    <!-- Bio -->
+    <div class="bio-section" *ngIf="bio">
+      <p class="bio-text">{{ bio }}</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-block">
+        <span class="stat-value">{{ gamesHosted }}</span>
+        <span class="stat-label">Games Hosted</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <span class="stat-value">{{ gamesJoined }}</span>
+        <span class="stat-label">Games Joined</span>
+      </div>
+    </div>
+
+    <!-- Reputation -->
+    <div class="reputation-row">
+      <span class="rep-label">Reputation</span>
+      <div class="stars">
+        <ion-icon
+          *ngFor="let s of reputationStars"
+          [name]="isFullStar(s) ? 'star' : isHalfStar(s) ? 'star-half' : 'star-outline'"
+          class="star-icon">
+        </ion-icon>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="edit-wrap">
+      <ion-button expand="block" fill="outline" class="edit-btn" (click)="openEdit()">
+        <ion-icon name="create-outline" slot="start"></ion-icon>
+        Edit Profile
+      </ion-button>
+      <ion-button expand="block" fill="clear" class="logout-btn" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        Log Out
+      </ion-button>
+    </div>
+
+    <!-- Upcoming games -->
+    <div class="section">
+      <p class="section-title">My Upcoming Games</p>
+      <div *ngFor="let g of upcomingGames" class="mini-card" [ngClass]="'mini-card--' + g.type">
+        <div class="mini-art" [ngClass]="'mini-art--' + g.type">
+          <span>{{ g.type === 'magic' ? '&#x1F9D9;' : g.type === 'pokemon' ? '&#x26A1;' : g.type === 'yugioh' ? '&#x1F441;' : '&#x2620;' }}</span>
+        </div>
+        <div class="mini-info">
+          <p class="mini-title">{{ g.title }}</p>
+          <p class="mini-date">
+            <ion-icon name="time-outline"></ion-icon>
+            {{ g.date }}
+          </p>
+        </div>
+        <span class="status-badge" [ngClass]="'status-badge--' + g.status">
+          {{ g.status === 'joined' ? 'Joined' : 'Hosting' }}
+        </span>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ═══════════════ EDIT MODE ═══════════════ -->
+  <ng-container *ngIf="editMode">
+    <div class="edit-form-wrap">
+
+      <!-- Avatar upload -->
+      <div class="edit-avatar-wrap">
+        <label class="edit-avatar-label" for="avatarInput">
+          <div class="edit-avatar">
+            <img *ngIf="editForm.avatarPreview" [src]="editForm.avatarPreview" class="avatar-img" alt="Preview" />
+            <ion-icon *ngIf="!editForm.avatarPreview" name="person" class="avatar-icon"></ion-icon>
+            <div class="avatar-overlay">
+              <ion-icon name="camera-outline"></ion-icon>
+            </div>
+          </div>
+          <div class="avatar-ring"></div>
+        </label>
+        <input id="avatarInput" type="file" accept="image/*" class="avatar-file-input" (change)="onAvatarChange($event)" />
+        <p class="avatar-hint">Tap to change photo</p>
+      </div>
+
+      <!-- Error banner -->
+      <div class="edit-error" *ngIf="editError">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        {{ editError }}
+      </div>
+
+      <!-- Username -->
+      <div class="field-group">
+        <label class="field-label">Username</label>
+        <input class="field-input" type="text" [(ngModel)]="editForm.username" placeholder="Your username" maxlength="32" />
+      </div>
+
+      <!-- Location with autocomplete -->
+      <div class="field-group autocomplete-group">
+        <label class="field-label">Location</label>
+        <input
+          class="field-input"
+          type="text"
+          [(ngModel)]="editForm.location"
+          placeholder="City, State or full address"
+          (input)="onLocationEditInput()"
+          (blur)="hideLocationSuggestions()"
+          autocomplete="off"
+        />
+        <div class="suggestions-dropdown" *ngIf="showLocationSuggestions">
+          <div
+            class="suggestion-item"
+            *ngFor="let p of locationPredictions"
+            (mousedown)="selectLocationPrediction(p)">
+            <ion-icon name="location-outline"></ion-icon>
+            <div class="suggestion-text">
+              <span class="suggestion-main">{{ p.mainText }}</span>
+              <span class="suggestion-secondary">{{ p.secondaryText }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quote -->
+      <div class="field-group">
+        <label class="field-label">Quote <span class="field-hint">({{ editForm.quote.length }}/150)</span></label>
+        <input class="field-input" type="text" [(ngModel)]="editForm.quote" placeholder="A quote that defines you..." maxlength="150" />
+      </div>
+
+      <!-- Bio -->
+      <div class="field-group">
+        <label class="field-label">Bio <span class="field-hint">({{ editForm.bio.length }}/300)</span></label>
+        <textarea class="field-textarea" [(ngModel)]="editForm.bio" placeholder="Tell other players about yourself..." maxlength="300" rows="4"></textarea>
+      </div>
+
+      <!-- Favorite Games -->
+      <div class="field-group">
+        <label class="field-label">Favorite Games</label>
+        <div class="game-toggles">
+          <button
+            *ngFor="let opt of gameOptions"
+            class="game-toggle"
+            [class.game-toggle--active]="isFavoriteSelected(opt.value)"
+            type="button"
+            (click)="toggleFavorite(opt.value)">
+            <span class="toggle-icon">{{ opt.icon }}</span>
+            <span class="toggle-label">{{ opt.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Save / Cancel -->
+      <div class="edit-actions">
+        <ion-button expand="block" (click)="saveProfile()" [disabled]="saving">
+          <ion-spinner *ngIf="saving" name="crescent" slot="start"></ion-spinner>
+          {{ saving ? 'Saving...' : 'Save Changes' }}
+        </ion-button>
+        <ion-button expand="block" fill="outline" (click)="cancelEdit()" [disabled]="saving">
+          Cancel
+        </ion-button>
+      </div>
+
+    </div>
+  </ng-container>
 
 </ion-content>

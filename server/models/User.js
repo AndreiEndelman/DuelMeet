@@ -49,6 +49,18 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: [300, 'Bio must be at most 300 characters'],
+      default: '',
+    },
+    quote: {
+      type: String,
+      trim: true,
+      maxlength: [150, 'Quote must be at most 150 characters'],
+      default: '',
+    },
   },
   { timestamps: true }
 );

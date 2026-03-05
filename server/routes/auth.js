@@ -19,6 +19,8 @@ const safeUser = (user) => ({
   favoriteGames: user.favoriteGames,
   reputation:    user.reputation,
   avatar:        user.avatar,
+  bio:           user.bio,
+  quote:         user.quote,
 });
 
 // ── POST /api/auth/register ──────────────────────────────────────────────────
@@ -100,6 +102,8 @@ router.put(
     body('username').optional().trim().isLength({ min: 3, max: 30 }),
     body('location').optional().trim(),
     body('favoriteGames').optional().isArray(),
+    body('bio').optional().trim().isLength({ max: 300 }),
+    body('quote').optional().trim().isLength({ max: 150 }),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -107,12 +111,14 @@ router.put(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, location, favoriteGames, avatar } = req.body;
+    const { username, location, favoriteGames, avatar, bio, quote } = req.body;
     const allowed = {};
     if (username      !== undefined) allowed.username      = username;
     if (location      !== undefined) allowed.location      = location;
     if (favoriteGames !== undefined) allowed.favoriteGames = favoriteGames;
     if (avatar        !== undefined) allowed.avatar        = avatar;
+    if (bio           !== undefined) allowed.bio           = bio;
+    if (quote         !== undefined) allowed.quote         = quote;
 
     try {
       const updated = await User.findByIdAndUpdate(req.user._id, allowed, {

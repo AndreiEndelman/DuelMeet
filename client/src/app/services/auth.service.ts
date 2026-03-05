@@ -12,6 +12,8 @@ export interface User {
   reputation: number;
   reputationCount: number;
   avatar: string;
+  bio: string;
+  quote: string;
 }
 
 interface AuthResponse {

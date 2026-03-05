@@ -1,14 +1,24 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Subscription, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { AuthService, User } from '../services/auth.service';
 import { GamesService } from '../services/games.service';
+import { environment } from '../../environments/environment';
 
 interface UpcomingGame {
   title: string;
   date: string;
   type: 'magic' | 'pokemon' | 'yugioh' | 'onepiece';
   status: 'joined' | 'hosting';
+}
+
+interface Prediction {
+  placeId: string;
+  description: string;
+  mainText: string;
+  secondaryText: string;
 }
 
 @Component({
@@ -23,37 +33,86 @@ export class ProfilePage implements OnInit, OnDestroy {
   reputationStars = [1, 2, 3, 4, 5];
   private sub!: Subscription;
 
+  // Edit mode
+  editMode = false;
+  saving = false;
+  editError = '';
+  editForm = {
+    username: '',
+    location: '',
+    bio: '',
+    quote: '',
+    favoriteGames: [] as string[],
+    avatarPreview: '',
+  };
+
+  // Location autocomplete
+  locationPredictions: Prediction[] = [];
+  showLocationSuggestions = false;
+  private readonly locationInput$ = new Subject<string>();
+  private autoSub!: Subscription;
+
+  readonly gameOptions = [
+    { label: 'Magic: The Gathering', value: 'magic',    icon: '\u{1F9D9}' },
+    { label: 'Pokemon TCG',          value: 'pokemon',  icon: '\u26A1' },
+    { label: 'Yu-Gi-Oh!',            value: 'yugioh',   icon: '\u{1F441}' },
+    { label: 'One Piece TCG',        value: 'onepiece', icon: '\u2620' },
+  ];
+
   constructor(
     private readonly auth: AuthService,
     private readonly gamesService: GamesService,
     private readonly router: Router,
+    private readonly http: HttpClient,
   ) {}
 
   ngOnInit(): void {
     this.sub = this.auth.currentUser$.subscribe(u => { this.user = u; });
+    this.autoSub = this.locationInput$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((input: string) => {
+        if (!input || input.length < 3) {
+          this.locationPredictions = [];
+          this.showLocationSuggestions = false;
+          return [];
+        }
+        return this.http.get<{ predictions: Prediction[] }>(
+          `${environment.apiUrl}/places/autocomplete`, { params: { input } }
+        );
+      }),
+    ).subscribe({
+      next: (res: any) => {
+        this.locationPredictions = res?.predictions ?? [];
+        this.showLocationSuggestions = this.locationPredictions.length > 0;
+      },
+      error: () => { this.locationPredictions = []; this.showLocationSuggestions = false; },
+    });
   }
 
-  ionViewWillEnter(): void {
-    this.loadMyGames();
-  }
+  ionViewWillEnter(): void { this.loadMyGames(); }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
+    this.autoSub?.unsubscribe();
   }
 
   get username():   string { return this.user?.username  ?? ''; }
   get location():   string { return this.user?.location  ?? ''; }
   get reputation(): number { return this.user?.reputation ?? 0; }
+  get bio():        string { return (this.user as any)?.bio  ?? ''; }
+  get quote():      string { return (this.user as any)?.quote ?? ''; }
+  get avatar():     string { return (this.user as any)?.avatar ?? ''; }
 
   get gamesHosted(): number { return this.upcomingGames.filter(g => g.status === 'hosting').length; }
   get gamesJoined(): number { return this.upcomingGames.filter(g => g.status === 'joined').length; }
 
   get favoriteGames(): { icon: string; label: string }[] {
     const map: Record<string, { icon: string; label: string }> = {
-      magic:    { icon: '🧙',  label: 'Magic' },
-      pokemon:  { icon: '⚡',  label: 'Pokémon' },
-      yugioh:   { icon: '👁️', label: 'Yu-Gi-Oh' },
-      onepiece: { icon: '🏴‍☠️', label: 'One Piece' },
+      magic:    { icon: '\u{1F9D9}', label: 'Magic' },
+      pokemon:  { icon: '\u26A1',    label: 'Pokemon' },
+      yugioh:   { icon: '\u{1F441}', label: 'Yu-Gi-Oh' },
+      onepiece: { icon: '\u2620',    label: 'One Piece' },
     };
     return (this.user?.favoriteGames ?? []).map(g => map[g]).filter(Boolean);
   }
@@ -70,6 +129,87 @@ export class ProfilePage implements OnInit, OnDestroy {
           type:   g.type,
           status: g.host._id === this.user?._id ? 'hosting' : 'joined',
         }));
+      },
+    });
+  }
+
+  openEdit(): void {
+    this.editForm = {
+      username:      this.user?.username ?? '',
+      location:      this.user?.location ?? '',
+      bio:           (this.user as any)?.bio ?? '',
+      quote:         (this.user as any)?.quote ?? '',
+      favoriteGames: [...(this.user?.favoriteGames ?? [])],
+      avatarPreview: (this.user as any)?.avatar ?? '',
+    };
+    this.editError = '';
+    this.editMode = true;
+  }
+
+  cancelEdit(): void {
+    this.editMode = false;
+    this.locationPredictions = [];
+    this.showLocationSuggestions = false;
+  }
+
+  onAvatarChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { this.editForm.avatarPreview = reader.result as string; };
+    reader.readAsDataURL(file);
+  }
+
+  toggleFavorite(value: string): void {
+    const idx = this.editForm.favoriteGames.indexOf(value);
+    if (idx === -1) {
+      this.editForm.favoriteGames.push(value);
+    } else {
+      this.editForm.favoriteGames.splice(idx, 1);
+    }
+  }
+
+  isFavoriteSelected(value: string): boolean {
+    return this.editForm.favoriteGames.includes(value);
+  }
+
+  onLocationEditInput(): void {
+    this.locationInput$.next(this.editForm.location);
+  }
+
+  selectLocationPrediction(p: Prediction): void {
+    this.editForm.location = p.description;
+    this.locationPredictions = [];
+    this.showLocationSuggestions = false;
+  }
+
+  hideLocationSuggestions(): void {
+    setTimeout(() => { this.showLocationSuggestions = false; }, 150);
+  }
+
+  saveProfile(): void {
+    this.editError = '';
+    if (!this.editForm.username.trim()) {
+      this.editError = 'Username is required.';
+      return;
+    }
+    this.saving = true;
+    this.auth.updateProfile({
+      username:      this.editForm.username.trim(),
+      location:      this.editForm.location.trim(),
+      bio:           this.editForm.bio.trim(),
+      quote:         this.editForm.quote.trim(),
+      favoriteGames: this.editForm.favoriteGames,
+      avatar:        this.editForm.avatarPreview,
+    } as any).subscribe({
+      next: () => {
+        this.saving = false;
+        this.editMode = false;
+      },
+      error: (err: any) => {
+        this.editError = err.error?.message || 'Failed to save. Please try again.';
+        this.saving = false;
       },
     });
   }
