@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar [ngClass]="'toolbar--' + (game?.type ?? '')">
+  <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button (click)="dismiss()">
         <ion-icon name="close" slot="icon-only"></ion-icon>
@@ -27,7 +27,7 @@
   <ng-container *ngIf="!loading && !error && game">
 
     <!-- Hero banner -->
-    <div class="hero-banner" [ngClass]="'hero-banner--' + game.type">
+    <div class="hero-banner" >
       <div class="hero-emoji">{{ typeEmoji }}</div>
       <div class="hero-type-label">{{ typeLabels[game.type] }}</div>
     </div>
@@ -157,7 +157,6 @@
       <ion-button
         expand="block"
         class="apply-btn"
-        [ngClass]="'apply-btn--' + game.type"
         *ngIf="!isPlayer && !isApplicant && !isFull"
         (click)="applyToGame()"
         [disabled]="actionLoading">
