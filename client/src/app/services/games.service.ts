@@ -54,9 +54,10 @@ export class GamesService {
     private readonly auth: AuthService
   ) {}
 
-  getGames(type?: string, page = 1): Observable<GamesResponse> {
-    const params: Record<string, string | number> = { page };
+  getGames(type?: string, page = 1, location?: string, radius = 25): Observable<GamesResponse> {
+    const params: Record<string, string | number> = { page, radius };
     if (type && type !== 'all') params['type'] = type;
+    if (location && location.trim()) params['location'] = location.trim();
     return this.http.get<GamesResponse>(`${environment.apiUrl}/games`, { params });
   }
 

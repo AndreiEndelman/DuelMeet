@@ -48,9 +48,24 @@ const GameSchema = new mongoose.Schema(
         ref: 'User',
       },
     ],
+    // GeoJSON point — populated automatically when a game is created
+    coordinates: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        default: undefined,
+      },
+    },
   },
   { timestamps: true }
 );
+
+// 2dsphere index enables MongoDB geospatial ($near) queries
+GameSchema.index({ coordinates: '2dsphere' });
 
 // Virtual: spots remaining
 GameSchema.virtual('spotsLeft').get(function () {

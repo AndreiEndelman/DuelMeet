@@ -1,28 +1,56 @@
 const router = require('express').Router();
-const { body, query, validationResult } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 const Game = require('../models/Game');
 const { protect } = require('../middleware/auth');
+const { geocode } = require('../utils/geocode');
 
 // ── GET /api/games ───────────────────────────────────────────────────────────
-// Optional query params: type, page (default 1), limit (default 20)
+// Optional query params: type, page, limit, location (address/zip), radius (miles)
 
 router.get('/', async (req, res) => {
   try {
-    const { type, page = 1, limit = 20 } = req.query;
+    const { type, page = 1, limit = 20, location, radius = 25 } = req.query;
     const filter = {};
+
     if (type && ['magic', 'pokemon', 'yugioh', 'onepiece'].includes(type)) {
       filter.type = type;
     }
 
+    // Geospatial filter: if a location string is provided, geocode it and filter by radius
+    if (location && location.trim()) {
+      const coords = await geocode(location.trim());
+      if (coords) {
+        const radiusInMeters = Number(radius) * 1609.34; // miles → metres
+        filter.coordinates = {
+          $near: {
+            $geometry: { type: 'Point', coordinates: coords },
+            $maxDistance: radiusInMeters,
+          },
+        };
+      }
+    }
+
     const skip = (Number(page) - 1) * Number(limit);
-    const [games, total] = await Promise.all([
-      Game.find(filter)
-        .sort({ date: 1 })
+
+    // $near cannot be combined with countDocuments, so handle separately
+    let games, total;
+    if (filter.coordinates) {
+      // When using $near, sort is implicit (nearest first); skip/limit still apply
+      games = await Game.find(filter)
         .skip(skip)
         .limit(Number(limit))
-        .populate('host', 'username avatar location'),
-      Game.countDocuments(filter),
-    ]);
+        .populate('host', 'username avatar location');
+      total = games.length;
+    } else {
+      [games, total] = await Promise.all([
+        Game.find(filter)
+          .sort({ date: 1 })
+          .skip(skip)
+          .limit(Number(limit))
+          .populate('host', 'username avatar location'),
+        Game.countDocuments(filter),
+      ]);
+    }
 
     res.json({ games, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
   } catch (err) {
@@ -88,7 +116,10 @@ router.post(
     const { title, type, location, date, maxPlayers, notes } = req.body;
 
     try {
-      const game = await Game.create({
+      // Geocode the location so games can be queried by distance
+      const coords = await geocode(location);
+
+      const gameData = {
         title,
         type,
         location,
@@ -97,8 +128,13 @@ router.post(
         notes,
         host: req.user._id,
         players: [req.user._id], // host is automatically the first player
-      });
+      };
 
+      if (coords) {
+        gameData.coordinates = { type: 'Point', coordinates: coords };
+      }
+
+      const game = await Game.create(gameData);
       const populated = await game.populate('host', 'username avatar location');
       res.status(201).json({ game: populated });
     } catch (err) {

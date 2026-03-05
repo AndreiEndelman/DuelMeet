@@ -6,7 +6,7 @@
         class="locate-btn"
         (click)="openCreateGamePage()"
         (keydown.enter)="openCreateGamePage()">
-        <ion-icon name="locate" slot="icon-only"></ion-icon>
+        <ion-icon name="add" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -14,14 +14,46 @@
 
 <ion-content [fullscreen]="true">
 
+  <!-- Location search bar -->
+  <div class="location-bar">
+    <div class="location-input-row">
+      <ion-icon name="location-outline" class="loc-icon"></ion-icon>
+      <input
+        class="location-input"
+        type="text"
+        placeholder="City, zip code, or address…"
+        [(ngModel)]="locationInput"
+        (keydown.enter)="searchByLocation()"
+      />
+      <button *ngIf="locationInput" class="clear-btn" (click)="clearLocation()" type="button">
+        <ion-icon name="close-circle"></ion-icon>
+      </button>
+    </div>
+    <div class="radius-row">
+      <span class="radius-label">Radius:</span>
+      <button
+        *ngFor="let r of radiusOptions"
+        class="radius-chip"
+        [class.active]="radius === r"
+        (click)="radius = r; loadGames()"
+        type="button">
+        {{ r }} mi
+      </button>
+      <button class="search-btn" (click)="searchByLocation()" type="button">
+        <ion-icon name="search-outline"></ion-icon>
+        Search
+      </button>
+    </div>
+  </div>
+
   <!-- Filter chips -->
   <div class="filter-bar">
     <button
       *ngFor="let f of filters"
       class="filter-chip"
       [class.active]="activeFilter === f.value"
-      (click)="activeFilter = f.value"
-      (keydown.enter)="activeFilter = f.value"
+      (click)="setFilter(f.value)"
+      (keydown.enter)="setFilter(f.value)"
       type="button">
       <ion-icon *ngIf="f.ionIcon" [name]="f.ionIcon" class="filter-icon-ion"></ion-icon>
       <span *ngIf="f.emoji" class="filter-icon">{{ f.emoji }}</span>
@@ -32,7 +64,7 @@
   <!-- Loading -->
   <div class="state-msg" *ngIf="loading">
     <ion-spinner name="crescent"></ion-spinner>
-    <p>Finding games near you…</p>
+    <p>Finding games…</p>
   </div>
 
   <!-- Error -->
@@ -42,8 +74,15 @@
     <ion-button fill="outline" size="small" (click)="loadGames()">Retry</ion-button>
   </div>
 
-  <!-- Empty state -->
-  <div class="state-msg" *ngIf="!loading && !error && filteredGames.length === 0">
+  <!-- No results for location search -->
+  <div class="state-msg" *ngIf="!loading && !error && noLocationResults">
+    <span class="state-emoji">📍</span>
+    <p>No games found within {{ radius }} miles of "{{ locationInput }}".</p>
+    <ion-button fill="outline" size="small" (click)="clearLocation()">Show all games</ion-button>
+  </div>
+
+  <!-- Empty state (no location search) -->
+  <div class="state-msg" *ngIf="!loading && !error && filteredGames.length === 0 && !noLocationResults">
     <span class="state-emoji">🃏</span>
     <p>No games found. Be the first to create one!</p>
   </div>
@@ -61,7 +100,7 @@
           <div class="stack-card stack-card--back2"></div>
           <div class="stack-card stack-card--back1"></div>
           <div class="stack-card stack-card--front">
-            <span class="card-emoji">{{ game.type === 'magic' ? '🧙' : game.type === 'pokemon' ? '⚡' : game.type === 'yugioh' ? '👁️' : '🏴‍☠️' }}</span>
+            <span class="card-emoji">{{ game.type === 'magic' ? '🧙' : game.type === 'pokemon' ? '⚡' : game.type === 'yugioh' ? '👁️' : '☠️' }}</span>
           </div>
         </div>
         <div class="art-overlay"></div>

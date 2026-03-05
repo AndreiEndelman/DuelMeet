@@ -22,19 +22,23 @@ interface DisplayGame {
 })
 export class FindGamePage {
   filters = [
-    { label: 'Nearby',   value: 'all',     ionIcon: 'location', emoji: '' },
+    { label: 'All',      value: 'all',     ionIcon: 'apps',     emoji: '' },
     { label: 'Magic',    value: 'magic',   ionIcon: '',         emoji: '🧙' },
     { label: 'Pokémon',  value: 'pokemon', ionIcon: '',         emoji: '⚡' },
     { label: 'Yu-Gi-Oh', value: 'yugioh',  ionIcon: '',         emoji: '👁️' },
+    { label: 'One Piece',value: 'onepiece',ionIcon: '',         emoji: '☠️' },
   ];
+  radiusOptions = [10, 25, 50, 100];
   activeFilter = 'all';
+  locationInput = '';
+  radius = 25;
   allGames: DisplayGame[] = [];
   loading = false;
   error = '';
+  noLocationResults = false;
 
   get filteredGames(): DisplayGame[] {
-    if (this.activeFilter === 'all') return this.allGames;
-    return this.allGames.filter(g => g.type === this.activeFilter);
+    return this.allGames;
   }
 
   constructor(
@@ -49,9 +53,12 @@ export class FindGamePage {
   loadGames(): void {
     this.loading = true;
     this.error = '';
-    this.gamesService.getGames().subscribe({
+    this.noLocationResults = false;
+    const type = this.activeFilter !== 'all' ? this.activeFilter : undefined;
+    this.gamesService.getGames(type, 1, this.locationInput, this.radius).subscribe({
       next: (res) => {
         this.allGames = res.games.map(g => this.mapGame(g));
+        this.noLocationResults = !!this.locationInput.trim() && this.allGames.length === 0;
         this.loading = false;
       },
       error: () => {
@@ -59,6 +66,20 @@ export class FindGamePage {
         this.loading = false;
       },
     });
+  }
+
+  searchByLocation(): void {
+    this.loadGames();
+  }
+
+  clearLocation(): void {
+    this.locationInput = '';
+    this.loadGames();
+  }
+
+  setFilter(value: string): void {
+    this.activeFilter = value;
+    this.loadGames();
   }
 
   private mapGame(g: ApiGame): DisplayGame {
