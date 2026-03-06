@@ -59,7 +59,7 @@ const GameSchema = new mongoose.Schema(
       type: {
         type: String,
         enum: ['Point'],
-        default: 'Point',
+        default: undefined,
       },
       coordinates: {
         type: [Number], // [longitude, latitude]
@@ -71,7 +71,8 @@ const GameSchema = new mongoose.Schema(
 );
 
 // 2dsphere index enables MongoDB geospatial ($near) queries
-GameSchema.index({ coordinates: '2dsphere' });
+// sparse: true — skip documents that have no coordinates (avoids index errors)
+GameSchema.index({ coordinates: '2dsphere' }, { sparse: true });
 
 // Virtual: spots remaining
 GameSchema.virtual('spotsLeft').get(function () {
