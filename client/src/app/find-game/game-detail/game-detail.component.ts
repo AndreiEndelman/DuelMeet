@@ -68,7 +68,7 @@ export class GameDetailComponent implements OnInit, OnDestroy {
   }
 
   get canChat(): boolean {
-    return this.isPlayer;
+    return this.isHost || this.isPlayer;
   }
 
   get isFull(): boolean {

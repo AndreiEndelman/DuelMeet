@@ -363,9 +363,13 @@ ion-toolbar {
 // -- Chat toolbar button ------------------------------------
 .chat-toolbar-btn {
   position: relative;
-  --border-radius: 50%;
-  --padding-start: 8px;
-  --padding-end: 8px;
+
+  &::part(native) {
+    border-radius: 50%;
+    padding: 8px;
+    background: transparent;
+  }
+
   ion-icon { color: #7c6fff; font-size: 1.3rem; }
 }
 
