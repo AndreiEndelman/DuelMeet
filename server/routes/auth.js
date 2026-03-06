@@ -3,6 +3,9 @@ const crypto  = require('crypto');
 const jwt     = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User    = require('../models/User');
+const Game    = require('../models/Game');
+const Message = require('../models/Message');
+const Review  = require('../models/Review');
 const { protect } = require('../middleware/auth');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/email');
 
@@ -178,11 +181,42 @@ router.post(
   }
 );
 
-// ── DELETE /api/auth/me ─────────────────────────────────────────────────────
+// ── DELETE /api/auth/me ───────────────────────────────────────────────────
 
 router.delete('/me', protect, async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.user._id);
+    const userId = req.user._id;
+
+    // 1. Find all games hosted by this user
+    const hostedGames = await Game.find({ host: userId }, '_id');
+    const hostedGameIds = hostedGames.map(g => g._id);
+
+    // 2. Delete messages in hosted games
+    if (hostedGameIds.length > 0) {
+      await Message.deleteMany({ game: { $in: hostedGameIds } });
+      await Review.deleteMany({ game: { $in: hostedGameIds } });
+      await Game.deleteMany({ host: userId });
+    }
+
+    // 3. Remove user from players/applicants of other games
+    await Game.updateMany(
+      { players: userId },
+      { $pull: { players: userId } }
+    );
+    await Game.updateMany(
+      { applicants: userId },
+      { $pull: { applicants: userId } }
+    );
+
+    // 4. Delete user's messages in other games
+    await Message.deleteMany({ sender: userId });
+
+    // 5. Delete reviews by or about this user
+    await Review.deleteMany({ $or: [{ reviewer: userId }, { reviewee: userId }] });
+
+    // 6. Delete the user
+    await User.findByIdAndDelete(userId);
+
     res.json({ message: 'Account deleted successfully.' });
   } catch (err) {
     console.error('[deleteAccount]', err);

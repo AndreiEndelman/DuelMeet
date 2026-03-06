@@ -106,13 +106,13 @@
     <div class="detail-section" *ngIf="isHost">
       <p class="section-label">
         Applications
-        <span class="badge-count" *ngIf="(game.applicants ?? []).length > 0">{{ (game.applicants ?? []).length }}</span>
+        <span class="badge-count" *ngIf="game.applicants.length > 0">{{ game.applicants.length }}</span>
       </p>
-      <div *ngIf="(game.applicants ?? []).length === 0" class="empty-applicants">
+      <div *ngIf="game.applicants.length === 0" class="empty-applicants">
         <ion-icon name="hourglass-outline"></ion-icon>
         No applications yet
       </div>
-      <div *ngFor="let a of (game.applicants ?? [])" class="applicant-row">
+      <div *ngFor="let a of game.applicants" class="applicant-row">
         <div class="mini-avatar">
           <img *ngIf="a.avatar" [src]="a.avatar" alt="{{ a.username }}" />
           <ion-icon *ngIf="!a.avatar" name="person"></ion-icon>
@@ -128,6 +128,14 @@
             Deny
           </button>
         </div>
+      </div>
+
+      <!-- Delete game -->
+      <div class="delete-game-zone">
+        <ion-button fill="outline" color="danger" size="small" (click)="deleteGame()">
+          <ion-icon name="trash-outline" slot="start"></ion-icon>
+          Delete Game
+        </ion-button>
       </div>
     </div>
 
@@ -169,6 +177,43 @@
         {{ actionLoading ? 'Applying…' : 'Apply to Join' }}
       </ion-button>
 
+    </div>
+
+    <!-- ── POST-GAME REVIEW ── -->
+    <div class="detail-section review-section" *ngIf="showReviewSection">
+      <p class="section-label">Rate Your Experience</p>
+      <p class="review-subtext">How was the game hosted by <strong>{{ game.host.username }}</strong>?</p>
+      <div class="star-picker">
+        <ion-icon
+          *ngFor="let s of reputationStars"
+          [name]="userRating >= s ? 'star' : 'star-outline'"
+          class="star-pick-icon"
+          [class.active]="userRating >= s"
+          (click)="setRating(s)">
+        </ion-icon>
+      </div>
+      <textarea
+        class="review-textarea"
+        rows="3"
+        placeholder="Leave a comment (optional)…"
+        [(ngModel)]="reviewComment"
+        maxlength="300">
+      </textarea>
+      <div class="review-error" *ngIf="reviewError">{{ reviewError }}</div>
+      <ion-button
+        expand="block"
+        class="submit-review-btn"
+        (click)="submitReview()"
+        [disabled]="!userRating || reviewLoading">
+        <ion-spinner *ngIf="reviewLoading" name="crescent" slot="start"></ion-spinner>
+        {{ reviewLoading ? 'Submitting…' : 'Submit Review' }}
+      </ion-button>
+    </div>
+
+    <!-- Review submitted confirmation -->
+    <div class="detail-section review-done" *ngIf="reviewSubmitted">
+      <ion-icon name="checkmark-circle" class="review-done-icon"></ion-icon>
+      <p>Thanks for your review!</p>
     </div>
 
   </ng-container>

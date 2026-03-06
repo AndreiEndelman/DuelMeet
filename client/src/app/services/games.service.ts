@@ -128,4 +128,19 @@ export class GamesService {
       this.auth.getAuthHeaders()
     );
   }
+
+  getMyReview(gameId: string): Observable<{ review: any }> {
+    return this.http.get<{ review: any }>(
+      `${environment.apiUrl}/games/${gameId}/my-review`,
+      this.auth.getAuthHeaders()
+    );
+  }
+
+  reviewGame(gameId: string, rating: number, comment: string): Observable<{ review: any }> {
+    return this.http.post<{ review: any }>(
+      `${environment.apiUrl}/games/${gameId}/review`,
+      { rating, comment },
+      this.auth.getAuthHeaders()
+    );
+  }
 }

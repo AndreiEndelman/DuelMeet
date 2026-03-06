@@ -2,6 +2,8 @@ const router = require('express').Router();
 const { body, validationResult } = require('express-validator');
 const Game = require('../models/Game');
 const Message = require('../models/Message');
+const Review = require('../models/Review');
+const User = require('../models/User');
 const { protect, requireVerified } = require('../middleware/auth');
 const { geocode } = require('../utils/geocode');
 
@@ -415,3 +417,79 @@ router.post('/:id/messages', protect, requireVerified, async (req, res) => {
     res.status(500).json({ message: 'Server error sending message' });
   }
 });
+
+// ── GET /api/games/:id/my-review ─────────────────────────────────────────────
+// Check if the current user has already reviewed this game
+
+router.get('/:id/my-review', protect, async (req, res) => {
+  try {
+    const review = await Review.findOne({ game: req.params.id, reviewer: req.user._id });
+    res.json({ review: review || null });
+  } catch (err) {
+    console.error('[getMyReview]', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ── POST /api/games/:id/review ───────────────────────────────────────────────
+// Submit a rating for the host after the game. Only accepted players (not the host).
+
+router.post(
+  '/:id/review',
+  protect,
+  requireVerified,
+  [
+    body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be 1–5'),
+    body('comment').optional().trim().isLength({ max: 300 }),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+      const game = await Game.findById(req.params.id);
+      if (!game) return res.status(404).json({ message: 'Game not found' });
+
+      // Game must be in the past
+      if (new Date(game.date) > new Date()) {
+        return res.status(400).json({ message: 'You can only review after the game has taken place.' });
+      }
+
+      const userId = req.user._id.toString();
+
+      // Must be an accepted player, not the host
+      if (game.host.toString() === userId) {
+        return res.status(400).json({ message: 'The host cannot review their own game.' });
+      }
+      if (!game.players.map(String).includes(userId)) {
+        return res.status(403).json({ message: 'Only accepted players can leave a review.' });
+      }
+
+      const { rating, comment = '' } = req.body;
+
+      const review = await Review.create({
+        game: game._id,
+        reviewer: req.user._id,
+        reviewee: game.host,
+        rating,
+        comment,
+      });
+
+      // Recalculate host reputation (average of all their reviews)
+      const agg = await Review.aggregate([
+        { $match: { reviewee: game.host } },
+        { $group: { _id: null, avg: { $avg: '$rating' } } },
+      ]);
+      const newRep = agg.length ? Math.round(agg[0].avg * 2) / 2 : rating; // round to nearest 0.5
+      await User.findByIdAndUpdate(game.host, { reputation: newRep });
+
+      res.status(201).json({ review });
+    } catch (err) {
+      if (err.code === 11000) {
+        return res.status(409).json({ message: 'You have already reviewed this game.' });
+      }
+      console.error('[submitReview]', err);
+      res.status(500).json({ message: 'Server error submitting review' });
+    }
+  }
+);

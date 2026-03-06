@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { GamesService, Game } from '../../services/games.service';
 import { AuthService } from '../../services/auth.service';
 import { GameChatComponent } from '../game-chat/game-chat.component';
@@ -18,6 +18,14 @@ export class GameDetailComponent implements OnInit {
   error = '';
   actionLoading = false;
   actionError = '';
+
+  // Review state
+  hasReviewed = false;
+  reviewSubmitted = false;
+  userRating = 0;
+  reviewComment = '';
+  reviewLoading = false;
+  reviewError = '';
 
   reputationStars = [1, 2, 3, 4, 5];
 
@@ -65,6 +73,14 @@ export class GameDetailComponent implements OnInit {
     });
   }
 
+  get isPast(): boolean {
+    return !!this.game && new Date(this.game.date) < new Date();
+  }
+
+  get showReviewSection(): boolean {
+    return this.isPast && this.isPlayer && !this.isHost && !this.hasReviewed && !this.reviewSubmitted;
+  }
+
   get typeEmoji(): string {
     const map: Record<string, string> = {
       magic: '\u{1F9D9}', pokemon: '\u26A1', yugioh: '\u{1F441}', onepiece: '\u2620',
@@ -73,6 +89,7 @@ export class GameDetailComponent implements OnInit {
   }
 
   constructor(
+    private readonly alertCtrl: AlertController,
     private readonly modalCtrl: ModalController,
     private readonly gamesService: GamesService,
     private readonly auth: AuthService,
@@ -89,10 +106,59 @@ export class GameDetailComponent implements OnInit {
       next: (res) => {
         this.game = res.game;
         this.loading = false;
+        // Check if user already reviewed (only relevant for past games)
+        if (new Date(res.game.date) < new Date() && this.isPlayer && !this.isHost) {
+          this.gamesService.getMyReview(this.gameId).subscribe({
+            next: (r) => { this.hasReviewed = !!r.review; },
+            error: () => {},
+          });
+        }
       },
       error: () => {
         this.error = 'Failed to load game details.';
         this.loading = false;
+      },
+    });
+  }
+
+  async deleteGame(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Delete Game',
+      message: 'Are you sure you want to delete this game? This cannot be undone.',
+      cssClass: 'danger-alert',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Delete',
+          cssClass: 'alert-btn-danger',
+          handler: () => {
+            this.gamesService.deleteGame(this.gameId).subscribe({
+              next: () => this.dismiss(true),
+              error: () => { this.actionError = 'Failed to delete game.'; },
+            });
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  setRating(star: number): void {
+    this.userRating = star;
+  }
+
+  submitReview(): void {
+    if (!this.userRating) return;
+    this.reviewLoading = true;
+    this.reviewError = '';
+    this.gamesService.reviewGame(this.gameId, this.userRating, this.reviewComment).subscribe({
+      next: () => {
+        this.reviewLoading = false;
+        this.reviewSubmitted = true;
+      },
+      error: (err) => {
+        this.reviewError = err.error?.message || 'Failed to submit review.';
+        this.reviewLoading = false;
       },
     });
   }
