@@ -147,6 +147,18 @@ router.put(
   }
 );
 
+// ── DELETE /api/auth/me ─────────────────────────────────────────────────────
+
+router.delete('/me', protect, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.user._id);
+    res.json({ message: 'Account deleted successfully.' });
+  } catch (err) {
+    console.error('[deleteAccount]', err);
+    res.status(500).json({ message: 'Server error deleting account' });
+  }
+});
+
 // ── GET /api/auth/verify-email/:token ───────────────────────────────────────
 
 router.get('/verify-email/:token', async (req, res) => {

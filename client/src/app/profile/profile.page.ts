@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subscription, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { AlertController } from '@ionic/angular';
 import { AuthService, User } from '../services/auth.service';
 import { GamesService } from '../services/games.service';
 import { environment } from '../../environments/environment';
@@ -64,6 +65,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     private readonly gamesService: GamesService,
     private readonly router: Router,
     private readonly http: HttpClient,
+    private readonly alertCtrl: AlertController,
   ) {}
 
   ngOnInit(): void {
@@ -212,6 +214,34 @@ export class ProfilePage implements OnInit, OnDestroy {
         this.saving = false;
       },
     });
+  }
+
+  async deleteAccount(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Delete Account',
+      message: 'This will permanently delete your account and all your data. This cannot be undone.',
+      cssClass: 'danger-alert',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          cssClass: 'alert-btn-danger',
+          handler: () => {
+            this.auth.deleteAccount().subscribe({
+              next: () => {
+                this.auth.logout();
+                void this.router.navigate(['/auth/login'], { replaceUrl: true });
+              },
+              error: () => {
+                this.editError = 'Failed to delete account. Please try again.';
+              },
+            });
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   logout(): void {

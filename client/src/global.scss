@@ -69,3 +69,11 @@ ion-card-subtitle,
 p {
   color: var(--ion-text-color);
 }
+
+// Danger confirmation alert
+.danger-alert {
+  .alert-btn-danger {
+    color: #f47b8a !important;
+    font-weight: 700;
+  }
+}

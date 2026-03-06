@@ -490,3 +490,32 @@ ion-toolbar { --background: #0a0c1a; }
   flex-direction: column;
   gap: 10px;
 }
+
+.danger-zone {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(235, 68, 90, 0.2);
+  text-align: center;
+}
+
+.delete-account-btn {
+  background: none;
+  border: 1px solid rgba(235, 68, 90, 0.45);
+  border-radius: 10px;
+  color: #f47b8a;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 10px 22px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: background 0.15s, border-color 0.15s;
+
+  ion-icon { font-size: 1rem; }
+
+  &:active {
+    background: rgba(235, 68, 90, 0.1);
+    border-color: rgba(235, 68, 90, 0.7);
+  }
+}

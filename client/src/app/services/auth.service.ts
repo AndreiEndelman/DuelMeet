@@ -81,6 +81,10 @@ export class AuthService {
       .pipe(tap((res) => this._user$.next(res.user)));
   }
 
+  deleteAccount(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${environment.apiUrl}/auth/me`, this.getAuthHeaders());
+  }
+
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     this._user$.next(null);
