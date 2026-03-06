@@ -77,3 +77,12 @@ p {
     font-weight: 700;
   }
 }
+
+// Auth page logo image
+.auth-logo-img {
+  width: 160px;
+  height: auto;
+  display: block;
+  margin: 0 auto 12px;
+  filter: drop-shadow(0 0 18px rgba(124, 111, 255, 0.7));
+}

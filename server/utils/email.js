@@ -25,8 +25,9 @@ const baseWrapper = (inner) => `
   <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:40px 28px;
     background:#0c0e1e;color:#e8e8f0;border-radius:14px;border:1px solid rgba(124,111,255,0.25)">
     <div style="text-align:center;margin-bottom:28px">
-      <span style="font-size:2rem">🃏</span>
-      <h2 style="color:#7c6fff;margin:8px 0 4px;font-size:1.4rem">TCG Duel Meet</h2>
+      <img src="https://duel-meet.vercel.app/assets/icon/logo.png"
+        alt="DuelMeet" width="120"
+        style="display:inline-block;filter:drop-shadow(0 0 10px rgba(124,111,255,0.8))" />
     </div>
     ${inner}
     <p style="margin-top:32px;color:#555;font-size:11px;text-align:center">
