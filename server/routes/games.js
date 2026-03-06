@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { body, validationResult } = require('express-validator');
 const Game = require('../models/Game');
 const Message = require('../models/Message');
-const { protect } = require('../middleware/auth');
+const { protect, requireVerified } = require('../middleware/auth');
 const { geocode } = require('../utils/geocode');
 
 // ── GET /api/games ───────────────────────────────────────────────────────────
@@ -103,6 +103,7 @@ router.get('/:id', async (req, res) => {
 router.post(
   '/',
   protect,
+  requireVerified,
   [
     body('title').trim().notEmpty().withMessage('Title is required').isLength({ max: 100 }),
     body('type').isIn(['magic', 'pokemon', 'yugioh', 'onepiece']).withMessage('Invalid game type'),
@@ -151,7 +152,7 @@ router.post(
 // ── POST /api/games/:id/apply ───────────────────────────────────────────────
 // Any logged-in user can apply; host must then accept them
 
-router.post('/:id/apply', protect, async (req, res) => {
+router.post('/:id/apply', protect, requireVerified, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
@@ -188,7 +189,7 @@ router.post('/:id/apply', protect, async (req, res) => {
 // ── POST /api/games/:id/accept/:userId ───────────────────────────────────────
 // Host accepts an applicant → moves them from applicants → players
 
-router.post('/:id/accept/:userId', protect, async (req, res) => {
+router.post('/:id/accept/:userId', protect, requireVerified, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
@@ -223,7 +224,7 @@ router.post('/:id/accept/:userId', protect, async (req, res) => {
 // ── POST /api/games/:id/deny/:userId ─────────────────────────────────────────
 // Host removes a user from the applicants list
 
-router.post('/:id/deny/:userId', protect, async (req, res) => {
+router.post('/:id/deny/:userId', protect, requireVerified, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
@@ -249,7 +250,7 @@ router.post('/:id/deny/:userId', protect, async (req, res) => {
 
 // ── POST /api/games/:id/join ─────────────────────────────────────────────────
 
-router.post('/:id/join', protect, async (req, res) => {
+router.post('/:id/join', protect, requireVerified, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
@@ -275,7 +276,7 @@ router.post('/:id/join', protect, async (req, res) => {
 
 // ── POST /api/games/:id/leave ────────────────────────────────────────────────
 
-router.post('/:id/leave', protect, async (req, res) => {
+router.post('/:id/leave', protect, requireVerified, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
@@ -301,6 +302,7 @@ router.post('/:id/leave', protect, async (req, res) => {
 router.put(
   '/:id',
   protect,
+  requireVerified,
   [
     body('title').optional().trim().isLength({ max: 100 }),
     body('type').optional().isIn(['magic', 'pokemon', 'yugioh', 'onepiece']),
@@ -340,7 +342,7 @@ router.put(
 // ── DELETE /api/games/:id ────────────────────────────────────────────────────
 // Only the host can delete
 
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', protect, requireVerified, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
@@ -390,7 +392,7 @@ router.get('/:id/messages', protect, async (req, res) => {
 // ── POST /api/games/:id/messages ──────────────────────────────────────────────
 // Send a chat message — must be an accepted player (in players array)
 
-router.post('/:id/messages', protect, async (req, res) => {
+router.post('/:id/messages', protect, requireVerified, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
