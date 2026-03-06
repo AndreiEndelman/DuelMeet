@@ -1,8 +1,25 @@
-const { Resend } = require('resend');
+const APP_URL = process.env.CLIENT_URL || 'https://duel-meet.vercel.app';
 
-const resend  = new Resend(process.env.RESEND_API_KEY);
-const FROM    = process.env.RESEND_FROM || 'DuelMeet <onboarding@resend.dev>';
-const APP_URL = process.env.CLIENT_URL  || 'https://duel-meet.vercel.app';
+async function brevoSend({ to, subject, html }) {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: 'DuelMeet', email: process.env.BREVO_SENDER_EMAIL || 'noreply@duelmeet.app' },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Brevo error ${res.status}: ${text}`);
+  }
+}
 
 const baseWrapper = (inner) => `
   <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:40px 28px;
@@ -19,8 +36,7 @@ const baseWrapper = (inner) => `
 
 async function sendVerificationEmail(email, token) {
   const url = `${APP_URL}/auth/verify-email?token=${token}`;
-  await resend.emails.send({
-    from: FROM,
+  await brevoSend({
     to: email,
     subject: 'Verify your DuelMeet account',
     html: baseWrapper(`
@@ -45,8 +61,7 @@ async function sendVerificationEmail(email, token) {
 
 async function sendPasswordResetEmail(email, token) {
   const url = `${APP_URL}/auth/reset-password?token=${token}`;
-  await resend.emails.send({
-    from: FROM,
+  await brevoSend({
     to: email,
     subject: 'Reset your DuelMeet password',
     html: baseWrapper(`
