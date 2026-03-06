@@ -1,6 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { AlertController, ModalController } from '@ionic/angular';
+import { Subject, interval } from 'rxjs';
+import { takeUntil, switchMap } from 'rxjs/operators';
 import { GamesService, Game } from '../../services/games.service';
+import { ChatService } from '../../services/chat.service';
 import { AuthService } from '../../services/auth.service';
 import { GameChatComponent } from '../game-chat/game-chat.component';
 
@@ -10,7 +13,7 @@ import { GameChatComponent } from '../game-chat/game-chat.component';
   styleUrls: ['game-detail.component.scss'],
   standalone: false,
 })
-export class GameDetailComponent implements OnInit {
+export class GameDetailComponent implements OnInit, OnDestroy {
   @Input() gameId!: string;
 
   game: Game | null = null;
@@ -36,6 +39,10 @@ export class GameDetailComponent implements OnInit {
   hostReviewError: { [id: string]: string } = {};
 
   reputationStars = [1, 2, 3, 4, 5];
+  unreadCount = 0;
+  private chatOpen = false;
+  private lastMsgTime: string | null = null;
+  private readonly destroy$ = new Subject<void>();
 
   readonly typeLabels: Record<string, string> = {
     magic: 'Magic: The Gathering',
@@ -100,6 +107,7 @@ export class GameDetailComponent implements OnInit {
     private readonly alertCtrl: AlertController,
     private readonly modalCtrl: ModalController,
     private readonly gamesService: GamesService,
+    private readonly chatService: ChatService,
     private readonly auth: AuthService,
   ) {}
 
@@ -114,6 +122,10 @@ export class GameDetailComponent implements OnInit {
       next: (res) => {
         this.game = res.game;
         this.loading = false;
+        // Start unread-message polling for participants of future games
+        if (new Date(res.game.date) >= new Date() && this.canChat) {
+          this.startChatPoll();
+        }
         if (new Date(res.game.date) < new Date()) {
           this.gamesService.getMyReview(this.gameId).subscribe({
             next: (r) => {
@@ -201,7 +213,42 @@ export class GameDetailComponent implements OnInit {
     });
   }
 
+  private startChatPoll(): void {
+    // Seed lastMsgTime with the most recent message
+    this.chatService.getMessages(this.gameId).subscribe({
+      next: (r) => {
+        if (r.messages.length) {
+          this.lastMsgTime = r.messages[r.messages.length - 1].createdAt;
+        }
+        // Poll every 8s for new messages while chat modal is closed
+        interval(8000)
+          .pipe(
+            takeUntil(this.destroy$),
+            switchMap(() =>
+              this.chatService.getMessages(this.gameId, this.lastMsgTime ?? undefined)
+            ),
+          )
+          .subscribe({
+            next: (res) => {
+              const fromOthers = res.messages.filter(
+                (m) => m.sender._id !== this.currentUserId
+              );
+              if (fromOthers.length && !this.chatOpen) {
+                this.unreadCount += fromOthers.length;
+              }
+              if (res.messages.length) {
+                this.lastMsgTime = res.messages[res.messages.length - 1].createdAt;
+              }
+            },
+          });
+      },
+      error: () => {},
+    });
+  }
+
   async openChat(): Promise<void> {
+    this.unreadCount = 0;
+    this.chatOpen = true;
     const modal = await this.modalCtrl.create({
       component: GameChatComponent,
       componentProps: { gameId: this.gameId, gameTitle: this.game?.title ?? 'Game Chat' },
@@ -209,6 +256,23 @@ export class GameDetailComponent implements OnInit {
       initialBreakpoint: 1,
     });
     await modal.present();
+    await modal.onDidDismiss();
+    this.chatOpen = false;
+    this.unreadCount = 0;
+    // Update lastMsgTime so we don't recount messages we just read
+    this.chatService.getMessages(this.gameId).subscribe({
+      next: (r) => {
+        if (r.messages.length) {
+          this.lastMsgTime = r.messages[r.messages.length - 1].createdAt;
+        }
+      },
+      error: () => {},
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   applyToGame(): void {

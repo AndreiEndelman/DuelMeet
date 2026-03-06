@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 import { Subject, interval } from 'rxjs';
 import { takeUntil, switchMap } from 'rxjs/operators';
 import { ChatService, ChatMessage } from '../../services/chat.service';
@@ -30,6 +30,7 @@ export class GameChatComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly modalCtrl: ModalController,
+    private readonly toastCtrl: ToastController,
     private readonly chatService: ChatService,
     private readonly auth: AuthService,
   ) {}
@@ -61,9 +62,15 @@ export class GameChatComponent implements OnInit, OnDestroy {
           .subscribe({
             next: (r) => {
               if (r.messages.length) {
+                const fromOthers = r.messages.filter(
+                  (m) => m.sender._id !== this.currentUserId
+                );
                 this.messages.push(...r.messages);
                 this.lastMessageTime = this.messages[this.messages.length - 1].createdAt;
                 this.scrollToBottom();
+                if (fromOthers.length) {
+                  void this.showNewMessageToast(fromOthers[fromOthers.length - 1].sender.username);
+                }
               }
             },
           });
@@ -96,6 +103,18 @@ export class GameChatComponent implements OnInit, OnDestroy {
       event.preventDefault();
       this.sendMessage();
     }
+  }
+
+  private async showNewMessageToast(username: string): Promise<void> {
+    const toast = await this.toastCtrl.create({
+      message: `New message from ${username}`,
+      duration: 2500,
+      position: 'top',
+      color: 'dark',
+      cssClass: 'chat-toast',
+      icon: 'chatbubble-outline',
+    });
+    await toast.present();
   }
 
   private scrollToBottom(): void {

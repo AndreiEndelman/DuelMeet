@@ -86,3 +86,12 @@ p {
   margin: 0 auto 12px;
   filter: drop-shadow(0 0 18px rgba(124, 111, 255, 0.7));
 }
+
+// Chat new-message toast
+.chat-toast {
+  --background: #1e2040;
+  --color: #e8e3ff;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 20px rgba(124, 111, 255, 0.25);
+  font-size: 0.9rem;
+}
