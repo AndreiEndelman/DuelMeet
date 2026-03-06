@@ -15,6 +15,21 @@
       {{ errorMsg }}
     </div>
 
+    <!-- Email not verified -->
+    <div class="verify-banner" *ngIf="notVerified">
+      <ion-icon name="mail-outline"></ion-icon>
+      <div class="verify-text">
+        <strong>Email not verified.</strong>
+        Please check your inbox for the verification link.
+      </div>
+      <div class="verify-actions">
+        <button class="resend-btn" (click)="resendVerification()" [disabled]="resendLoading || resendSent">
+          <ion-spinner *ngIf="resendLoading" name="crescent"></ion-spinner>
+          <span *ngIf="!resendLoading">{{ resendSent ? '✓ Sent!' : 'Resend email' }}</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Form -->
     <div class="form-group">
       <label class="form-label" for="login-email">Email</label>

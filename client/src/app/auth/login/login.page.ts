@@ -13,10 +13,13 @@ import { AuthService } from '../../services/auth.service';
   imports: [IonicModule, CommonModule, FormsModule, RouterModule],
 })
 export class LoginPage {
-  email    = '';
-  password = '';
-  loading  = false;
-  errorMsg = '';
+  email            = '';
+  password         = '';
+  loading          = false;
+  errorMsg         = '';
+  notVerified      = false;
+  resendLoading    = false;
+  resendSent       = false;
 
   constructor(
     private readonly auth: AuthService,
@@ -24,7 +27,9 @@ export class LoginPage {
   ) {}
 
   login(): void {
-    this.errorMsg = '';
+    this.errorMsg    = '';
+    this.notVerified = false;
+    this.resendSent  = false;
     if (!this.email || !this.password) {
       this.errorMsg = 'Please enter your email and password.';
       return;
@@ -33,8 +38,26 @@ export class LoginPage {
     this.auth.login(this.email, this.password).subscribe({
       next: () => void this.router.navigate(['/tabs/home'], { replaceUrl: true }),
       error: (err) => {
-        this.errorMsg = err.error?.message || 'Login failed. Please try again.';
         this.loading = false;
+        if (err.status === 403 && err.error?.code === 'EMAIL_NOT_VERIFIED') {
+          this.notVerified = true;
+        } else {
+          this.errorMsg = err.error?.message || 'Login failed. Please try again.';
+        }
+      },
+    });
+  }
+
+  resendVerification(): void {
+    this.resendLoading = true;
+    this.auth.resendVerification(this.email).subscribe({
+      next: () => {
+        this.resendLoading = false;
+        this.resendSent    = true;
+      },
+      error: () => {
+        this.resendLoading = false;
+        this.resendSent    = true; // show success anyway to prevent enumeration
       },
     });
   }

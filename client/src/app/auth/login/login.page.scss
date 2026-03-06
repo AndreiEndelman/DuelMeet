@@ -63,6 +63,54 @@ ion-content.auth-content {
   ion-icon { font-size: 1rem; flex-shrink: 0; }
 }
 
+.verify-banner {
+  background: rgba(124, 111, 255, 0.1);
+  border: 1px solid rgba(124, 111, 255, 0.4);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  ion-icon {
+    font-size: 1.3rem;
+    color: #7c6fff;
+    flex-shrink: 0;
+  }
+
+  .verify-text {
+    font-size: 0.84rem;
+    color: #c4bfff;
+    line-height: 1.5;
+
+    strong { color: #e8e8f0; }
+  }
+
+  .verify-actions {
+    text-align: right;
+    margin-top: 4px;
+  }
+}
+
+.resend-btn {
+  background: rgba(124, 111, 255, 0.2);
+  border: 1px solid rgba(124, 111, 255, 0.5);
+  border-radius: 8px;
+  color: #a99fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+
+  &:disabled { opacity: 0.6; cursor: default; }
+  &:not(:disabled):active { background: rgba(124, 111, 255, 0.35); }
+}
+
 .form-group {
   margin-bottom: 16px;
 }

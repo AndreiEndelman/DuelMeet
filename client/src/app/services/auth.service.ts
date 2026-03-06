@@ -85,6 +85,10 @@ export class AuthService {
     return this.http.delete<{ message: string }>(`${environment.apiUrl}/auth/me`, this.getAuthHeaders());
   }
 
+  resendVerification(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/resend-verification`, { email });
+  }
+
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     this._user$.next(null);

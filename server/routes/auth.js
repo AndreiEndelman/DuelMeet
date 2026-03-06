@@ -93,6 +93,10 @@ router.post(
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
+      if (!user.isEmailVerified) {
+        return res.status(403).json({ code: 'EMAIL_NOT_VERIFIED', message: 'Please verify your email before logging in.' });
+      }
+
       res.json({ token: generateToken(user._id), user: safeUser(user) });
     } catch (err) {
       console.error('[login]', err);
@@ -144,6 +148,29 @@ router.put(
       console.error('[updateMe]', err);
       res.status(500).json({ message: 'Server error updating profile' });
     }
+  }
+);
+
+// ── POST /api/auth/resend-verification ─────────────────────────────────────
+
+router.post(
+  '/resend-verification',
+  [body('email').isEmail().withMessage('Invalid email address')],
+  async (req, res) => {
+    try {
+      const user = await User.findOne({ email: req.body.email.toLowerCase() });
+      if (user && !user.isEmailVerified) {
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        user.emailVerifyToken   = crypto.createHash('sha256').update(rawToken).digest('hex');
+        user.emailVerifyExpires = Date.now() + 24 * 60 * 60 * 1000;
+        await user.save({ validateBeforeSave: false });
+        sendVerificationEmail(user.email, rawToken).catch(e => console.error('[resendVerify] mail error', e));
+      }
+    } catch (err) {
+      console.error('[resendVerification]', err);
+    }
+    // Always return success to prevent enumeration
+    res.json({ message: 'If that account exists and is unverified, a new link has been sent.' });
   }
 );
 
