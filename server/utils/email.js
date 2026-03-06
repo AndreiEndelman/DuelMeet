@@ -1,18 +1,8 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  family: 4, // force IPv4 — Railway does not support IPv6 outbound
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
-const FROM    = `"TCG Duel Meet" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`;
-const APP_URL = process.env.CLIENT_URL || 'https://duel-meet.vercel.app';
+const resend  = new Resend(process.env.RESEND_API_KEY);
+const FROM    = process.env.RESEND_FROM || 'DuelMeet <onboarding@resend.dev>';
+const APP_URL = process.env.CLIENT_URL  || 'https://duel-meet.vercel.app';
 
 const baseWrapper = (inner) => `
   <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:40px 28px;
@@ -29,7 +19,7 @@ const baseWrapper = (inner) => `
 
 async function sendVerificationEmail(email, token) {
   const url = `${APP_URL}/auth/verify-email?token=${token}`;
-  await transporter.sendMail({
+  await resend.emails.send({
     from: FROM,
     to: email,
     subject: 'Verify your DuelMeet account',
@@ -55,7 +45,7 @@ async function sendVerificationEmail(email, token) {
 
 async function sendPasswordResetEmail(email, token) {
   const url = `${APP_URL}/auth/reset-password?token=${token}`;
-  await transporter.sendMail({
+  await resend.emails.send({
     from: FROM,
     to: email,
     subject: 'Reset your DuelMeet password',
