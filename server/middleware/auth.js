@@ -30,6 +30,7 @@ const protect = async (req, res, next) => {
  * Require email verification — must be used after `protect`.
  */
 const requireVerified = (req, res, next) => {
+  console.log('[requireVerified] user:', req.user?.email, 'verified:', req.user?.isEmailVerified);
   if (!req.user.isEmailVerified) {
     return res.status(403).json({ code: 'EMAIL_NOT_VERIFIED', message: 'Please verify your email before performing this action.' });
   }
