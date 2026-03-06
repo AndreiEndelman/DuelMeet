@@ -58,7 +58,9 @@ router.post(
         user.emailVerifyToken   = crypto.createHash('sha256').update(rawToken).digest('hex');
         user.emailVerifyExpires = Date.now() + 24 * 60 * 60 * 1000; // 24h
         await user.save({ validateBeforeSave: false });
-        sendVerificationEmail(user.email, rawToken).catch(e => console.error('[verifyEmail] mail error', e));
+        sendVerificationEmail(user.email, rawToken)
+          .then(() => console.log('[verifyEmail] sent to', user.email))
+          .catch(e => console.error('[verifyEmail] mail error', e));
       } catch (mailErr) {
         console.error('[register] verification setup error', mailErr);
       }
@@ -164,7 +166,9 @@ router.post(
         user.emailVerifyToken   = crypto.createHash('sha256').update(rawToken).digest('hex');
         user.emailVerifyExpires = Date.now() + 24 * 60 * 60 * 1000;
         await user.save({ validateBeforeSave: false });
-        sendVerificationEmail(user.email, rawToken).catch(e => console.error('[resendVerify] mail error', e));
+        sendVerificationEmail(user.email, rawToken)
+          .then(() => console.log('[resendVerify] sent to', user.email))
+          .catch(e => console.error('[resendVerify] mail error', e));
       }
     } catch (err) {
       console.error('[resendVerification]', err);
