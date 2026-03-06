@@ -423,9 +423,8 @@ router.post('/:id/messages', protect, requireVerified, async (req, res) => {
 
 router.get('/:id/my-review', protect, async (req, res) => {
   try {
-    const reviews = await Review.find({ game: req.params.id, reviewer: req.user._id })
-      .populate('reviewee', '_id username');
-    res.json({ reviews });
+    const review = await Review.findOne({ game: req.params.id, reviewer: req.user._id });
+    res.json({ review: review || null });
   } catch (err) {
     console.error('[getMyReview]', err);
     res.status(500).json({ message: 'Server error' });
@@ -433,7 +432,7 @@ router.get('/:id/my-review', protect, async (req, res) => {
 });
 
 // ── POST /api/games/:id/review ───────────────────────────────────────────────
-// Players rate the host; host rates each accepted player.
+// Players rate the host after the game. Hosts cannot leave reviews.
 
 router.post(
   '/:id/review',
@@ -442,7 +441,6 @@ router.post(
   [
     body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be 1–5'),
     body('comment').optional().trim().isLength({ max: 300 }),
-    body('revieweeId').optional().isString(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -452,57 +450,40 @@ router.post(
       const game = await Game.findById(req.params.id);
       if (!game) return res.status(404).json({ message: 'Game not found' });
 
-      // Game must be in the past
       if (new Date(game.date) > new Date()) {
         return res.status(400).json({ message: 'You can only review after the game has taken place.' });
       }
 
       const userId = req.user._id.toString();
-      const isGameHost = game.host.toString() === userId;
-      const isAcceptedPlayer = game.players.map(String).includes(userId);
 
-      if (!isGameHost && !isAcceptedPlayer) {
-        return res.status(403).json({ message: 'Only participants can leave a review.' });
+      if (game.host.toString() === userId) {
+        return res.status(403).json({ message: 'Hosts cannot leave reviews.' });
+      }
+      if (!game.players.map(String).includes(userId)) {
+        return res.status(403).json({ message: 'Only accepted players can leave a review.' });
       }
 
-      const { rating, comment = '', revieweeId } = req.body;
-      let reviewee;
-
-      if (isGameHost) {
-        // Host reviews a player — revieweeId required
-        if (!revieweeId) {
-          return res.status(400).json({ message: 'revieweeId is required when the host submits a review.' });
-        }
-        const playerObj = game.players.find(p => p._id.toString() === revieweeId.toString());
-        if (!playerObj) {
-          return res.status(400).json({ message: 'revieweeId must be an accepted player of this game.' });
-        }
-        reviewee = playerObj._id;
-      } else {
-        // Player reviews the host
-        reviewee = game.host;
-      }
+      const { rating, comment = '' } = req.body;
 
       const review = await Review.create({
         game: game._id,
         reviewer: req.user._id,
-        reviewee,
+        reviewee: game.host,
         rating,
         comment,
       });
 
-      // Recalculate reviewee's reputation
       const agg = await Review.aggregate([
-        { $match: { reviewee } },
+        { $match: { reviewee: game.host } },
         { $group: { _id: null, avg: { $avg: '$rating' } } },
       ]);
       const newRep = agg.length ? Math.round(agg[0].avg * 2) / 2 : rating;
-      await User.findByIdAndUpdate(reviewee, { reputation: newRep });
+      await User.findByIdAndUpdate(game.host, { reputation: newRep });
 
       res.status(201).json({ review });
     } catch (err) {
       if (err.code === 11000) {
-        return res.status(409).json({ message: 'You have already reviewed this person for this game.' });
+        return res.status(409).json({ message: 'You have already reviewed this game.' });
       }
       console.error('[submitReview]', err);
       res.status(500).json({ message: 'Server error submitting review' });

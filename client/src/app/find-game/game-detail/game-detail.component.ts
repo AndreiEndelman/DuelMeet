@@ -30,14 +30,6 @@ export class GameDetailComponent implements OnInit, OnDestroy {
   reviewLoading = false;
   reviewError = '';
 
-  // Review state — host reviewing players
-  reviewedPlayerIds: string[] = [];
-  reviewSubmittedForPlayerIds: string[] = [];
-  hostPlayerRatings: { [id: string]: number } = {};
-  hostPlayerComments: { [id: string]: string } = {};
-  hostReviewLoading: { [id: string]: boolean } = {};
-  hostReviewError: { [id: string]: string } = {};
-
   reputationStars = [1, 2, 3, 4, 5];
   unreadCount = 0;
   private chatOpen = false;
@@ -129,10 +121,8 @@ export class GameDetailComponent implements OnInit, OnDestroy {
         if (new Date(res.game.date) < new Date()) {
           this.gamesService.getMyReview(this.gameId).subscribe({
             next: (r) => {
-              if (this.isHost) {
-                this.reviewedPlayerIds = r.reviews.map((rv: any) => rv.reviewee?._id ?? rv.reviewee);
-              } else if (this.isPlayer) {
-                this.hasReviewed = r.reviews.length > 0;
+              if (this.isPlayer && !this.isHost) {
+                this.hasReviewed = !!r.review;
               }
             },
             error: () => {},
@@ -170,31 +160,6 @@ export class GameDetailComponent implements OnInit, OnDestroy {
 
   setRating(star: number): void {
     this.userRating = star;
-  }
-
-  setHostRating(playerId: string, rating: number): void {
-    this.hostPlayerRatings = { ...this.hostPlayerRatings, [playerId]: rating };
-  }
-
-  submitHostReview(playerId: string): void {
-    if (!this.hostPlayerRatings[playerId]) return;
-    this.hostReviewLoading = { ...this.hostReviewLoading, [playerId]: true };
-    this.hostReviewError = { ...this.hostReviewError, [playerId]: '' };
-    this.gamesService.reviewGame(
-      this.gameId,
-      this.hostPlayerRatings[playerId],
-      this.hostPlayerComments[playerId] ?? '',
-      playerId
-    ).subscribe({
-      next: () => {
-        this.hostReviewLoading = { ...this.hostReviewLoading, [playerId]: false };
-        this.reviewSubmittedForPlayerIds = [...this.reviewSubmittedForPlayerIds, playerId];
-      },
-      error: (err) => {
-        this.hostReviewError = { ...this.hostReviewError, [playerId]: err.error?.message || 'Failed to submit review.' };
-        this.hostReviewLoading = { ...this.hostReviewLoading, [playerId]: false };
-      },
-    });
   }
 
   submitReview(): void {

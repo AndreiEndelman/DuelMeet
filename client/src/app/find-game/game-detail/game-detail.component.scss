@@ -470,28 +470,3 @@ ion-toolbar {
   font-size: 2.2rem;
   color: #7c6fff;
 }
-.host-review-player {
-  padding: 12px 0 16px;
-  border-bottom: 1px solid rgba(124,111,255,0.15);
-  &:last-child { border-bottom: none; }
-}
-
-.review-player-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-  .player-name { font-size: 0.95rem; color: #e8e3ff; }
-}
-
-.review-done-inline {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 0;
-  color: #7c6fff;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border-bottom: 1px solid rgba(124,111,255,0.1);
-  ion-icon { font-size: 1.2rem; }
-}
