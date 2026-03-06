@@ -145,6 +145,54 @@
       {{ actionError }}
     </div>
 
+    <!-- ── HOST POST-GAME: Rate Players ── -->
+    <div class="detail-section review-section" *ngIf="isPast && isHost && game.players.length > 0">
+      <p class="section-label">Rate Your Players</p>
+      <ng-container *ngFor="let p of game.players">
+        <!-- Not yet reviewed -->
+        <div *ngIf="!reviewedPlayerIds.includes(p._id) && !reviewSubmittedForPlayerIds.includes(p._id)" class="host-review-player">
+          <div class="review-player-header">
+            <div class="mini-avatar">
+              <img *ngIf="p.avatar" [src]="p.avatar" [alt]="p.username" />
+              <ion-icon *ngIf="!p.avatar" name="person"></ion-icon>
+            </div>
+            <strong class="player-name">{{ p.username }}</strong>
+          </div>
+          <div class="star-picker">
+            <ion-icon
+              *ngFor="let s of [1,2,3,4,5]"
+              [name]="(hostPlayerRatings[p._id] || 0) >= s ? 'star' : 'star-outline'"
+              class="star-pick-icon"
+              [class.active]="(hostPlayerRatings[p._id] || 0) >= s"
+              (click)="setHostRating(p._id, s)">
+            </ion-icon>
+          </div>
+          <textarea
+            class="review-textarea"
+            rows="2"
+            placeholder="Leave a comment (optional)…"
+            [(ngModel)]="hostPlayerComments[p._id]"
+            maxlength="300">
+          </textarea>
+          <div class="review-error" *ngIf="hostReviewError[p._id]">{{ hostReviewError[p._id] }}</div>
+          <ion-button
+            expand="block"
+            class="submit-review-btn"
+            size="small"
+            (click)="submitHostReview(p._id)"
+            [disabled]="!hostPlayerRatings[p._id] || hostReviewLoading[p._id]">
+            <ion-spinner *ngIf="hostReviewLoading[p._id]" name="crescent" slot="start"></ion-spinner>
+            {{ hostReviewLoading[p._id] ? 'Submitting…' : 'Rate ' + p.username }}
+          </ion-button>
+        </div>
+        <!-- Already reviewed -->
+        <div *ngIf="reviewedPlayerIds.includes(p._id) || reviewSubmittedForPlayerIds.includes(p._id)" class="review-done-inline">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>{{ p.username }} rated</span>
+        </div>
+      </ng-container>
+    </div>
+
     <!-- ── PLAYER VIEW: status / apply ── -->
     <div class="cta-section" *ngIf="!isHost">
 

@@ -11,7 +11,7 @@ const ReviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// One review per player per game
-ReviewSchema.index({ game: 1, reviewer: 1 }, { unique: true });
+// One review per reviewer-reviewee pair per game (allows host to rate each player)
+ReviewSchema.index({ game: 1, reviewer: 1, reviewee: 1 }, { unique: true });
 
 module.exports = mongoose.model('Review', ReviewSchema);

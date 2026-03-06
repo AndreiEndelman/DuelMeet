@@ -129,17 +129,17 @@ export class GamesService {
     );
   }
 
-  getMyReview(gameId: string): Observable<{ review: any }> {
-    return this.http.get<{ review: any }>(
+  getMyReview(gameId: string): Observable<{ reviews: any[] }> {
+    return this.http.get<{ reviews: any[] }>(
       `${environment.apiUrl}/games/${gameId}/my-review`,
       this.auth.getAuthHeaders()
     );
   }
 
-  reviewGame(gameId: string, rating: number, comment: string): Observable<{ review: any }> {
+  reviewGame(gameId: string, rating: number, comment: string, revieweeId?: string): Observable<{ review: any }> {
     return this.http.post<{ review: any }>(
       `${environment.apiUrl}/games/${gameId}/review`,
-      { rating, comment },
+      { rating, comment, ...(revieweeId ? { revieweeId } : {}) },
       this.auth.getAuthHeaders()
     );
   }
