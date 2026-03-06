@@ -14,6 +14,7 @@ export interface User {
   avatar: string;
   bio: string;
   quote: string;
+  isEmailVerified: boolean;
 }
 
 interface AuthResponse {

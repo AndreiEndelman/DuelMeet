@@ -19,6 +19,18 @@ const routes: Routes = [
         path: 'register',
         loadComponent: () => import('./auth/register/register.page').then(m => m.RegisterPage),
       },
+      {
+        path: 'forgot-password',
+        loadComponent: () => import('./auth/forgot-password/forgot-password.page').then(m => m.ForgotPasswordPage),
+      },
+      {
+        path: 'reset-password',
+        loadComponent: () => import('./auth/reset-password/reset-password.page').then(m => m.ResetPasswordPage),
+      },
+      {
+        path: 'verify-email',
+        loadComponent: () => import('./auth/verify-email/verify-email.page').then(m => m.VerifyEmailPage),
+      },
       { path: '', redirectTo: 'login', pathMatch: 'full' },
     ],
   },

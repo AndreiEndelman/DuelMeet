@@ -40,7 +40,8 @@ router.get('/', async (req, res) => {
       games = await Game.find(filter)
         .skip(skip)
         .limit(Number(limit))
-        .populate('host', 'username avatar location');
+        .populate('host', 'username avatar location')
+        .populate('players', '_id');
       total = games.length;
     } else {
       [games, total] = await Promise.all([
@@ -48,7 +49,8 @@ router.get('/', async (req, res) => {
           .sort({ date: 1 })
           .skip(skip)
           .limit(Number(limit))
-          .populate('host', 'username avatar location'),
+          .populate('host', 'username avatar location')
+          .populate('players', '_id'),
         Game.countDocuments(filter),
       ]);
     }

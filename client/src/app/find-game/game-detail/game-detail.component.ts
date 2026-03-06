@@ -1,10 +1,8 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Subject, interval } from 'rxjs';
-import { takeUntil, switchMap } from 'rxjs/operators';
 import { GamesService, Game } from '../../services/games.service';
 import { AuthService } from '../../services/auth.service';
-import { ChatService, ChatMessage } from '../../services/chat.service';
+import { GameChatComponent } from '../game-chat/game-chat.component';
 
 @Component({
   selector: 'app-game-detail',
@@ -12,8 +10,7 @@ import { ChatService, ChatMessage } from '../../services/chat.service';
   styleUrls: ['game-detail.component.scss'],
   standalone: false,
 })
-export class GameDetailComponent implements OnInit, OnDestroy {
-  @ViewChild('chatEnd') chatEnd!: ElementRef;
+export class GameDetailComponent implements OnInit {
   @Input() gameId!: string;
 
   game: Game | null = null;
@@ -21,14 +18,6 @@ export class GameDetailComponent implements OnInit, OnDestroy {
   error = '';
   actionLoading = false;
   actionError = '';
-
-  // ── Chat ──────────────────────────────────────────────────
-  messages: ChatMessage[] = [];
-  chatText = '';
-  chatLoading = false;
-  sendingMessage = false;
-  private lastMessageTime: string | null = null;
-  private readonly destroy$ = new Subject<void>();
 
   reputationStars = [1, 2, 3, 4, 5];
 
@@ -87,7 +76,6 @@ export class GameDetailComponent implements OnInit, OnDestroy {
     private readonly modalCtrl: ModalController,
     private readonly gamesService: GamesService,
     private readonly auth: AuthService,
-    private readonly chatService: ChatService,
   ) {}
 
   ngOnInit(): void {
@@ -101,7 +89,6 @@ export class GameDetailComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.game = res.game;
         this.loading = false;
-        if (this.canChat) { this.startChat(); }
       },
       error: () => {
         this.error = 'Failed to load game details.';
@@ -110,63 +97,14 @@ export class GameDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  startChat(): void {
-    this.chatLoading = true;
-    this.chatService.getMessages(this.gameId).subscribe({
-      next: (res) => {
-        this.messages = res.messages;
-        this.lastMessageTime = this.messages.length ? this.messages[this.messages.length - 1].createdAt : null;
-        this.chatLoading = false;
-        this.scrollChatToBottom();
-        // Poll for new messages every 4 seconds
-        interval(4000)
-          .pipe(
-            takeUntil(this.destroy$),
-            switchMap(() =>
-              this.chatService.getMessages(this.gameId, this.lastMessageTime ?? undefined)
-            ),
-          )
-          .subscribe({
-            next: (r) => {
-              if (r.messages.length) {
-                this.messages.push(...r.messages);
-                this.lastMessageTime = this.messages[this.messages.length - 1].createdAt;
-                this.scrollChatToBottom();
-              }
-            },
-          });
-      },
-      error: () => { this.chatLoading = false; },
+  async openChat(): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: GameChatComponent,
+      componentProps: { gameId: this.gameId, gameTitle: this.game?.title ?? 'Game Chat' },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
-  }
-
-  sendChatMessage(): void {
-    const text = this.chatText.trim();
-    if (!text || this.sendingMessage) return;
-    this.sendingMessage = true;
-    this.chatService.sendMessage(this.gameId, text).subscribe({
-      next: (res) => {
-        this.messages.push(res.message);
-        this.lastMessageTime = res.message.createdAt;
-        this.chatText = '';
-        this.sendingMessage = false;
-        this.scrollChatToBottom();
-      },
-      error: () => { this.sendingMessage = false; },
-    });
-  }
-
-  handleChatKey(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.sendChatMessage();
-    }
-  }
-
-  private scrollChatToBottom(): void {
-    setTimeout(() => {
-      this.chatEnd?.nativeElement?.scrollIntoView({ behavior: 'smooth' });
-    }, 50);
+    await modal.present();
   }
 
   applyToGame(): void {
@@ -216,10 +154,5 @@ export class GameDetailComponent implements OnInit, OnDestroy {
 
   dismiss(refreshNeeded = false): void {
     void this.modalCtrl.dismiss({ refreshNeeded });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

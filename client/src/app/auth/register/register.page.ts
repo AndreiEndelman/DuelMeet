@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -22,7 +22,8 @@ export class RegisterPage {
 
   constructor(
     private readonly auth: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly toast: ToastController,
   ) {}
 
   register(): void {
@@ -37,7 +38,16 @@ export class RegisterPage {
     }
     this.loading = true;
     this.auth.register({ username: this.username, email: this.email, password: this.password, location: this.location }).subscribe({
-      next: () => void this.router.navigate(['/tabs/home'], { replaceUrl: true }),
+      next: async () => {
+        const t = await this.toast.create({
+          message: '📧 A verification email has been sent — please check your inbox.',
+          duration: 5000,
+          position: 'top',
+          color: 'primary',
+        });
+        await t.present();
+        void this.router.navigate(['/tabs/home'], { replaceUrl: true });
+      },
       error: (err) => {
         this.errorMsg = err.error?.message || 'Registration failed. Please try again.';
         this.loading = false;

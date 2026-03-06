@@ -1,0 +1,36 @@
+<ion-content class="auth-content">
+  <div class="auth-glow"></div>
+
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="auth-logo-emoji">✉️</span>
+      <h1 class="auth-title">Email Verification</h1>
+    </div>
+
+    <!-- Loading -->
+    <div class="state-block" *ngIf="loading">
+      <ion-spinner name="crescent" class="state-spinner"></ion-spinner>
+      <p class="state-msg">Verifying your email…</p>
+    </div>
+
+    <!-- Success -->
+    <div class="state-block" *ngIf="success">
+      <div class="state-icon state-icon--success">
+        <ion-icon name="checkmark-circle"></ion-icon>
+      </div>
+      <p class="state-msg">Your email has been verified!</p>
+      <p class="state-sub">You're all set. Go ahead and log in.</p>
+      <a routerLink="/auth/login" class="btn-primary">Log In</a>
+    </div>
+
+    <!-- Error -->
+    <div class="state-block" *ngIf="errorMsg">
+      <div class="state-icon state-icon--error">
+        <ion-icon name="close-circle"></ion-icon>
+      </div>
+      <p class="state-msg">Verification failed</p>
+      <p class="state-sub">{{ errorMsg }}</p>
+      <a routerLink="/auth/login" class="auth-link">Back to login</a>
+    </div>
+  </div>
+</ion-content>

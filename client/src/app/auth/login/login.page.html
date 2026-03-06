@@ -40,6 +40,9 @@
         autocomplete="current-password"
         (keyup.enter)="login()">
       </ion-input>
+      <div class="forgot-link-row">
+        <a routerLink="/auth/forgot-password" class="forgot-link">Forgot password?</a>
+      </div>
     </div>
 
     <button class="btn-primary" [disabled]="loading" (click)="login()">

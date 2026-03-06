@@ -2,7 +2,9 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { GamesService, Game as ApiGame } from '../services/games.service';
+import { AuthService } from '../services/auth.service';
 import { GameDetailComponent } from './game-detail/game-detail.component';
+import { GameChatComponent } from './game-chat/game-chat.component';
 
 interface DisplayGame {
   _id: string;
@@ -14,6 +16,7 @@ interface DisplayGame {
   spotsLeft: number;
   type: 'magic' | 'pokemon' | 'yugioh' | 'onepiece';
   typeLabel: string;
+  isPlayer: boolean;
 }
 
 @Component({
@@ -47,6 +50,7 @@ export class FindGamePage {
     private readonly router: Router,
     private readonly gamesService: GamesService,
     private readonly modalCtrl: ModalController,
+    private readonly auth: AuthService,
   ) {}
 
   ionViewWillEnter(): void {
@@ -89,6 +93,10 @@ export class FindGamePage {
     const labels: Record<string, string> = {
       magic: 'Magic', pokemon: 'Pokémon', yugioh: 'Yu-Gi-Oh!', onepiece: 'One Piece',
     };
+    const currentId = this.auth.currentUser?._id ?? '';
+    const isPlayer = (g.players as any[]).some(
+      p => (p === currentId) || (p?._id?.toString() === currentId)
+    );
     return {
       _id:       g._id,
       title:     g.title,
@@ -102,6 +110,7 @@ export class FindGamePage {
       spotsLeft: g.spotsLeft,
       type:      g.type,
       typeLabel: labels[g.type] || g.type,
+      isPlayer,
     };
   }
 
@@ -122,5 +131,15 @@ export class FindGamePage {
     if (data?.refreshNeeded) {
       this.loadGames();
     }
+  }
+
+  async openGameChat(game: DisplayGame): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: GameChatComponent,
+      componentProps: { gameId: game._id, gameTitle: game.title },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
+    });
+    await modal.present();
   }
 }

@@ -121,14 +121,23 @@
           <ion-icon name="people-outline"></ion-icon>
           {{ game.spotsLeft }} Spots Left
         </p>
-        <ion-button
-          expand="block"
-          class="join-btn"
-          [ngClass]="'join-btn--' + game.type"
-          (click)="openGameDetail(game)"
-          (keydown.enter)="openGameDetail(game)">
-          View Game
-        </ion-button>
+        <div class="card-actions">
+          <ion-button
+            expand="block"
+            class="join-btn"
+            [ngClass]="'join-btn--' + game.type"
+            (click)="openGameDetail(game)"
+            (keydown.enter)="openGameDetail(game)">
+            View Game
+          </ion-button>
+          <ion-button
+            *ngIf="game.isPlayer"
+            class="chat-btn"
+            (click)="openGameChat(game)"
+            title="Open game chat">
+            <ion-icon name="chatbubbles-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
       </div>
 
     </div>
