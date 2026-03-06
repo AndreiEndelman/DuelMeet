@@ -41,7 +41,7 @@ export class GameDetailComponent implements OnInit {
   }
 
   get isHost(): boolean {
-    return !!this.game && this.game.host._id === this.currentUserId;
+    return !!this.game && String(this.game.host._id) === String(this.currentUserId);
   }
 
   get isPlayer(): boolean {

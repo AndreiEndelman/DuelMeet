@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
       ]);
     }
 
-    res.json({ games, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
+    res.json({ games: games.filter(g => g.host), total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
   } catch (err) {
     console.error('[getGames]', err);
     res.status(500).json({ message: 'Server error fetching games' });
