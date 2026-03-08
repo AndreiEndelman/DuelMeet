@@ -31,7 +31,7 @@
       <p class="profile-quote" *ngIf="quote">"{{ quote }}"</p>
       <div class="fav-games" *ngIf="favoriteGames.length">
         <span class="fav-label">Favorite Games:</span>
-        <span *ngFor="let g of favoriteGames" class="fav-icon" [attr.title]="g.label">{{ g.icon }}</span>
+        <span *ngFor="let g of favoriteGames" class="fav-chip">{{ g.label }}</span>
       </div>
     </div>
 
@@ -69,9 +69,7 @@
     <div class="section">
       <p class="section-title">My Upcoming Games</p>
       <div *ngFor="let g of upcomingGames" class="mini-card" [ngClass]="'mini-card--' + g.type">
-        <div class="mini-art" [ngClass]="'mini-art--' + g.type">
-          <span>{{ g.type === 'magic' ? '&#x1F9D9;' : g.type === 'pokemon' ? '&#x26A1;' : g.type === 'yugioh' ? '&#x1F441;' : '&#x2620;' }}</span>
-        </div>
+        <div class="mini-art" [ngClass]="'mini-art--' + g.type"></div>
         <div class="mini-info">
           <p class="mini-title">{{ g.title }}</p>
           <p class="mini-date">

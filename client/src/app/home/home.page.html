@@ -51,9 +51,7 @@
     <div *ngFor="let g of upcomingGames"
          class="mini-card"
          [ngClass]="'mini-card--' + g.type">
-      <div class="mini-art" [ngClass]="'mini-art--' + g.type">
-        <span>{{ g.type === 'magic' ? '🧙' : g.type === 'pokemon' ? '⚡' : g.type === 'yugioh' ? '👁️' : '☠️' }}</span>
-      </div>
+      <div class="mini-art" [ngClass]="'mini-art--' + g.type"></div>
       <div class="mini-info">
         <p class="mini-title">{{ g.title }}</p>
         <p class="mini-date">

@@ -75,9 +75,14 @@ ion-toolbar { --background: #0a0c1a; }
   font-weight: 600;
 }
 
-.fav-icon {
-  font-size: 1.3rem;
-  filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));
+.fav-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e0e6ff;
+  background: rgba(124, 111, 255, 0.15);
+  border: 1px solid rgba(124, 111, 255, 0.3);
+  border-radius: 20px;
+  padding: 2px 10px;
 }
 
 // ── Stats row ─────────────────────────────────────────────────
