@@ -41,10 +41,10 @@ interface DisplayGame {
 export class FindGamePage implements OnDestroy {
   filters = [
     { label: 'All',      value: 'all',     ionIcon: 'apps',     emoji: '' },
-    { label: 'Magic',    value: 'magic',   ionIcon: '',         emoji: '🧙' },
-    { label: 'Pokémon',  value: 'pokemon', ionIcon: '',         emoji: '⚡' },
-    { label: 'Yu-Gi-Oh', value: 'yugioh',  ionIcon: '',         emoji: '👁️' },
-    { label: 'One Piece',value: 'onepiece',ionIcon: '',         emoji: '☠️' },
+    { label: 'Magic',    value: 'magic',   ionIcon: '',         emoji: '' },
+    { label: 'Pokémon',  value: 'pokemon', ionIcon: '',         emoji: '' },
+    { label: 'Yu-Gi-Oh', value: 'yugioh',  ionIcon: '',         emoji: '' },
+    { label: 'One Piece',value: 'onepiece',ionIcon: '',         emoji: '' },
   ];
   radiusOptions = [10, 25, 50, 100];
   activeFilter = 'all';
