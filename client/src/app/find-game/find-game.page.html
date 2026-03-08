@@ -91,14 +91,12 @@
 
   <!-- No results for location search -->
   <div class="state-msg" *ngIf="!loading && !error && noLocationResults">
-    <span class="state-emoji">📍</span>
     <p>No games found within {{ radius }} miles of "{{ locationInput }}".</p>
     <ion-button fill="outline" size="small" (click)="clearLocation()">Show all games</ion-button>
   </div>
 
   <!-- Empty state (no location search) -->
   <div class="state-msg" *ngIf="!loading && !error && filteredGames.length === 0 && !noLocationResults">
-    <span class="state-emoji">🃏</span>
     <p>No games found. Be the first to create one!</p>
   </div>
 
