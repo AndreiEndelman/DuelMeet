@@ -351,6 +351,7 @@ ion-toolbar {
   --background-hover: rgba(124,111,255,0.25);
   --background-activated: rgba(124,111,255,0.3);
   --box-shadow: none;
+  position: relative;
   width: 36px;
   height: 36px;
   flex-shrink: 0;
@@ -362,4 +363,19 @@ ion-toolbar {
   }
 
   ion-icon { font-size: 1.1rem; color: #7c6fff; }
+}
+
+.chat-card-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  --background: #eb445a;
+  --color: #fff;
+  font-size: 0.6rem;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  line-height: 15px;
+  pointer-events: none;
 }

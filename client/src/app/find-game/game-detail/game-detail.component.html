@@ -9,7 +9,6 @@
     <ion-buttons slot="end" *ngIf="canChat">
       <ion-button (click)="openChat()" fill="clear" shape="round" class="chat-toolbar-btn">
         <ion-icon name="chatbubbles-outline" slot="icon-only"></ion-icon>
-        <ion-badge *ngIf="unreadCount > 0" class="chat-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</ion-badge>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

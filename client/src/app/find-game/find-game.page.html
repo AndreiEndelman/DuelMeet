@@ -131,11 +131,14 @@
             View Game
           </ion-button>
           <ion-button
-            *ngIf="game.isPlayer"
+            *ngIf="game.isPlayer || game.isHost"
             class="chat-btn"
             (click)="openGameChat(game)"
             title="Open game chat">
             <ion-icon name="chatbubbles-outline" slot="icon-only"></ion-icon>
+            <ion-badge *ngIf="unreadCounts[game._id] > 0" class="chat-card-badge">
+              {{ unreadCounts[game._id] > 9 ? '9+' : unreadCounts[game._id] }}
+            </ion-badge>
           </ion-button>
         </div>
       </div>
