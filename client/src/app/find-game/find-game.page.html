@@ -16,18 +16,33 @@
 
   <!-- Location search bar -->
   <div class="location-bar">
-    <div class="location-input-row">
-      <ion-icon name="location-outline" class="loc-icon"></ion-icon>
-      <input
-        class="location-input"
-        type="text"
-        placeholder="City, zip code, or address…"
-        [(ngModel)]="locationInput"
-        (keydown.enter)="searchByLocation()"
-      />
-      <button *ngIf="locationInput" class="clear-btn" (click)="clearLocation()" type="button">
-        <ion-icon name="close-circle"></ion-icon>
-      </button>
+    <div class="location-autocomplete">
+      <div class="location-input-row">
+        <ion-icon name="location-outline" class="loc-icon"></ion-icon>
+        <input
+          class="location-input"
+          type="text"
+          placeholder="City, zip code, or address…"
+          [(ngModel)]="locationInput"
+          (input)="onLocationInput()"
+          (blur)="hideSuggestions()"
+          (keydown.enter)="searchByLocation()"
+          autocomplete="off"
+        />
+        <button *ngIf="locationInput" class="clear-btn" (click)="clearLocation()" type="button">
+          <ion-icon name="close-circle"></ion-icon>
+        </button>
+      </div>
+      <ul class="suggestions-list" *ngIf="showSuggestions">
+        <li
+          *ngFor="let p of predictions"
+          class="suggestion-item"
+          (mousedown)="selectPrediction(p)">
+          <ion-icon name="location-outline" class="sug-icon"></ion-icon>
+          <span class="sug-main">{{ p.mainText }}</span>
+          <span class="sug-secondary" *ngIf="p.secondaryText">{{ p.secondaryText }}</span>
+        </li>
+      </ul>
     </div>
     <div class="radius-row">
       <span class="radius-label">Radius:</span>

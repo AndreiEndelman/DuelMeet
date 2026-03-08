@@ -1,13 +1,22 @@
 import { Component, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { Subject, interval } from 'rxjs';
-import { takeUntil, switchMap } from 'rxjs/operators';
+import { Subject, Subscription, interval } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil, switchMap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { GamesService, Game as ApiGame } from '../services/games.service';
 import { ChatService } from '../services/chat.service';
 import { AuthService } from '../services/auth.service';
 import { GameDetailComponent } from './game-detail/game-detail.component';
 import { GameChatComponent } from './game-chat/game-chat.component';
+
+interface Prediction {
+  placeId: string;
+  description: string;
+  mainText: string;
+  secondaryText: string;
+}
 
 interface DisplayGame {
   _id: string;
@@ -49,6 +58,11 @@ export class FindGamePage implements OnDestroy {
   private lastMsgTimes: { [gameId: string]: string | null } = {};
   private chatOpenFor: string | null = null;
   private readonly destroy$ = new Subject<void>();
+  // Autocomplete
+  predictions: Prediction[] = [];
+  showSuggestions = false;
+  private locationInput$ = new Subject<string>();
+  private autoSub!: Subscription;
 
   get filteredGames(): DisplayGame[] {
     return this.allGames;
@@ -58,9 +72,32 @@ export class FindGamePage implements OnDestroy {
     private readonly router: Router,
     private readonly gamesService: GamesService,
     private readonly chatService: ChatService,
+    private readonly http: HttpClient,
     private readonly modalCtrl: ModalController,
     private readonly auth: AuthService,
-  ) {}
+  ) {
+    this.autoSub = this.locationInput$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((input) => {
+        if (!input || input.length < 3) {
+          this.predictions = [];
+          this.showSuggestions = false;
+          return [];
+        }
+        return this.http.get<{ predictions: Prediction[] }>(
+          `${environment.apiUrl}/places/autocomplete`,
+          { params: { input } }
+        );
+      }),
+    ).subscribe({
+      next: (res: any) => {
+        this.predictions = res?.predictions ?? [];
+        this.showSuggestions = this.predictions.length > 0;
+      },
+      error: () => { this.predictions = []; this.showSuggestions = false; },
+    });
+  }
 
   ionViewWillEnter(): void {
     this.loadGames();
@@ -132,7 +169,23 @@ export class FindGamePage implements OnDestroy {
     });
   }
 
+  onLocationInput(): void {
+    this.locationInput$.next(this.locationInput);
+  }
+
+  selectPrediction(p: Prediction): void {
+    this.locationInput = p.description;
+    this.predictions = [];
+    this.showSuggestions = false;
+    this.loadGames();
+  }
+
+  hideSuggestions(): void {
+    setTimeout(() => { this.showSuggestions = false; }, 150);
+  }
+
   searchByLocation(): void {
+    this.showSuggestions = false;
     this.loadGames();
   }
 
@@ -217,4 +270,5 @@ export class FindGamePage implements OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.autoSub.unsubscribe();
   }}
