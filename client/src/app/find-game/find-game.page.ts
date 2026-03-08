@@ -40,7 +40,7 @@ interface DisplayGame {
 })
 export class FindGamePage implements OnDestroy {
   filters = [
-    { label: 'All',      value: 'all',     ionIcon: 'apps',     emoji: '' },
+    { label: 'All',      value: 'all',     ionIcon: '',         emoji: '' },
     { label: 'Magic',    value: 'magic',   ionIcon: '',         emoji: '' },
     { label: 'Pokémon',  value: 'pokemon', ionIcon: '',         emoji: '' },
     { label: 'Yu-Gi-Oh', value: 'yugioh',  ionIcon: '',         emoji: '' },
