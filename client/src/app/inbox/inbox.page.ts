@@ -92,6 +92,7 @@ export class InboxPage implements OnInit {
   }
 
   async openDm(conv: DmConversation): Promise<void> {
+    conv.hasUnread = false;
     const modal = await this.modalCtrl.create({
       component: DmThreadComponent,
       componentProps: { userId: conv.user._id, username: conv.user.username, userAvatar: conv.user.avatar ?? '' },
@@ -152,6 +153,7 @@ export class InboxPage implements OnInit {
   }
 
   async openGroupChat(chat: GroupChat): Promise<void> {
+    chat.hasUnread = false;
     const modal = await this.modalCtrl.create({
       component: GroupChatThreadComponent,
       componentProps: { chatId: chat._id },
