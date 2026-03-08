@@ -4,9 +4,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FindGamePage } from './find-game.page';
 import { GameDetailComponent } from './game-detail/game-detail.component';
-import { GameChatComponent } from './game-chat/game-chat.component';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
 import { FindGamePageRoutingModule } from './find-game-routing.module';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   imports: [
@@ -14,8 +14,9 @@ import { FindGamePageRoutingModule } from './find-game-routing.module';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    FindGamePageRoutingModule
+    FindGamePageRoutingModule,
+    SharedModule,
   ],
-  declarations: [FindGamePage, GameDetailComponent, GameChatComponent]
+  declarations: [FindGamePage, GameDetailComponent],
 })
 export class FindGamePageModule {}

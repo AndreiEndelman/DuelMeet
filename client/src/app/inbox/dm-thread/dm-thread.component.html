@@ -1,0 +1,75 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="chevron-down" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="dm-title">
+      <div class="dm-title-avatar" *ngIf="userAvatar">
+        <img [src]="userAvatar" [alt]="username" />
+      </div>
+      <ion-icon *ngIf="!userAvatar" name="person-circle-outline" class="title-icon"></ion-icon>
+      {{ username }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="chat-content">
+
+  <div class="chat-state" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading messages…</p>
+  </div>
+
+  <div class="chat-state chat-state--error" *ngIf="error && !loading">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <p>{{ error }}</p>
+    <ion-button fill="outline" size="small" (click)="loadMessages()">Retry</ion-button>
+  </div>
+
+  <div class="messages-wrap" *ngIf="!loading && !error">
+    <div class="chat-empty" *ngIf="messages.length === 0">
+      <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+      <p>Start the conversation!</p>
+    </div>
+
+    <div
+      *ngFor="let msg of messages"
+      class="chat-msg"
+      [class.chat-msg--self]="msg.sender._id === currentUserId">
+
+      <div class="chat-avatar" *ngIf="msg.sender._id !== currentUserId">
+        <img *ngIf="msg.sender.avatar" [src]="msg.sender.avatar" [alt]="msg.sender.username" />
+        <ion-icon *ngIf="!msg.sender.avatar" name="person"></ion-icon>
+      </div>
+
+      <div class="chat-bubble-wrap">
+        <div class="chat-bubble">{{ msg.text }}</div>
+        <span class="chat-time">{{ msg.createdAt | date:'h:mm a' }}</span>
+      </div>
+    </div>
+
+    <div #chatEnd></div>
+  </div>
+
+</ion-content>
+
+<ion-footer class="chat-footer">
+  <div class="chat-input-row">
+    <textarea
+      class="chat-input"
+      placeholder="Message…"
+      rows="1"
+      [(ngModel)]="chatText"
+      (keydown)="handleKey($event)"
+      [disabled]="sendingMessage">
+    </textarea>
+    <button
+      class="chat-send-btn"
+      (click)="sendMessage()"
+      [disabled]="!chatText.trim() || sendingMessage">
+      <ion-icon name="send"></ion-icon>
+    </button>
+  </div>
+</ion-footer>

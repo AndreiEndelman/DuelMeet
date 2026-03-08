@@ -4,6 +4,7 @@ const Game = require('../models/Game');
 const Message = require('../models/Message');
 const Review = require('../models/Review');
 const User = require('../models/User');
+const GroupChat = require('../models/GroupChat');
 const { protect, requireVerified } = require('../middleware/auth');
 const { geocode } = require('../utils/geocode');
 
@@ -142,6 +143,15 @@ router.post(
       }
 
       const game = await Game.create(gameData);
+
+      // Auto-create a group chat for this game
+      await GroupChat.create({
+        name: title,
+        creator: req.user._id,
+        members: [req.user._id],
+        gameRef: game._id,
+      });
+
       const populated = await game.populate('host', 'username avatar location');
       res.status(201).json({ game: populated });
     } catch (err) {
@@ -210,6 +220,12 @@ router.post('/:id/accept/:userId', protect, requireVerified, async (req, res) =>
     game.applicants = game.applicants.filter((a) => a.toString() !== targetId);
     game.players.push(targetId);
     await game.save();
+
+    // Add accepted player to the game's GroupChat
+    await GroupChat.findOneAndUpdate(
+      { gameRef: game._id },
+      { $addToSet: { members: targetId } }
+    );
 
     await game.populate([
       { path: 'host', select: 'username avatar location reputation' },

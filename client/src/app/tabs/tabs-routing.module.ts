@@ -18,6 +18,11 @@ const routes: Routes = [
           import('../find-game/find-game.module').then((m) => m.FindGamePageModule),
       },
       {
+        path: 'inbox',
+        loadChildren: () =>
+          import('../inbox/inbox.module').then((m) => m.InboxPageModule),
+      },
+      {
         path: 'profile',
         loadChildren: () =>
           import('../profile/profile.module').then((m) => m.ProfilePageModule),
