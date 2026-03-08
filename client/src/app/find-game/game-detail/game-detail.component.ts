@@ -3,6 +3,7 @@ import { AlertController, ModalController } from '@ionic/angular';
 import { GamesService, Game } from '../../services/games.service';
 import { AuthService } from '../../services/auth.service';
 import { GameChatComponent } from '../game-chat/game-chat.component';
+import { ProfileCardService } from '../../services/profile-card.service';
 
 @Component({
   selector: 'app-game-detail',
@@ -93,10 +94,15 @@ export class GameDetailComponent implements OnInit {
     private readonly modalCtrl: ModalController,
     private readonly gamesService: GamesService,
     private readonly auth: AuthService,
+    private readonly profileCard: ProfileCardService,
   ) {}
 
   ngOnInit(): void {
     this.loadGame();
+  }
+
+  openHostProfile(): void {
+    if (this.game?.host?._id) this.profileCard.open(this.game.host._id);
   }
 
   loadGame(): void {

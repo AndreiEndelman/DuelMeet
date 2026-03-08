@@ -29,7 +29,7 @@
           <p>No pending friend requests</p>
         </div>
         <div *ngFor="let req of pendingRequests" class="request-row">
-          <div class="req-avatar">
+          <div class="req-avatar" (click)="openProfile(req.sender._id, $event)" style="cursor:pointer">
             <img *ngIf="req.sender.avatar" [src]="req.sender.avatar" alt="{{ req.sender.username }}" />
             <ion-icon *ngIf="!req.sender.avatar" name="person"></ion-icon>
           </div>
@@ -77,7 +77,7 @@
         </div>
 
         <div *ngFor="let conv of dmConversations" class="conv-row" (click)="openDm(conv)">
-          <div class="conv-avatar">
+          <div class="conv-avatar" (click)="openProfile(conv.user._id, $event)" style="cursor:pointer">
             <img *ngIf="conv.user.avatar" [src]="conv.user.avatar" alt="{{ conv.user.username }}" />
             <ion-icon *ngIf="!conv.user.avatar" name="person"></ion-icon>
           </div>

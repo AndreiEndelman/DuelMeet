@@ -4,6 +4,7 @@ import { FriendsService, FriendRequest, PublicUser } from '../services/friends.s
 import { GroupChatService, GroupChat } from '../services/group-chat.service';
 import { DmService, DmConversation } from '../services/dm.service';
 import { NotificationsService } from '../services/notifications.service';
+import { ProfileCardService } from '../services/profile-card.service';
 import { GroupChatThreadComponent } from './group-chat-thread/group-chat-thread.component';
 import { DmThreadComponent } from './dm-thread/dm-thread.component';
 
@@ -41,6 +42,7 @@ export class InboxPage implements OnInit {
     private readonly groupChatService: GroupChatService,
     private readonly dmService: DmService,
     private readonly notificationsService: NotificationsService,
+    private readonly profileCard: ProfileCardService,
     private readonly modalCtrl: ModalController,
     private readonly alertCtrl: AlertController,
   ) {}

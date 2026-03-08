@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
+import { ProfileData } from '../shared/user-profile-card/user-profile-card.component';
 
 export interface PublicUser {
   _id: string;
@@ -106,7 +107,15 @@ export class FriendsService {
     );
   }
 
-  // ── Public user profile ───────────────────────────────────────────────────
+  // ── Public user profile (with stats + friend status) ───────────────────────
+  getUserProfile(userId: string): Observable<ProfileData> {
+    return this.http.get<ProfileData>(
+      `${this.usersBase}/${userId}`,
+      this.headers,
+    );
+  }
+
+  // ── Public user profile (legacy — basic only) ─────────────────────────────
   getUser(userId: string): Observable<{ user: PublicUser }> {
     return this.http.get<{ user: PublicUser }>(
       `${this.usersBase}/${userId}`,

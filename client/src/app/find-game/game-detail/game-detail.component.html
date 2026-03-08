@@ -65,7 +65,7 @@
     <div class="detail-section">
       <p class="section-label">Host</p>
       <div class="host-row">
-        <div class="host-avatar">
+        <div class="host-avatar" (click)="openHostProfile()" style="cursor:pointer">
           <img *ngIf="game.host.avatar" [src]="game.host.avatar" alt="Host avatar" />
           <ion-icon *ngIf="!game.host.avatar" name="person"></ion-icon>
         </div>

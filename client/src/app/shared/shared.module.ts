@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { GameChatComponent } from '../find-game/game-chat/game-chat.component';
+import { UserProfileCardComponent } from './user-profile-card/user-profile-card.component';
 
 /**
  * SharedModule contains components that are used across multiple lazy-loaded
@@ -10,7 +11,7 @@ import { GameChatComponent } from '../find-game/game-chat/game-chat.component';
  */
 @NgModule({
   imports: [IonicModule, CommonModule, FormsModule],
-  declarations: [GameChatComponent],
-  exports: [GameChatComponent, IonicModule, CommonModule, FormsModule],
+  declarations: [GameChatComponent, UserProfileCardComponent],
+  exports: [GameChatComponent, UserProfileCardComponent, IonicModule, CommonModule, FormsModule],
 })
 export class SharedModule {}

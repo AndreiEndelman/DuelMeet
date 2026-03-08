@@ -1,0 +1,147 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="card-content">
+
+  <!-- Loading -->
+  <div class="state-wrap" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <!-- Error -->
+  <div class="state-wrap state-wrap--error" *ngIf="error && !loading">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Profile -->
+  <div class="profile-wrap" *ngIf="profile && !loading">
+
+    <!-- Avatar + name + location -->
+    <div class="avatar-section">
+      <div class="big-avatar">
+        <img *ngIf="profile.user.avatar" [src]="profile.user.avatar" alt="{{ profile.user.username }}" />
+        <ion-icon *ngIf="!profile.user.avatar" name="person"></ion-icon>
+      </div>
+      <h2 class="username">{{ profile.user.username }}</h2>
+      <p class="location" *ngIf="profile.user.location">
+        <ion-icon name="location-outline"></ion-icon>
+        {{ profile.user.location }}
+      </p>
+    </div>
+
+    <!-- Reputation stars -->
+    <div class="rep-row">
+      <ion-icon
+        *ngFor="let s of stars"
+        [name]="s <= profile.user.reputation ? 'star' : 'star-outline'"
+        class="rep-star"
+        [class.filled]="s <= profile.user.reputation">
+      </ion-icon>
+      <span class="rep-count">({{ profile.user.reputationCount }})</span>
+    </div>
+
+    <!-- Games stats -->
+    <div class="stats-row">
+      <div class="stat">
+        <p class="stat-value">{{ profile.stats.gamesHosted }}</p>
+        <p class="stat-label">Hosted</p>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <p class="stat-value">{{ profile.stats.gamesJoined }}</p>
+        <p class="stat-label">Joined</p>
+      </div>
+    </div>
+
+    <!-- Bio -->
+    <div class="bio-section" *ngIf="profile.user.bio">
+      <p class="bio-text">{{ profile.user.bio }}</p>
+    </div>
+
+    <!-- Quote -->
+    <div class="quote-section" *ngIf="profile.user.quote">
+      <ion-icon name="chatbox-outline" class="quote-icon"></ion-icon>
+      <p class="quote-text">"{{ profile.user.quote }}"</p>
+    </div>
+
+    <!-- Favourite games -->
+    <div class="games-section" *ngIf="profile.user.favoriteGames?.length">
+      <p class="section-label">Plays</p>
+      <div class="game-chips">
+        <span
+          *ngFor="let g of profile.user.favoriteGames"
+          class="game-chip"
+          [class]="'game-chip--' + g">
+          {{ gameLabels[g] }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Friend action -->
+    <div class="action-section" *ngIf="!isOwnProfile">
+
+      <ion-button
+        *ngIf="friendStatus === 'none'"
+        expand="block"
+        class="friend-btn friend-btn--add"
+        (click)="addFriend()"
+        [disabled]="actionLoading">
+        <ion-icon slot="start" name="person-add-outline"></ion-icon>
+        Add Friend
+      </ion-button>
+
+      <ion-button
+        *ngIf="friendStatus === 'pending_sent'"
+        expand="block"
+        fill="outline"
+        class="friend-btn friend-btn--pending"
+        (click)="cancelRequest()"
+        [disabled]="actionLoading">
+        <ion-icon slot="start" name="hourglass-outline"></ion-icon>
+        Request Sent — Cancel
+      </ion-button>
+
+      <div *ngIf="friendStatus === 'pending_received'" class="received-actions">
+        <ion-button
+          expand="block"
+          class="friend-btn friend-btn--accept"
+          (click)="acceptRequest()"
+          [disabled]="actionLoading">
+          <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+          Accept Request
+        </ion-button>
+        <ion-button
+          expand="block"
+          fill="outline"
+          class="friend-btn friend-btn--decline"
+          (click)="declineRequest()"
+          [disabled]="actionLoading">
+          <ion-icon slot="start" name="close-outline"></ion-icon>
+          Decline
+        </ion-button>
+      </div>
+
+      <ion-button
+        *ngIf="friendStatus === 'friends'"
+        expand="block"
+        fill="outline"
+        class="friend-btn friend-btn--friends"
+        (click)="unfriend()"
+        [disabled]="actionLoading">
+        <ion-icon slot="start" name="people-outline"></ion-icon>
+        Friends
+      </ion-button>
+
+    </div>
+
+  </div>
+
+</ion-content>
