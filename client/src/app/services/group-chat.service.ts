@@ -17,6 +17,7 @@ export interface GroupChat {
   members: GroupChatMember[];
   gameRef?: { _id: string; title: string; type: string } | null;
   updatedAt: string;
+  hasUnread?: boolean;
 }
 
 export interface GroupMessage {

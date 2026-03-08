@@ -21,6 +21,7 @@ export interface DmMessage {
 export interface DmConversation {
   user: DmUser;
   lastMessage: { text: string; createdAt: string };
+  hasUnread?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })

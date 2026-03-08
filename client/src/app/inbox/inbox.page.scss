@@ -307,3 +307,13 @@ ion-toolbar {
   color: rgba(255,255,255,0.22);
   flex-shrink: 0;
 }
+
+// ── Unread dot on conversation rows ──────────────────────────────────────────
+.unread-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #7c6fff;
+  box-shadow: 0 0 6px rgba(124, 111, 255, 0.75);
+  flex-shrink: 0;
+}

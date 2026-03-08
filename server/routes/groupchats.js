@@ -9,10 +9,16 @@ router.use(protect);
 // ── GET /api/groupchats — list all chats the user is a member of ──────────────
 router.get('/', async (req, res) => {
   try {
-    const chats = await GroupChat.find({ members: req.user._id })
+    const since = req.user.lastInboxAt || new Date(0);
+    const rawChats = await GroupChat.find({ members: req.user._id })
       .populate('creator', 'username avatar')
       .populate('members', 'username avatar')
       .sort({ updatedAt: -1 });
+
+    const chats = rawChats.map((c) => ({
+      ...c.toObject(),
+      hasUnread: c.updatedAt > since,
+    }));
     res.json({ chats });
   } catch (err) {
     console.error('[groupchats/list]', err);

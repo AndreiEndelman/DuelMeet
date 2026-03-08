@@ -85,7 +85,8 @@
             <p class="conv-name">{{ conv.user.username }}</p>
             <p class="conv-preview">{{ truncate(conv.lastMessage.text) }}</p>
           </div>
-          <span class="conv-time">{{ formatTime(conv.lastMessage.createdAt) }}</span>
+          <span class="unread-dot" *ngIf="conv.hasUnread"></span>
+          <span class="conv-time" *ngIf="!conv.hasUnread">{{ formatTime(conv.lastMessage.createdAt) }}</span>
         </div>
 
         <!-- ── Group Chats sub-section ─────────────────────────────────── -->

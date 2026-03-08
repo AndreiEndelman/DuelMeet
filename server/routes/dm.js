@@ -19,13 +19,17 @@ router.get('/conversations', async (req, res) => {
       .populate('receiver', 'username avatar');
 
     // Build a map of unique conversations (keyed by the other user's id)
+    const since = req.user.lastInboxAt || new Date(0);
     const seen = new Map();
     for (const msg of msgs) {
       const other = msg.sender._id.toString() === me.toString() ? msg.receiver : msg.sender;
       if (!seen.has(other._id.toString())) {
+        // Unread: received (not sent by me) and arrived after last inbox visit
+        const isReceived = msg.sender._id.toString() !== me.toString();
         seen.set(other._id.toString(), {
           user: other,
           lastMessage: { text: msg.text, createdAt: msg.createdAt },
+          hasUnread: isReceived && msg.createdAt > since,
         });
       }
     }
