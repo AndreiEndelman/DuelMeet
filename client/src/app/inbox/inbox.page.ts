@@ -59,6 +59,11 @@ export class InboxPage implements OnInit {
     this.loadGroupChats();
   }
 
+  openProfile(userId: string, $event: Event): void {
+    $event.stopPropagation();
+    this.profileCard.open(userId);
+  }
+
   // ── Friend requests ──────────────────────────────────────────
   loadIncomingRequests(): void {
     this.loadingRequests = true;
