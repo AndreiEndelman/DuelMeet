@@ -44,8 +44,9 @@ app.use('/api/games',       require('./routes/games'));
 app.use('/api/places',      require('./routes/places'));
 app.use('/api/friends',     require('./routes/friends'));
 app.use('/api/users',       require('./routes/users'));
-app.use('/api/groupchats',  require('./routes/groupchats'));
-app.use('/api/dm',          require('./routes/dm'));
+app.use('/api/groupchats',     require('./routes/groupchats'));
+app.use('/api/dm',             require('./routes/dm'));
+app.use('/api/notifications',  require('./routes/notifications'));
 
 // Health check
 app.get('/', (_req, res) => res.json({ status: 'API running' }));

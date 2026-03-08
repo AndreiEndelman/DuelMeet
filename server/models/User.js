@@ -81,6 +81,11 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    // Tracks when user last opened Inbox — used for unread dot
+    lastInboxAt: {
+      type: Date,
+      default: new Date(0),
+    },
   },
   { timestamps: true }
 );

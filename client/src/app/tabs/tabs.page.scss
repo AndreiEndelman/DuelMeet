@@ -10,5 +10,29 @@
   --color-selected: #fff;
 }
 
+// ── Notification dot ─────────────────────────────────────────────────────────
+.tab-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon {
+    font-size: 1.4rem;
+  }
+}
+
+.notif-dot {
+  position: absolute;
+  top: -1px;
+  right: -5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7c6fff;
+  box-shadow: 0 0 6px rgba(124, 111, 255, 0.8);
+  border: 1.5px solid #0a0c1a;
+}
+
 
 

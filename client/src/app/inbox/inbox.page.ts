@@ -3,6 +3,7 @@ import { AlertController, ModalController } from '@ionic/angular';
 import { FriendsService, FriendRequest, PublicUser } from '../services/friends.service';
 import { GroupChatService, GroupChat } from '../services/group-chat.service';
 import { DmService, DmConversation } from '../services/dm.service';
+import { NotificationsService } from '../services/notifications.service';
 import { GroupChatThreadComponent } from './group-chat-thread/group-chat-thread.component';
 import { DmThreadComponent } from './dm-thread/dm-thread.component';
 
@@ -39,12 +40,16 @@ export class InboxPage implements OnInit {
     private readonly friendsService: FriendsService,
     private readonly groupChatService: GroupChatService,
     private readonly dmService: DmService,
+    private readonly notificationsService: NotificationsService,
     private readonly modalCtrl: ModalController,
     private readonly alertCtrl: AlertController,
   ) {}
 
   ngOnInit(): void { this.load(); }
-  ionViewWillEnter(): void { this.load(); }
+  ionViewWillEnter(): void {
+    this.load();
+    this.notificationsService.markRead();
+  }
 
   load(): void {
     this.loadIncomingRequests();

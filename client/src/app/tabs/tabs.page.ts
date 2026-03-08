@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { NotificationsService } from '../services/notifications.service';
 
 @Component({
   selector: 'app-tabs',
@@ -6,8 +7,11 @@ import { Component } from '@angular/core';
   styleUrls: ['tabs.page.scss'],
   standalone: false,
 })
-export class TabsPage {
+export class TabsPage implements OnInit, OnDestroy {
 
-  constructor() {}
+  constructor(readonly notifications: NotificationsService) {}
+
+  ngOnInit(): void  { this.notifications.startPolling(); }
+  ngOnDestroy(): void { this.notifications.stopPolling(); }
 
 }

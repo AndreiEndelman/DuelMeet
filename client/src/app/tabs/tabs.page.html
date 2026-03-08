@@ -12,7 +12,10 @@
     </ion-tab-button>
 
     <ion-tab-button tab="inbox" class="tab-btn">
-      <ion-icon name="mail-outline"></ion-icon>
+      <div class="tab-icon-wrap">
+        <ion-icon name="mail-outline"></ion-icon>
+        <span class="notif-dot" *ngIf="notifications.hasUnread$ | async"></span>
+      </div>
       <ion-label>Inbox</ion-label>
     </ion-tab-button>
 
