@@ -93,6 +93,7 @@ export class InboxPage implements OnInit {
 
   async openDm(conv: DmConversation): Promise<void> {
     this.dmConversations = this.dmConversations.map((c) => c === conv ? { ...c, hasUnread: false } : c);
+    this.notificationsService.markRead();
     const modal = await this.modalCtrl.create({
       component: DmThreadComponent,
       componentProps: { userId: conv.user._id, username: conv.user.username, userAvatar: conv.user.avatar ?? '' },
@@ -100,7 +101,6 @@ export class InboxPage implements OnInit {
       initialBreakpoint: 1,
     });
     await modal.present();
-    modal.onDidDismiss().then(() => this.loadDmConversations());
   }
 
   async newDmPicker(): Promise<void> {
@@ -133,7 +133,6 @@ export class InboxPage implements OnInit {
                 initialBreakpoint: 1,
               });
               await modal.present();
-              modal.onDidDismiss().then(() => this.loadDmConversations());
             },
           },
         ],
