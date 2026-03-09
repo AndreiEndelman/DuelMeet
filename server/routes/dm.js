@@ -109,4 +109,22 @@ router.post('/:userId', requireVerified, async (req, res) => {
   }
 });
 
+// ── DELETE /api/dm/conversation/:userId — erase entire thread both ways ───────
+router.delete('/conversation/:userId', async (req, res) => {
+  try {
+    const me    = req.user._id;
+    const other = req.params.userId;
+    await DmMessage.deleteMany({
+      $or: [
+        { sender: me, receiver: other },
+        { sender: other, receiver: me },
+      ],
+    });
+    res.json({ message: 'Conversation deleted' });
+  } catch (err) {
+    console.error('[dm/delete-conversation]', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

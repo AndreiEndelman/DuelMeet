@@ -317,3 +317,22 @@ ion-toolbar {
   box-shadow: 0 0 6px rgba(124, 111, 255, 0.75);
   flex-shrink: 0;
 }
+
+// ── Per-row delete / leave button ─────────────────────────────────────────────
+.conv-delete-btn {
+  background: none;
+  border: none;
+  padding: 6px;
+  margin-left: 4px;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+
+  &:hover, &:active { color: rgba(255, 100, 100, 0.75); background: rgba(255, 100, 100, 0.08); }
+  ion-icon { font-size: 1rem; pointer-events: none; }
+}

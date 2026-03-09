@@ -14,6 +14,41 @@ required.forEach((key) => {
   }
 });
 
+// ── Expired-game cleanup ─────────────────────────────────────────────────────
+// Runs once at startup then every 6 hours.
+// Deletes games (+ lobby messages, reviews, and linked group chats)
+// whose scheduled date is more than 24 hours in the past.
+async function cleanupExpiredGames() {
+  try {
+    const Game       = require('./models/Game');
+    const Message    = require('./models/Message');
+    const Review     = require('./models/Review');
+    const GroupChat  = require('./models/GroupChat');
+    const GroupMessage = require('./models/GroupMessage');
+
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const expired = await Game.find({ date: { $lt: cutoff } }, '_id');
+    if (expired.length === 0) return;
+
+    const ids = expired.map((g) => g._id);
+    await Promise.all([
+      Message.deleteMany({ game: { $in: ids } }),
+      Review.deleteMany({ game: { $in: ids } }),
+      GroupChat.find({ gameRef: { $in: ids } }, '_id').then(async (chats) => {
+        const chatIds = chats.map((c) => c._id);
+        if (chatIds.length > 0) {
+          await GroupMessage.deleteMany({ groupChat: { $in: chatIds } });
+          await GroupChat.deleteMany({ _id: { $in: chatIds } });
+        }
+      }),
+      Game.deleteMany({ _id: { $in: ids } }),
+    ]);
+    console.log(`[cleanup] Removed ${ids.length} expired game(s) and their data`);
+  } catch (err) {
+    console.error('[cleanup] Error during expired-game cleanup:', err);
+  }
+}
+
 // ── App setup ────────────────────────────────────────────────────────────────
 const app = express();
 
@@ -68,6 +103,9 @@ mongoose
   .then(() => {
     console.log('MongoDB connected');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    // Run cleanup immediately, then every 6 hours
+    cleanupExpiredGames();
+    setInterval(cleanupExpiredGames, 6 * 60 * 60 * 1000);
   })
   .catch((err) => {
     console.error('MongoDB connection failed:', err.message);

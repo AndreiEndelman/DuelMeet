@@ -93,6 +93,9 @@
           </div>
           <span class="unread-dot" *ngIf="conv.hasUnread"></span>
           <span class="conv-time" *ngIf="!conv.hasUnread">{{ formatTime(conv.lastMessage.createdAt) }}</span>
+          <button class="conv-delete-btn" (click)="deleteDm(conv, $event)" title="Delete conversation">
+            <ion-icon name="trash-outline"></ion-icon>
+          </button>
         </div>
 
         <!-- ── Group Chats sub-section ─────────────────────────────────── -->
@@ -123,6 +126,9 @@
             <p class="conv-preview" *ngIf="!chat.gameRef">{{ chat.members.length }} member{{ chat.members.length === 1 ? '' : 's' }}</p>
           </div>
           <ion-icon name="chevron-forward-outline" class="conv-chevron"></ion-icon>
+          <button class="conv-delete-btn" (click)="leaveGroupChat(chat, $event)" title="Leave chat">
+            <ion-icon name="exit-outline"></ion-icon>
+          </button>
         </div>
 
       </div>

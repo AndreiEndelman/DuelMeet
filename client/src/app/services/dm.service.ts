@@ -57,4 +57,11 @@ export class DmService {
       this.h,
     );
   }
+
+  deleteConversation(userId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(
+      `${this.base}/conversation/${userId}`,
+      this.h,
+    );
+  }
 }

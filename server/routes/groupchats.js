@@ -168,4 +168,35 @@ router.post('/:id/invite', requireVerified, async (req, res) => {
   }
 });
 
+// ── DELETE /api/groupchats/:id — leave (or fully delete if creator) ───────────
+router.delete('/:id', async (req, res) => {
+  try {
+    const chat = await GroupChat.findById(req.params.id);
+    if (!chat) return res.status(404).json({ message: 'Group chat not found' });
+    if (!chat.members.some((m) => m.toString() === req.user._id.toString())) {
+      return res.status(403).json({ message: 'Not a member' });
+    }
+
+    const isCreator = chat.creator.toString() === req.user._id.toString();
+    if (isCreator) {
+      await GroupMessage.deleteMany({ groupChat: chat._id });
+      await GroupChat.findByIdAndDelete(chat._id);
+      return res.json({ deleted: true, message: 'Group chat deleted' });
+    }
+
+    // Remove self from members; clean up if now empty
+    chat.members = chat.members.filter((m) => m.toString() !== req.user._id.toString());
+    if (chat.members.length === 0) {
+      await GroupMessage.deleteMany({ groupChat: chat._id });
+      await GroupChat.findByIdAndDelete(chat._id);
+    } else {
+      await chat.save();
+    }
+    return res.json({ deleted: false, message: 'Left group chat' });
+  } catch (err) {
+    console.error('[groupchats/delete]', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

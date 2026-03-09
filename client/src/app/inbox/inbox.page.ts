@@ -239,6 +239,60 @@ export class InboxPage implements OnInit, OnDestroy {
     return text.length > max ? text.slice(0, max) + '…' : text;
   }
 
+  // ── Delete DM conversation ────────────────────────────────────
+  async deleteDm(conv: DmConversation, $event: Event): Promise<void> {
+    $event.stopPropagation();
+    const confirm = await this.alertCtrl.create({
+      header: 'Delete Conversation',
+      message: `Delete all messages with ${conv.user.username}? This cannot be undone.`,
+      cssClass: 'dark-alert',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          cssClass: 'alert-btn-danger',
+          handler: () => {
+            this.dmService.deleteConversation(conv.user._id).subscribe({
+              next: () => {
+                this.dmConversations = this.dmConversations.filter((c) => c !== conv);
+              },
+              error: () => {},
+            });
+          },
+        },
+      ],
+    });
+    await confirm.present();
+  }
+
+  // ── Leave / delete group chat ─────────────────────────────────
+  async leaveGroupChat(chat: GroupChat, $event: Event): Promise<void> {
+    $event.stopPropagation();
+    const confirm = await this.alertCtrl.create({
+      header: 'Leave Chat',
+      message: `Leave "${chat.name}"? If you're the creator, the chat will be deleted for everyone.`,
+      cssClass: 'dark-alert',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Leave',
+          role: 'destructive',
+          cssClass: 'alert-btn-danger',
+          handler: () => {
+            this.groupChatService.leaveOrDeleteChat(chat._id).subscribe({
+              next: () => {
+                this.groupChats = this.groupChats.filter((c) => c !== chat);
+              },
+              error: () => {},
+            });
+          },
+        },
+      ],
+    });
+    await confirm.present();
+  }
+
   formatTime(dateStr: string): string {
     const d = new Date(dateStr);
     const now = new Date();

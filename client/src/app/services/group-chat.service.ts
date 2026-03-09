@@ -74,4 +74,11 @@ export class GroupChatService {
       this.h,
     );
   }
+
+  leaveOrDeleteChat(chatId: string): Observable<{ deleted: boolean; message: string }> {
+    return this.http.delete<{ deleted: boolean; message: string }>(
+      `${this.base}/${chatId}`,
+      this.h,
+    );
+  }
 }
