@@ -11,9 +11,7 @@ Players can discover games happening nearby, apply to join them, chat with parti
 
 Many trading card game players experience this situation:
 
-You go to a local game store hoping to play
-
-You don't know if anyone else will be there
+You go to a local game store hoping to play but you don't know if anyone else will be there
 
 You may not know the community yet
 
@@ -21,300 +19,252 @@ Finding players for specific formats (Commander, Modern, etc.) is difficult
 
 DuelMeet solves this by allowing players to coordinate games before they arrive.
 
-Players can:
+  Players can:
 
-See games happening nearby
+- See games happening nearby
 
-Host games at stores or public locations
+- Host games at stores or public locations
 
-Join games in advance
+- Join games in advance
 
-Chat with players before the meetup
+- Chat with players before the meetup
 
-Build a trusted network of local players
+- Build a trusted network of local players
 
-Features
-Game Discovery & Hosting
+## Features
 
-Browse upcoming games filtered by TCG type, location, and radius
+### Game Discovery & Hosting
 
-Host games with:
+- Browse upcoming games filtered by **TCG type, location, and radius**  
+- Host games with:
+  - Title  
+  - Date & time  
+  - Location  
+  - Max players  
+  - Notes  
+- Apply to join games  
+- Hosts can **accept or deny applicants**  
+- Invite specific friends directly to games  
+- Each game includes a **lobby chat**  
+- **Happening Now** indicator for games active within 3 hours of start time  
+- Automatic cleanup of expired games via a background job  
 
-title
+### Social System
 
-date & time
+- Send, accept, decline, or cancel friend requests  
+- Add friends via **unique player tag** (e.g. `#AB12CD3F`)  
+- View mutual friends  
+- Unfriend at any time  
 
-location
+### Messaging
 
-max players
+- **Direct messages between friends**  
+- **Group chats** (standalone or linked to a game)  
+- Real-time message updates via polling  
+- Unread message indicators  
+- Delete conversations  
+- Leave group chats  
 
-notes
-
-Apply to join games
-
-Hosts can accept or deny applicants
-
-Invite specific friends directly to games
-
-Each game includes a lobby chat
-
-Happening Now indicator for games active within 3 hours of start time
-
-Automatic cleanup of expired games via a background server job
-
-Social System
-
-Send, accept, decline, or cancel friend requests
-
-Add friends via unique player tag (e.g. #AB12CD3F)
-
-View mutual friends
-
-Unfriend at any time
-
-Messaging
-
-Direct messages between friends
-
-Group chats (standalone or linked to a game)
-
-Real-time message updates via polling
-
-Unread message indicators
-
-Delete conversations
-
-Leave group chats
-
-User Profiles
+### User Profiles
 
 Each player has a customizable profile including:
 
-Avatar
+- Avatar  
+- Bio and quote  
+- Location  
+- Favorite games  
+- Reputation rating (0–5 stars from players after games)  
+- Stats:
+  - Games hosted  
+  - Games joined  
+  - Friend count  
+- Mutual friends displayed when viewing other profiles  
 
-Bio and quote
+Profiles are accessible throughout the app via **interactive profile cards**.
 
-Location
 
-Favorite games
+## Authentication & Security
 
-Reputation rating (0–5 stars from players after games)
+- Username / email / password registration  
+- **Email verification required before login**  
+- JWT-based authentication (7-day tokens)  
+- Password reset via email link  
+- Verification and reset tokens expire after 24 hours  
 
-Stats:
+## Account Deletion
 
-games hosted
+Deleting an account performs a **full cascade cleanup**, removing:
 
-games joined
+- Hosted games  
+- Lobby messages  
+- Reviews  
+- Direct messages  
+- Group chats  
+- Group messages  
+- Friend requests  
 
-friend count
+Ensures **no orphaned data remains in the database**.
 
-Mutual friends displayed when viewing other profiles
 
-Profiles are accessible throughout the app via interactive profile cards.
 
-Authentication & Security
+## Tech Stack
 
-Username / email / password registration
+| Layer | Technology |
+|-------|------------|
+| Frontend | Angular 20 |
+| Mobile UI | Ionic 8 |
+| Native Support | Capacitor 8 |
+| Backend | Node.js + Express 5 |
+| Database | MongoDB (Mongoose 9) |
+| Authentication | JWT + bcrypt |
+| Validation | express-validator |
+| Email | Nodemailer + Resend |
+| Location | Google Places API |
+| Mobile Builds | Capacitor (iOS / Android) |
 
-Email verification required before login
 
-JWT-based authentication (7-day tokens)
+## Architecture
 
-Password reset via email link
+DuelMeet uses a **client–server architecture**:
 
-Verification and reset tokens expire after 24 hours
+**Frontend:**
 
-Account Deletion
+- Angular + Ionic mobile-first UI  
+- PWA deployment  
+- Capacitor-ready for native builds  
 
-Deleting an account performs a full cascade cleanup, removing:
+**Backend:**
 
-Hosted games
+- Node.js REST API with Express  
+- MongoDB database  
+- JWT authentication  
+- Background jobs for game expiration cleanup  
 
-Lobby messages
+Communication occurs through **authenticated REST endpoints**.
 
-Reviews
+## Geolocation
 
-Direct messages
+Game discovery uses **MongoDB geospatial queries**:
 
-Group chats
+- Stores game coordinates using a **2dsphere index**  
+- Enables queries like:
+  - Find games within a configurable radius  
+  - Sort results by proximity  
 
-Group messages
+Players can quickly discover games happening near them.
 
-Friend requests
 
-This ensures no orphaned data remains in the database.
+## Messaging System
 
-Tech Stack
-Layer	Technology
-Frontend	Angular 20
-Mobile UI	Ionic 8
-Native Support	Capacitor 8
-Backend	Node.js + Express 5
-Database	MongoDB (Mongoose 9)
-Authentication	JWT + bcrypt
-Validation	express-validator
-Email	Nodemailer + Resend
-Location	Google Places API
-Mobile Builds	Capacitor (iOS / Android)
-Architecture
+Chats use **real-time polling** instead of WebSockets:
 
-DuelMeet uses a client–server architecture.
+- Polling every 4 seconds via RxJS  
+- Only fetches messages **newer than the last known timestamp**  
+- Updates conversations without page refresh  
 
-Frontend:
+Keeps communication **near real-time** with a simple implementation.
 
-Angular + Ionic mobile-first UI
 
-PWA deployment
-
-Capacitor-ready for native builds
-
-Backend:
-
-Node.js REST API with Express
-
-MongoDB database
-
-JWT authentication
-
-Background jobs for game expiration cleanup
-
-Communication occurs through authenticated REST endpoints.
-
-Geolocation
-
-Game discovery uses MongoDB geospatial queries.
-
-The backend stores game coordinates using a 2dsphere index, enabling queries such as:
-
-find games within a configurable radius
-
-sort results by proximity
-
-This allows players to easily discover games happening near them.
-
-Messaging System
-
-Chats use real-time polling rather than websockets.
-
-The frontend:
-
-polls every 4 seconds using RxJS
-
-only fetches messages newer than the last known timestamp
-
-updates conversations without refreshing the page
-
-This approach keeps implementation simple while maintaining near-real-time communication.
-
-Unique Player Tag System
+## Unique Player Tag System
 
 Each user receives an immutable unique tag during registration.
 
-Example:
-
-#AB12CD3F
+Example: *#AB12CD3F*
 
 Properties:
 
-generated randomly on account creation
+- generated randomly on account creation
 
-cannot be modified
+- cannot be modified
 
-used for friend lookup
+- used for friend lookup
 
-prevents username scraping or spam
+- prevents username scraping or spam
 
-Deployment
-Backend
+## Deployment
 
-Hosted on Railway
+### Backend
 
-Node.js server
+- Hosted on Railway
 
-Environment variables managed via Railway dashboard
+- Node.js server
 
-Automatic restart and deployment
+- Environment variables managed via Railway dashboard
 
-Frontend
+- Automatic restart and deployment
+
+### Frontend
 
 Built as a Progressive Web App (PWA) using Ionic.
 
 Production build:
 
-ionic build --prod
+- ionic build --prod
 
-Output is generated in the www/ directory and can be deployed to:
+- Output is generated in the www/ directory and can be deployed through railway & vercel
 
-Railway
+- The app was built for and will eventually be available on mobile devices
 
-Netlify
+- The app is Capacitor-ready for native builds: iOS/Android
 
-Vercel
+### External Services
 
-any static hosting service
+| Service |Purpose |
+|---------|--------|
+| Google Places API | Location autocomplete |
+| Resend | Transactional email |
+| Nodemailer | Email delivery |
+| MongoDB Atlas | Cloud database |
 
-Mobile
+## Key Technical Challenges
 
-The app is Capacitor-ready for native builds:
+### DuelMeet presented several non-trivial engineering problems that were solved:
 
-iOS
+- Location-aware game discovery
 
-Android
+- MongoDB 2dsphere geospatial indexes and $near queries
 
-External Services
-Service	Purpose
-Google Places API	Location autocomplete
-Resend	Transactional email
-Nodemailer	Email delivery
-MongoDB Atlas	Cloud database
-Key Technical Challenges
+- Fast searches within a configurable radius
 
-DuelMeet presented several non-trivial engineering problems that were solved:
+- Active game window and auto-cleanup
 
-Location-aware game discovery
+- " appening Now" badge for 3 hours post-start
 
-MongoDB 2dsphere geospatial indexes and $near queries
+- Background job deletes expired games after 24 hours
 
-Fast searches within a configurable radius
+- Immutable unique player tags
 
-Active game window and auto-cleanup
+- 8-character hex tag per user:
 
-"Happening Now" badge for 3 hours post-start
+  - Used exclusively for friend lookup
 
-Background job deletes expired games after 24 hours
+  - Prevents spam or abuse
 
-Immutable unique player tags
+- Cascade account deletion
 
-8-character hex tag per user
+- 10-step cleanup across multiple collections
 
-Used exclusively for friend lookup
+- Ensures no orphaned data (games, chats, friend requests) remain
 
-Prevents spam or abuse
+- Real-time messaging without websockets
 
-Cascade account deletion
+- RxJS polling every 4 seconds
 
-10-step cleanup across multiple collections
+- Only fetches new messages since last timestamp
 
-Ensures no orphaned data (games, chats, friend requests) remain
+- Email-gated features and verification
 
-Real-time messaging without websockets
+- Hosting games, messaging, and other actions blocked until email is verified
 
-RxJS polling every 4 seconds
+- Middleware enforces verification across the platform
 
-Only fetches new messages since last timestamp
-
-Email-gated features and verification
-
-Hosting games, messaging, and other actions blocked until email is verified
-
-Middleware enforces verification across the platform
-
-Why I Built This
+## Why I Built This
 
 As a Magic: The Gathering player, I often ran into the same problem:
 
-Going to a local game store without knowing if anyone would be there to play.
+- "Going to a local game store without knowing if anyone would be there to play."
 
 DuelMeet was built to make it easier for players to coordinate games ahead of time, meet new people, and build local TCG communities.
 
-Screenshots
+## Screenshots
+
