@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AlertController, ModalController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { FriendsService, FriendRequest, PublicUser } from '../services/friends.service';
 import { GroupChatService, GroupChat } from '../services/group-chat.service';
 import { DmService, DmConversation } from '../services/dm.service';
@@ -14,7 +16,7 @@ import { DmThreadComponent } from './dm-thread/dm-thread.component';
   styleUrls: ['inbox.page.scss'],
   standalone: false,
 })
-export class InboxPage implements OnInit {
+export class InboxPage implements OnInit, OnDestroy {
   // Friend requests
   pendingRequests: FriendRequest[] = [];
   loadingRequests = true;
@@ -29,6 +31,9 @@ export class InboxPage implements OnInit {
   groupChats: GroupChat[] = [];
   loadingChats = true;
   chatsError = '';
+
+  // Active-inbox suppression subscription
+  private activeInboxSub: Subscription | null = null;
 
   readonly typeLabels: Record<string, string> = {
     magic: 'Magic: The Gathering',
@@ -47,12 +52,27 @@ export class InboxPage implements OnInit {
     private readonly alertCtrl: AlertController,
   ) {}
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void { /* data loaded in ionViewWillEnter */ }
+
+  ngOnDestroy(): void { this.activeInboxSub?.unsubscribe(); }
+
   ionViewWillEnter(): void {
-    // Wait for the server to confirm lastInboxAt is written before fetching
-    // conversations — prevents the race where GET /dm/conversations uses a
-    // stale lastInboxAt and returns hasUnread:true for already-read messages.
+    // Mark server read first, then load — so lastInboxAt is current before
+    // conversations are fetched (prevents stale-timestamp hasUnread: true).
     this.notificationsService.markRead().subscribe(() => this.load());
+
+    // While the inbox is the active view, suppress the dot if the 30s poll
+    // fires and sets hasUnread back to true (user is already reading inbox).
+    this.activeInboxSub = this.notificationsService.hasUnread$
+      .pipe(filter(v => v === true))
+      .subscribe(() => {
+        this.notificationsService.markRead().subscribe(() => this.load());
+      });
+  }
+
+  ionViewWillLeave(): void {
+    this.activeInboxSub?.unsubscribe();
+    this.activeInboxSub = null;
   }
 
   load(): void {
