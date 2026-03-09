@@ -41,6 +41,26 @@
     </div>
   </div>
 
+  <!-- ── Invite alert ───────────────────────────────────── -->
+  <div class="invite-alert" *ngIf="pendingInvites > 0" (click)="goToInvites()">
+    <div class="invite-alert-icon">
+      <ion-icon name="game-controller-outline"></ion-icon>
+    </div>
+    <div class="invite-alert-text">
+      <span class="invite-alert-title">Game invite{{ pendingInvites > 1 ? 's' : '' }} waiting</span>
+      <span class="invite-alert-sub">{{ pendingInvites }} pending — tap to view</span>
+    </div>
+    <ion-icon name="chevron-forward-outline" class="invite-alert-arrow"></ion-icon>
+  </div>
+
+  <!-- ── Quick actions ─────────────────────────────────── -->
+  <div class="actions-grid actions-grid--single">
+    <button class="action-tile action-tile--create" type="button" (click)="goToCreateGame()">
+      <ion-icon name="add-circle-outline"></ion-icon>
+      <span>Create Game</span>
+    </button>
+  </div>
+
   <!-- ── Active Games ──────────────────────────────────── -->
   <div class="active-section" *ngIf="activeGames.length > 0">
     <div class="section-header">
@@ -67,26 +87,6 @@
         {{ g.status === 'hosting' ? 'Host' : 'Player' }}
       </span>
     </div>
-  </div>
-
-  <!-- ── Invite alert ───────────────────────────────────── -->
-  <div class="invite-alert" *ngIf="pendingInvites > 0" (click)="goToInvites()">
-    <div class="invite-alert-icon">
-      <ion-icon name="game-controller-outline"></ion-icon>
-    </div>
-    <div class="invite-alert-text">
-      <span class="invite-alert-title">Game invite{{ pendingInvites > 1 ? 's' : '' }} waiting</span>
-      <span class="invite-alert-sub">{{ pendingInvites }} pending — tap to view</span>
-    </div>
-    <ion-icon name="chevron-forward-outline" class="invite-alert-arrow"></ion-icon>
-  </div>
-
-  <!-- ── Quick actions ─────────────────────────────────── -->
-  <div class="actions-grid actions-grid--single">
-    <button class="action-tile action-tile--create" type="button" (click)="goToCreateGame()">
-      <ion-icon name="add-circle-outline"></ion-icon>
-      <span>Create Game</span>
-    </button>
   </div>
 
   <!-- ── My Games ──────────────────────────────────────── -->
