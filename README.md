@@ -1,5 +1,5 @@
 # DuelMeet
-[Live Demo](Duel-meet.vercel.app)
+Demo Version [Here](https://duel-meet.vercel.app)
 
 DuelMeet is a location-aware meetup platform for trading card game (TCG) players.
 It helps players find, host, and join in-person games nearby, eliminating the uncertainty of going to a local game store without knowing if anyone is available to play.
