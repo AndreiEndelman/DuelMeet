@@ -89,7 +89,8 @@
     <div
       *ngFor="let g of upcomingGames"
       class="game-row"
-      [ngClass]="'game-row--' + g.type">
+      [ngClass]="'game-row--' + g.type"
+      (click)="openGameDetail(g.gameId)">
       <div class="game-row-accent" [ngClass]="'game-row-accent--' + g.type"></div>
       <div class="game-row-art" [ngClass]="'game-row-art--' + g.type"></div>
       <div class="game-row-info">

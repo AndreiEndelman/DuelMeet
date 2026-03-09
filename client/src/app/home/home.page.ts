@@ -1,11 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ModalController } from '@ionic/angular';
 import { AuthService, User } from '../services/auth.service';
 import { GamesService } from '../services/games.service';
 import { NotificationsService } from '../services/notifications.service';
+import { GameDetailComponent } from '../find-game/game-detail/game-detail.component';
 
 interface UpcomingGame {
+  gameId: string;
   title: string;
   date: string;
   type: 'magic' | 'pokemon' | 'yugioh' | 'onepiece';
@@ -29,6 +32,7 @@ export class HomePage implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly auth: AuthService,
     private readonly gamesService: GamesService,
+    private readonly modalCtrl: ModalController,
     readonly notifications: NotificationsService,
   ) {}
 
@@ -57,6 +61,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.gamesService.getMyGames().subscribe({
       next: (res) => {
         this.upcomingGames = res.games.map(g => ({
+          gameId: g._id,
           title:  g.title,
           date:   new Date(g.date).toLocaleString('en-US', {
             weekday: 'short', month: 'short', day: 'numeric',
@@ -82,4 +87,17 @@ export class HomePage implements OnInit, OnDestroy {
   goToFriends(): void       { this.router.navigate(['/tabs/inbox']); }
   goToProfile(): void       { this.router.navigate(['/tabs/profile']); }
   goToInvites(): void       { this.router.navigate(['/tabs/find-game'], { state: { segment: 'invites' } }); }
+
+  async openGameDetail(gameId: string): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: GameDetailComponent,
+      componentProps: { gameId },
+      breakpoints: [0, 0.92, 1],
+      initialBreakpoint: 0.92,
+      handleBehavior: 'cycle',
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data?.refreshNeeded) this.loadMyGames();
+  }
 }

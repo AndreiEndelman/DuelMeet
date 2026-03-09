@@ -153,6 +153,19 @@
         You're confirmed for this game!
       </div>
 
+      <!-- Leave game button (confirmed player only, non-host) -->
+      <ion-button
+        expand="block"
+        fill="outline"
+        color="danger"
+        class="leave-btn"
+        *ngIf="isPlayer && !isPast"
+        (click)="leaveGame()"
+        [disabled]="actionLoading">
+        <ion-icon name="exit-outline" slot="start"></ion-icon>
+        {{ actionLoading ? 'Leaving…' : 'Leave Game' }}
+      </ion-button>
+
       <!-- Application pending -->
       <div class="status-chip status-chip--pending" *ngIf="!isPlayer && isApplicant">
         <ion-icon name="hourglass-outline"></ion-icon>

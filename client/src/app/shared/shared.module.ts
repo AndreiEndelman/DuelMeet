@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { GameChatComponent } from '../find-game/game-chat/game-chat.component';
+import { GameDetailComponent } from '../find-game/game-detail/game-detail.component';
 import { UserProfileCardComponent } from './user-profile-card/user-profile-card.component';
 
 /**
@@ -11,7 +12,7 @@ import { UserProfileCardComponent } from './user-profile-card/user-profile-card.
  */
 @NgModule({
   imports: [IonicModule, CommonModule, FormsModule],
-  declarations: [GameChatComponent, UserProfileCardComponent],
-  exports: [GameChatComponent, UserProfileCardComponent, IonicModule, CommonModule, FormsModule],
+  declarations: [GameChatComponent, GameDetailComponent, UserProfileCardComponent],
+  exports: [GameChatComponent, GameDetailComponent, UserProfileCardComponent, IonicModule, CommonModule, FormsModule],
 })
 export class SharedModule {}

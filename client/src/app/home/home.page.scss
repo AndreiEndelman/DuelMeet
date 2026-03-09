@@ -335,6 +335,10 @@ ion-toolbar {
   margin-bottom: 10px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.05);
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:active { background: #14173a; }
 }
 
 .game-row-accent {

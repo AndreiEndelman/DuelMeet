@@ -218,6 +218,33 @@ export class GameDetailComponent implements OnInit {
     });
   }
 
+  async leaveGame(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Leave Game',
+      message: 'Are you sure you want to leave this game?',
+      cssClass: 'danger-alert',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Leave',
+          cssClass: 'alert-btn-danger',
+          handler: () => {
+            this.actionLoading = true;
+            this.actionError = '';
+            this.gamesService.leaveGame(this.gameId).subscribe({
+              next: () => this.dismiss(true),
+              error: (err) => {
+                this.actionError = err.error?.message || 'Failed to leave game.';
+                this.actionLoading = false;
+              },
+            });
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
   isFullStar(star: number): boolean {
     return (this.game?.host?.reputation ?? 0) >= star;
   }

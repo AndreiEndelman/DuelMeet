@@ -328,6 +328,13 @@ ion-toolbar {
   height: 52px;
 }
 
+.leave-btn {
+  --border-radius: 12px;
+  font-weight: 700;
+  margin-top: 10px;
+  height: 48px;
+}
+
 // ── Action error ──────────────────────────────────────────────
 .action-error {
   display: flex;
