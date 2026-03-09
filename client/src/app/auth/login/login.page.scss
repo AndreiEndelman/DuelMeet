@@ -27,11 +27,15 @@ ion-content.auth-content {
   margin-bottom: 36px;
 }
 
-.auth-logo-emoji {
-  font-size: 3rem;
-  display: block;
+.auth-logo-img {
+  width: 120px;
+  height: auto;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 0 14px rgba(124,111,255,0.45));
   margin-bottom: 8px;
-  filter: drop-shadow(0 0 12px rgba(124, 111, 255, 0.6));
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .auth-title {
