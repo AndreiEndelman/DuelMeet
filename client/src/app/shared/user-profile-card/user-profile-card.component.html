@@ -67,7 +67,7 @@
     </div>
 
     <!-- Mutual friends (shown only when there are any) -->
-    <div class="mutuals-section" *ngIf="profile.mutualFriends?.length > 0">
+    <div class="mutuals-section" *ngIf="profile.mutualFriends && profile.mutualFriends.length > 0">
       <p class="section-label">
         <ion-icon name="people-outline"></ion-icon>
         {{ profile.mutualFriends.length }} Mutual Friend{{ profile.mutualFriends.length === 1 ? '' : 's' }}
