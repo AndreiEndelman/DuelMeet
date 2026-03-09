@@ -24,7 +24,12 @@ interface Prediction {
   imports: [IonicModule, CommonModule, FormsModule],
 })
 export class CreateGamePage implements OnDestroy {
-  today = new Date().toISOString();
+  today = CreateGamePage.toLocalISO(new Date());
+
+  private static toLocalISO(d: Date): string {
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:00`;
+  }
 
   cardGames = [
     { label: 'Magic: The Gathering', value: 'magic',    icon: '🧙' },
