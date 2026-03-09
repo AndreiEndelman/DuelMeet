@@ -49,8 +49,11 @@ export class InboxPage implements OnInit {
 
   ngOnInit(): void { this.load(); }
   ionViewWillEnter(): void {
-    this.load();
+    // markRead first so lastInboxAt is updated before conversations are fetched,
+    // preventing the race where GET /dm/conversations uses a stale lastInboxAt.
     this.notificationsService.markRead();
+    // Small yield lets the mark-read request reach the server ahead of the data fetches.
+    setTimeout(() => this.load(), 80);
   }
 
   load(): void {

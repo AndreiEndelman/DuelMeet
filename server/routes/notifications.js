@@ -12,10 +12,11 @@ const GroupMessage   = require('../models/GroupMessage');
 router.get('/unread', protect, async (req, res) => {
   const since = req.user.lastInboxAt || new Date(0);
 
-  // 1. Pending friend requests
+  // 1. Pending friend requests received after last inbox visit
   const friendReqs = await FriendRequest.countDocuments({
     receiver: req.user._id,
     status: 'pending',
+    createdAt: { $gt: since },
   });
   if (friendReqs > 0) return res.json({ hasUnread: true });
 
