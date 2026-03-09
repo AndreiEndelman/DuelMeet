@@ -6,6 +6,10 @@ const User    = require('../models/User');
 const Game    = require('../models/Game');
 const Message = require('../models/Message');
 const Review  = require('../models/Review');
+const DmMessage    = require('../models/DmMessage');
+const GroupChat    = require('../models/GroupChat');
+const GroupMessage = require('../models/GroupMessage');
+const FriendRequest = require('../models/FriendRequest');
 const { protect } = require('../middleware/auth');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/email');
 
@@ -214,7 +218,33 @@ router.delete('/me', protect, async (req, res) => {
     // 5. Delete reviews by or about this user
     await Review.deleteMany({ $or: [{ reviewer: userId }, { reviewee: userId }] });
 
-    // 6. Delete the user
+    // 6. Delete all direct messages sent to or from this user
+    await DmMessage.deleteMany({ $or: [{ sender: userId }, { receiver: userId }] });
+
+    // 7. Delete group chats created by this user (and all their messages)
+    const ownedChats = await GroupChat.find({ creator: userId }, '_id');
+    const ownedChatIds = ownedChats.map(c => c._id);
+    if (ownedChatIds.length > 0) {
+      await GroupMessage.deleteMany({ groupChat: { $in: ownedChatIds } });
+      await GroupChat.deleteMany({ _id: { $in: ownedChatIds } });
+    }
+
+    // 8. Remove user from member list of other group chats; delete now-empty chats
+    await GroupChat.updateMany({ members: userId }, { $pull: { members: userId } });
+    const emptyChats = await GroupChat.find({ members: { $size: 0 } }, '_id');
+    const emptyChatIds = emptyChats.map(c => c._id);
+    if (emptyChatIds.length > 0) {
+      await GroupMessage.deleteMany({ groupChat: { $in: emptyChatIds } });
+      await GroupChat.deleteMany({ _id: { $in: emptyChatIds } });
+    }
+
+    // 9. Delete remaining group messages sent by this user
+    await GroupMessage.deleteMany({ sender: userId });
+
+    // 10. Delete all friend requests involving this user
+    await FriendRequest.deleteMany({ $or: [{ sender: userId }, { receiver: userId }] });
+
+    // 11. Delete the user
     await User.findByIdAndDelete(userId);
 
     res.json({ message: 'Account deleted successfully.' });
