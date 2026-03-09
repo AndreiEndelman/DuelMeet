@@ -24,6 +24,7 @@ const safeUser = (user) => ({
   _id:             user._id,
   username:        user.username,
   email:           user.email,
+  uniqueTag:       user.uniqueTag,
   location:        user.location,
   favoriteGames:   user.favoriteGames,
   reputation:      user.reputation,

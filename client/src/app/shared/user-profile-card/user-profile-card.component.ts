@@ -15,6 +15,7 @@ export interface ProfileData {
     reputation: number;
     reputationCount: number;
     favoriteGames: string[];
+    uniqueTag: string;
   };
   stats: { gamesHosted: number; gamesJoined: number };
   friendStatus: 'none' | 'pending_sent' | 'pending_received' | 'friends';

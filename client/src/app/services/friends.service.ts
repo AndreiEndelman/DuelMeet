@@ -9,6 +9,7 @@ export interface PublicUser {
   _id: string;
   username: string;
   avatar: string;
+  uniqueTag: string;
   reputation: number;
   reputationCount: number;
   location: string;
@@ -103,6 +104,15 @@ export class FriendsService {
   unfriend(userId: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
       `${this.base}/${userId}`,
+      this.headers,
+    );
+  }
+
+  // ── Find user by unique tag ────────────────────────────────────────────────
+  findByTag(tag: string): Observable<{ user: { _id: string; username: string; avatar: string; location: string; uniqueTag: string } }> {
+    const clean = tag.replace(/^#/, '').toUpperCase();
+    return this.http.get<{ user: { _id: string; username: string; avatar: string; location: string; uniqueTag: string } }>(
+      `${this.base}/find-by-tag/${clean}`,
       this.headers,
     );
   }

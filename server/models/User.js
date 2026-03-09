@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+
+function generateUniqueTag() {
+  return crypto.randomBytes(4).toString('hex').toUpperCase(); // e.g. "AB12CD3F"
+}
 
 const UserSchema = new mongoose.Schema(
   {
@@ -80,6 +85,12 @@ const UserSchema = new mongoose.Schema(
     passwordResetExpires: {
       type: Date,
       select: false,
+    },
+    // Permanent unique tag used for friend lookup — never changes
+    uniqueTag: {
+      type: String,
+      unique: true,
+      default: generateUniqueTag,
     },
     // Tracks when user last opened Inbox — used for unread dot
     lastInboxAt: {

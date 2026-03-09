@@ -107,6 +107,7 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   get username():   string { return this.user?.username  ?? ''; }
   get location():   string { return this.user?.location  ?? ''; }
+  get uniqueTag():  string { return this.user?.uniqueTag  ?? ''; }
   get reputation(): number { return this.user?.reputation ?? 0; }
   get bio():        string { return (this.user as any)?.bio  ?? ''; }
   get quote():      string { return (this.user as any)?.quote ?? ''; }

@@ -99,46 +99,30 @@ export class InboxPage implements OnInit, OnDestroy {
   async sendRequestFlow(): Promise<void> {
     const inputAlert = await this.alertCtrl.create({
       header: 'Add Friend',
-      message: 'Enter a username to search for.',
+      message: 'Enter a player\'s unique tag (e.g. #AB12CD3F).',
       cssClass: 'dark-alert',
-      inputs: [{ name: 'username', type: 'text', placeholder: 'Username…', attributes: { autocorrect: 'off', autocapitalize: 'off' } }],
+      inputs: [{ name: 'tag', type: 'text', placeholder: '#AB12CD3F', attributes: { autocorrect: 'off', autocapitalize: 'characters' } }],
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
-          text: 'Search',
-          handler: (data: { username: string }) => {
-            const q = data.username?.trim();
+          text: 'Find',
+          handler: (data: { tag: string }) => {
+            const q = data.tag?.trim();
             if (!q) return false;
-            this.friendsService.searchUsers(q).subscribe(async (res) => {
-              if (res.users.length === 0) {
-                const err = await this.alertCtrl.create({
-                  header: 'No Users Found',
-                  message: `No users matching "${q}".`,
+            this.friendsService.findByTag(q).subscribe({
+              next: (res) => {
+                this.profileCard.open(res.user._id);
+              },
+              error: async (err) => {
+                const msg = err?.error?.message || 'No player found with that tag.';
+                const errAlert = await this.alertCtrl.create({
+                  header: 'Not Found',
+                  message: msg,
                   buttons: ['OK'],
                   cssClass: 'dark-alert',
                 });
-                await err.present();
-                return;
-              }
-              if (res.users.length === 1) {
-                this.profileCard.open(res.users[0]._id);
-                return;
-              }
-              const picker = await this.alertCtrl.create({
-                header: `Results for "${q}"`,
-                cssClass: 'dark-alert',
-                inputs: res.users.map((u) => ({ type: 'radio' as const, label: u.username, value: u._id })),
-                buttons: [
-                  { text: 'Cancel', role: 'cancel' },
-                  {
-                    text: 'View Profile',
-                    handler: (userId: string) => {
-                      if (userId) this.profileCard.open(userId);
-                    },
-                  },
-                ],
-              });
-              await picker.present();
+                await errAlert.present();
+              },
             });
             return true;
           },

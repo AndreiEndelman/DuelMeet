@@ -52,6 +52,15 @@ ion-toolbar { --background: #0a0c1a; }
   letter-spacing: -0.01em;
 }
 
+.profile-tag {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.28);
+  letter-spacing: 0.08em;
+  font-family: monospace;
+  margin: 0 0 6px;
+  user-select: all;
+}
+
 .profile-location {
   display: flex;
   align-items: center;

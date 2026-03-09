@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const FriendRequest = require('../models/FriendRequest');
+const User = require('../models/User');
 const { protect } = require('../middleware/auth');
 
 // All routes require authentication
@@ -47,6 +48,22 @@ router.get('/sent', async (req, res) => {
     res.json({ requests });
   } catch (err) {
     console.error('[friends/sent]', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ── GET /api/friends/find-by-tag/:tag — look up a user by their unique tag ───
+router.get('/find-by-tag/:tag', async (req, res) => {
+  try {
+    const tag = req.params.tag.trim().toUpperCase();
+    const user = await User.findOne({ uniqueTag: tag }).select('_id username avatar location uniqueTag');
+    if (!user) return res.status(404).json({ message: 'No player found with that tag' });
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({ message: 'That\'s your own tag!' });
+    }
+    res.json({ user });
+  } catch (err) {
+    console.error('[friends/find-by-tag]', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

@@ -33,7 +33,7 @@ router.get('/:id', protect, async (req, res) => {
 
     const [user, gamesHosted, gamesJoined, friendDoc, targetFriendDocs, myFriendDocs] = await Promise.all([
       User.findById(targetId).select(
-        'username avatar bio quote location reputation reputationCount favoriteGames'
+        'username avatar bio quote location reputation reputationCount favoriteGames uniqueTag'
       ),
       Game.countDocuments({ host: targetId }),
       Game.countDocuments({ players: targetId }),

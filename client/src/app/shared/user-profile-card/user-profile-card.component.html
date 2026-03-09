@@ -35,6 +35,9 @@
         <ion-icon name="location-outline"></ion-icon>
         {{ profile.user.location }}
       </p>
+      <p class="unique-tag" *ngIf="profile.user.uniqueTag">
+        #{{ profile.user.uniqueTag }}
+      </p>
     </div>
 
     <!-- Reputation stars -->
