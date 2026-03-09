@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject, interval, Observable, of, Subscription } from 'rxjs';
 import { catchError, switchMap, startWith } from 'rxjs/operators';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
@@ -15,7 +16,7 @@ export class NotificationsService {
 
   private pollSub: Subscription | null = null;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient, private readonly auth: AuthService) {}
 
   /** Start polling every 30 s. Call once from TabsPage. */
   startPolling(): void {
@@ -23,7 +24,7 @@ export class NotificationsService {
     this.pollSub = interval(30_000)
       .pipe(
         startWith(0),
-        switchMap(() => this.http.get<{ hasUnread: boolean }>(`${this.apiUrl}/unread`)),
+        switchMap(() => this.http.get<{ hasUnread: boolean }>(`${this.apiUrl}/unread`, this.auth.getAuthHeaders())),
       )
       .subscribe({
         next: (res) => {
@@ -49,7 +50,7 @@ export class NotificationsService {
   enterInbox(): Observable<void> {
     this.inboxOpen = true;
     this.hasUnread$.next(false);
-    return this.http.post<void>(`${this.apiUrl}/mark-read`, {}).pipe(
+    return this.http.post<void>(`${this.apiUrl}/mark-read`, {}, this.auth.getAuthHeaders()).pipe(
       catchError(() => of(undefined as void)),
     );
   }
