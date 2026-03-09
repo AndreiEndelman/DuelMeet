@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject, interval, Observable, of, Subscription } from 'rxjs';
-import { catchError, switchMap, startWith, tap } from 'rxjs/operators';
+import { catchError, switchMap, startWith } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
@@ -10,16 +10,30 @@ export class NotificationsService {
 
   hasUnread$ = new BehaviorSubject<boolean>(false);
 
+  /** True while the Inbox page is the active view. */
+  private inboxOpen = false;
+
   private pollSub: Subscription | null = null;
 
   constructor(private readonly http: HttpClient) {}
 
-  /** Start polling every 30s. Call once from AppComponent or TabsPage. */
+  /** Start polling every 30 s. Call once from TabsPage. */
   startPolling(): void {
     if (this.pollSub) return;
     this.pollSub = interval(30_000)
-      .pipe(startWith(0), switchMap(() => this.http.get<{ hasUnread: boolean }>(`${this.apiUrl}/unread`)))
-      .subscribe({ next: (res) => this.hasUnread$.next(res.hasUnread), error: () => {} });
+      .pipe(
+        startWith(0),
+        switchMap(() => this.http.get<{ hasUnread: boolean }>(`${this.apiUrl}/unread`)),
+      )
+      .subscribe({
+        next: (res) => {
+          // Never show the dot while the user is already looking at the inbox.
+          if (!this.inboxOpen) {
+            this.hasUnread$.next(res.hasUnread);
+          }
+        },
+        error: () => {},
+      });
   }
 
   stopPolling(): void {
@@ -28,23 +42,23 @@ export class NotificationsService {
   }
 
   /**
-   * Clears the unread indicator and updates lastInboxAt on the server.
-   * Returns an Observable that completes after the server confirms the write —
-   * callers should chain data fetches to the subscription so they run with the
-   * updated lastInboxAt, avoiding the race condition.
+   * Call from InboxPage.ionViewWillEnter.
+   * Immediately clears the dot, tells the poller to stay quiet,
+   * and writes lastInboxAt so the next poll baseline is correct.
    */
-  markRead(): Observable<void> {
+  enterInbox(): Observable<void> {
+    this.inboxOpen = true;
     this.hasUnread$.next(false);
     return this.http.post<void>(`${this.apiUrl}/mark-read`, {}).pipe(
       catchError(() => of(undefined as void)),
     );
   }
 
-  /** Force a single check (e.g. after tab switch). */
-  refresh(): void {
-    this.http.get<{ hasUnread: boolean }>(`${this.apiUrl}/unread`).subscribe({
-      next: (res) => this.hasUnread$.next(res.hasUnread),
-      error: () => {},
-    });
+  /**
+   * Call from InboxPage.ionViewWillLeave.
+   * Re-enables the poller to update the dot.
+   */
+  leaveInbox(): void {
+    this.inboxOpen = false;
   }
 }

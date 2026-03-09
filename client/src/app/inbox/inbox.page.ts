@@ -1,7 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AlertController, ModalController } from '@ionic/angular';
-import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
 import { FriendsService, FriendRequest, PublicUser } from '../services/friends.service';
 import { GroupChatService, GroupChat } from '../services/group-chat.service';
 import { DmService, DmConversation } from '../services/dm.service';
@@ -32,9 +30,6 @@ export class InboxPage implements OnInit, OnDestroy {
   loadingChats = true;
   chatsError = '';
 
-  // Active-inbox suppression subscription
-  private activeInboxSub: Subscription | null = null;
-
   readonly typeLabels: Record<string, string> = {
     magic: 'Magic: The Gathering',
     pokemon: 'Pokémon TCG',
@@ -54,25 +49,16 @@ export class InboxPage implements OnInit, OnDestroy {
 
   ngOnInit(): void { /* data loaded in ionViewWillEnter */ }
 
-  ngOnDestroy(): void { this.activeInboxSub?.unsubscribe(); }
+  ngOnDestroy(): void {}
 
   ionViewWillEnter(): void {
-    // Mark server read first, then load — so lastInboxAt is current before
-    // conversations are fetched (prevents stale-timestamp hasUnread: true).
-    this.notificationsService.markRead().subscribe(() => this.load());
-
-    // While the inbox is the active view, suppress the dot if the 30s poll
-    // fires and sets hasUnread back to true (user is already reading inbox).
-    this.activeInboxSub = this.notificationsService.hasUnread$
-      .pipe(filter(v => v === true))
-      .subscribe(() => {
-        this.notificationsService.markRead().subscribe(() => this.load());
-      });
+    // Block the poller from showing the dot and update lastInboxAt,
+    // then load data once the server confirms the write.
+    this.notificationsService.enterInbox().subscribe(() => this.load());
   }
 
   ionViewWillLeave(): void {
-    this.activeInboxSub?.unsubscribe();
-    this.activeInboxSub = null;
+    this.notificationsService.leaveInbox();
   }
 
   load(): void {
@@ -174,7 +160,6 @@ export class InboxPage implements OnInit, OnDestroy {
 
   async openDm(conv: DmConversation): Promise<void> {
     this.dmConversations = this.dmConversations.map((c) => c === conv ? { ...c, hasUnread: false } : c);
-    this.notificationsService.markRead().subscribe();
     const modal = await this.modalCtrl.create({
       component: DmThreadComponent,
       componentProps: { userId: conv.user._id, username: conv.user.username, userAvatar: conv.user.avatar ?? '' },
