@@ -11,10 +11,14 @@ const { geocode } = require('../utils/geocode');
 // ── GET /api/games ───────────────────────────────────────────────────────────
 // Optional query params: type, page, limit, location (address/zip), radius (miles)
 
+// A game is "active" for 3 hours after its scheduled start time
+const ACTIVE_WINDOW_MS = 3 * 60 * 60 * 1000;
+
 router.get('/', async (req, res) => {
   try {
     const { type, page = 1, limit = 20, location, radius = 25 } = req.query;
-    const filter = { date: { $gte: new Date() } };
+    // Include games still within the active window (up to 3h past start)
+    const filter = { date: { $gte: new Date(Date.now() - ACTIVE_WINDOW_MS) } };
 
     if (type && ['magic', 'pokemon', 'yugioh', 'onepiece'].includes(type)) {
       filter.type = type;
@@ -72,7 +76,7 @@ router.get('/my', protect, async (req, res) => {
   try {
     const games = await Game.find({
       $or: [{ host: req.user._id }, { players: req.user._id }],
-      date: { $gte: new Date() },
+      date: { $gte: new Date(Date.now() - ACTIVE_WINDOW_MS) },
     })
       .sort({ date: 1 })
       .populate('host', 'username avatar location');
@@ -86,6 +90,45 @@ router.get('/my', protect, async (req, res) => {
 
 // ── GET /api/games/invites ───────────────────────────────────────────────────
 // Returns upcoming games where the current user is in invitedPlayers
+
+// ── GET /api/games/active ───────────────────────────────────────────────────
+// Public: games that are currently happening (started ≤ now ≤ started + 3h)
+
+router.get('/active', async (req, res) => {
+  try {
+    const now = new Date();
+    const games = await Game.find({
+      date: { $lte: now, $gte: new Date(now - ACTIVE_WINDOW_MS) },
+    })
+      .sort({ date: 1 })
+      .populate('host', 'username avatar location reputation')
+      .populate('players', '_id username avatar');
+    res.json({ games: games.filter(g => g.host), total: games.length });
+  } catch (err) {
+    console.error('[getActiveGames]', err);
+    res.status(500).json({ message: 'Server error fetching active games' });
+  }
+});
+
+// ── GET /api/games/active-my ─────────────────────────────────────────────────
+// Auth: active games the current user is part of
+
+router.get('/active-my', protect, async (req, res) => {
+  try {
+    const now = new Date();
+    const games = await Game.find({
+      $or: [{ host: req.user._id }, { players: req.user._id }],
+      date: { $lte: now, $gte: new Date(now - ACTIVE_WINDOW_MS) },
+    })
+      .sort({ date: 1 })
+      .populate('host', 'username avatar location reputation')
+      .populate('players', '_id username avatar');
+    res.json({ games, total: games.length });
+  } catch (err) {
+    console.error('[getMyActiveGames]', err);
+    res.status(500).json({ message: 'Server error fetching active games' });
+  }
+});
 
 router.get('/invites', protect, async (req, res) => {
   try {

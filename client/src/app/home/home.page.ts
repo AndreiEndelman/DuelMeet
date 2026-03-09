@@ -24,6 +24,7 @@ interface UpcomingGame {
 export class HomePage implements OnInit, OnDestroy {
   user: User | null = null;
   upcomingGames: UpcomingGame[] = [];
+  activeGames: UpcomingGame[] = [];
   hasUnread = false;
   pendingInvites = 0;
   private subs: Subscription[] = [];
@@ -45,6 +46,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   ionViewWillEnter(): void {
     this.loadMyGames();
+    this.loadActiveGames();
     this.loadInvites();
   }
 
@@ -56,6 +58,21 @@ export class HomePage implements OnInit, OnDestroy {
   get location(): string    { return this.user?.location   ?? ''; }
   get avatar(): string      { return this.user?.avatar     ?? ''; }
   get reputation(): number  { return this.user?.reputation ?? 0;  }
+
+  loadActiveGames(): void {
+    this.gamesService.getMyActiveGames().subscribe({
+      next: (res) => {
+        this.activeGames = res.games.map(g => ({
+          gameId: g._id,
+          title:  g.title,
+          date:   'Happening now',
+          type:   g.type,
+          status: g.host._id === this.user?._id ? 'hosting' : 'joined',
+        }));
+      },
+      error: () => { this.activeGames = []; },
+    });
+  }
 
   loadMyGames(): void {
     this.gamesService.getMyGames().subscribe({

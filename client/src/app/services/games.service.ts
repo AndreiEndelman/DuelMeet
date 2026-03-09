@@ -32,6 +32,7 @@ export interface Game {
   invitedPlayers: GamePlayer[];
   spotsLeft: number;
   createdAt: string;
+  isActive?: boolean;  // true when game is currently happening
 }
 
 export interface GamesResponse {
@@ -148,6 +149,22 @@ export class GamesService {
   getGameInvites(): Observable<{ games: Game[]; total: number }> {
     return this.http.get<{ games: Game[]; total: number }>(
       `${environment.apiUrl}/games/invites`,
+      this.auth.getAuthHeaders()
+    );
+  }
+
+  getActiveGames(type?: string): Observable<{ games: Game[]; total: number }> {
+    const params: Record<string, string> = {};
+    if (type && type !== 'all') params['type'] = type;
+    return this.http.get<{ games: Game[]; total: number }>(
+      `${environment.apiUrl}/games/active`,
+      { params }
+    );
+  }
+
+  getMyActiveGames(): Observable<{ games: Game[]; total: number }> {
+    return this.http.get<{ games: Game[]; total: number }>(
+      `${environment.apiUrl}/games/active-my`,
       this.auth.getAuthHeaders()
     );
   }

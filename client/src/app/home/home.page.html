@@ -41,6 +41,34 @@
     </div>
   </div>
 
+  <!-- ── Active Games ──────────────────────────────────── -->
+  <div class="active-section" *ngIf="activeGames.length > 0">
+    <div class="section-header">
+      <span class="section-title active-section-title">
+        <span class="live-dot"></span>
+        Active Now
+      </span>
+    </div>
+    <div
+      *ngFor="let g of activeGames"
+      class="game-row game-row--active"
+      [ngClass]="'game-row--' + g.type"
+      (click)="openGameDetail(g.gameId)">
+      <div class="game-row-accent" [ngClass]="'game-row-accent--' + g.type"></div>
+      <div class="game-row-art" [ngClass]="'game-row-art--' + g.type"></div>
+      <div class="game-row-info">
+        <p class="game-row-title">{{ g.title }}</p>
+        <p class="game-row-date game-row-date--live">
+          <span class="live-dot live-dot--sm"></span>
+          Happening now
+        </p>
+      </div>
+      <span class="role-chip" [ngClass]="'role-chip--' + g.status">
+        {{ g.status === 'hosting' ? 'Host' : 'Player' }}
+      </span>
+    </div>
+  </div>
+
   <!-- ── Invite alert ───────────────────────────────────── -->
   <div class="invite-alert" *ngIf="pendingInvites > 0" (click)="goToInvites()">
     <div class="invite-alert-icon">

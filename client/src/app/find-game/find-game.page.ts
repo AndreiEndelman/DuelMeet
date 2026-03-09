@@ -30,6 +30,7 @@ interface DisplayGame {
   typeLabel: string;
   isPlayer: boolean;
   isHost: boolean;
+  isActive: boolean;
 }
 
 @Component({
@@ -208,6 +209,13 @@ export class FindGamePage implements OnDestroy {
     });
   }
 
+  isGameActive(date: string | Date): boolean {
+    const ACTIVE_WINDOW_MS = 3 * 60 * 60 * 1000;
+    const gameDate = new Date(date).getTime();
+    const now = Date.now();
+    return gameDate <= now && now - gameDate <= ACTIVE_WINDOW_MS;
+  }
+
   typeLabel(type: string): string {
     const labels: Record<string, string> = {
       magic: 'Magic', pokemon: 'Pokémon', yugioh: 'Yu-Gi-Oh!', onepiece: 'One Piece',
@@ -308,14 +316,19 @@ export class FindGamePage implements OnDestroy {
     const isPlayer = (g.players as any[]).some(
       p => (p === currentId) || (p?._id?.toString() === currentId)
     );
+    const gameDate = new Date(g.date);
+    const now = new Date();
+    const isActive = gameDate <= now && now.getTime() - gameDate.getTime() <= 3 * 60 * 60 * 1000;
     return {
       _id:       g._id,
       title:     g.title,
       location:  g.location,
-      date:      new Date(g.date).toLocaleString('en-US', {
-        weekday: 'short', month: 'short', day: 'numeric',
-        hour: '2-digit', minute: '2-digit',
-      }),
+      date:      isActive
+        ? 'Happening now'
+        : new Date(g.date).toLocaleString('en-US', {
+            weekday: 'short', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit',
+          }),
       players:   g.players.length,
       maxPlayers: g.maxPlayers,
       spotsLeft: g.spotsLeft,
@@ -323,6 +336,7 @@ export class FindGamePage implements OnDestroy {
       typeLabel: labels[g.type] || g.type,
       isPlayer,
       isHost: (g.host as any)?._id?.toString() === currentId,
+      isActive,
     };
   }
 

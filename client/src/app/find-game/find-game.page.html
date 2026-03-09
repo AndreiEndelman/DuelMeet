@@ -74,6 +74,10 @@
             <div class="stack-card stack-card--front"></div>
           </div>
           <div class="art-overlay"></div>
+          <div class="active-now-badge" *ngIf="isGameActive(game.date)">
+            <span class="pulse-dot"></span>
+            Happening Now
+          </div>
         </div>
 
         <div class="card-info">
@@ -159,6 +163,10 @@
             <div class="stack-card stack-card--front"></div>
           </div>
           <div class="art-overlay"></div>
+          <div class="active-now-badge" *ngIf="game.isActive">
+            <span class="pulse-dot"></span>
+            Happening Now
+          </div>
           <div class="role-badge" [class.host-badge]="game.isHost">
             {{ game.isHost ? 'HOST' : 'PLAYER' }}
           </div>
@@ -300,6 +308,10 @@
             <div class="stack-card stack-card--front"></div>
           </div>
           <div class="art-overlay"></div>
+          <div class="active-now-badge" *ngIf="game.isActive">
+            <span class="pulse-dot"></span>
+            Happening Now
+          </div>
         </div>
 
         <div class="card-info">

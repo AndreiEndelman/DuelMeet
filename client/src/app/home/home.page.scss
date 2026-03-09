@@ -415,3 +415,48 @@ ion-toolbar {
   }
 }
 
+// ── Active Now section ────────────────────────────────────────
+.active-section {
+  padding: 0 16px 4px;
+}
+
+.active-section-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16,185,129,0.8);
+  animation: live-pulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+
+  &--sm {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(1.4); }
+}
+
+.game-row--active {
+  border-color: rgba(16,185,129,0.25);
+  box-shadow: 0 0 14px rgba(16,185,129,0.08);
+}
+
+.game-row-date--live {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #10b981 !important;
+  font-weight: 600;
+}
+
