@@ -10,151 +10,334 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+
+  <!-- Segment bar -->
+  <ion-toolbar class="segment-toolbar">
+    <ion-segment [(ngModel)]="activeSegment" class="main-segment">
+      <ion-segment-button value="invites" class="seg-btn">
+        <ion-label class="seg-label">
+          <ion-icon name="mail-outline"></ion-icon>
+          Invites
+          <span class="invite-badge" *ngIf="invites.length > 0">{{ invites.length }}</span>
+        </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="my-games" class="seg-btn">
+        <ion-label class="seg-label">
+          <ion-icon name="people-outline"></ion-icon>
+          My Games
+        </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="search" class="seg-btn">
+        <ion-label class="seg-label">
+          <ion-icon name="search-outline"></ion-icon>
+          Explore
+        </ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
-  <!-- Location search bar -->
-  <div class="location-bar">
-    <div class="location-autocomplete">
-      <div class="location-input-row">
-        <ion-icon name="location-outline" class="loc-icon"></ion-icon>
-        <input
-          class="location-input"
-          type="text"
-          placeholder="City, zip code, or address…"
-          [(ngModel)]="locationInput"
-          (input)="onLocationInput()"
-          (blur)="hideSuggestions()"
-          (keydown.enter)="searchByLocation()"
-          autocomplete="off"
-        />
-        <button *ngIf="locationInput" class="clear-btn" (click)="clearLocation()" type="button">
-          <ion-icon name="close-circle"></ion-icon>
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       INVITES TAB
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeSegment === 'invites'">
+
+    <div class="state-msg" *ngIf="invitesLoading">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading invites…</p>
+    </div>
+
+    <div class="state-msg state-msg--error" *ngIf="invitesError && !invitesLoading">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <p>{{ invitesError }}</p>
+      <ion-button fill="outline" size="small" (click)="loadInvites()">Retry</ion-button>
+    </div>
+
+    <div class="state-msg" *ngIf="!invitesLoading && !invitesError && invites.length === 0">
+      <span class="state-emoji">🎮</span>
+      <p>No pending game invites.</p>
+      <p class="state-sub">When someone invites you to a game, it'll appear here.</p>
+    </div>
+
+    <div class="cards-list" *ngIf="!invitesLoading && invites.length > 0">
+      <div
+        *ngFor="let game of invites"
+        class="game-card invite-card"
+        [ngClass]="'game-card--' + game.type">
+
+        <div class="card-art" [ngClass]="'card-art--' + game.type">
+          <div class="card-stack">
+            <div class="stack-card stack-card--back2"></div>
+            <div class="stack-card stack-card--back1"></div>
+            <div class="stack-card stack-card--front"></div>
+          </div>
+          <div class="art-overlay"></div>
+        </div>
+
+        <div class="card-info">
+          <div class="invite-host-row">
+            <img
+              *ngIf="game.host.avatar"
+              [src]="game.host.avatar"
+              [alt]="game.host.username"
+              class="host-avatar" />
+            <ion-icon *ngIf="!game.host.avatar" name="person-circle-outline" class="host-avatar-icon"></ion-icon>
+            <span class="invite-from">{{ game.host.username }} invited you</span>
+          </div>
+          <p class="card-title">{{ game.title }}</p>
+          <p class="card-meta">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ game.location }}
+          </p>
+          <p class="card-meta">
+            <ion-icon name="time-outline"></ion-icon>
+            {{ formatDate(game.date) }}
+          </p>
+          <p class="spots-left">
+            <ion-icon name="people-outline"></ion-icon>
+            {{ game.spotsLeft }} Spots Left
+          </p>
+          <div class="invite-actions">
+            <ion-button
+              class="accept-btn"
+              size="small"
+              [disabled]="inviteActioning[game._id]"
+              (click)="acceptInvite(game)">
+              <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+              Accept
+            </ion-button>
+            <ion-button
+              fill="outline"
+              class="decline-btn"
+              size="small"
+              [disabled]="inviteActioning[game._id]"
+              (click)="declineInvite(game)">
+              <ion-icon slot="start" name="close-outline"></ion-icon>
+              Decline
+            </ion-button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       MY GAMES TAB
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeSegment === 'my-games'">
+
+    <div class="state-msg" *ngIf="myGamesLoading">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading your games…</p>
+    </div>
+
+    <div class="state-msg state-msg--error" *ngIf="myGamesError && !myGamesLoading">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <p>{{ myGamesError }}</p>
+      <ion-button fill="outline" size="small" (click)="loadMyGames()">Retry</ion-button>
+    </div>
+
+    <div class="state-msg" *ngIf="!myGamesLoading && !myGamesError && myGames.length === 0">
+      <span class="state-emoji">🃏</span>
+      <p>You're not in any upcoming games.</p>
+      <ion-button fill="outline" size="small" (click)="activeSegment = 'search'">Find a Game</ion-button>
+    </div>
+
+    <div class="cards-list" *ngIf="!myGamesLoading && myGames.length > 0">
+      <div
+        *ngFor="let game of myGames"
+        class="game-card"
+        [ngClass]="'game-card--' + game.type">
+
+        <div class="card-art" [ngClass]="'card-art--' + game.type">
+          <div class="card-stack">
+            <div class="stack-card stack-card--back2"></div>
+            <div class="stack-card stack-card--back1"></div>
+            <div class="stack-card stack-card--front"></div>
+          </div>
+          <div class="art-overlay"></div>
+          <div class="role-badge" [class.host-badge]="game.isHost">
+            {{ game.isHost ? 'HOST' : 'PLAYER' }}
+          </div>
+        </div>
+
+        <div class="card-info">
+          <p class="card-title">{{ game.title }}</p>
+          <p class="card-meta">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ game.location }}
+          </p>
+          <p class="card-meta">
+            <ion-icon name="time-outline"></ion-icon>
+            {{ game.date }}
+          </p>
+          <p class="spots-left">
+            <ion-icon name="people-outline"></ion-icon>
+            {{ game.spotsLeft }} Spots Left
+          </p>
+          <div class="card-actions">
+            <ion-button
+              expand="block"
+              class="join-btn"
+              [ngClass]="'join-btn--' + game.type"
+              (click)="openGameDetail(game)">
+              View Game
+            </ion-button>
+            <ion-button
+              class="chat-btn"
+              (click)="openGameChat(game)"
+              title="Open game chat">
+              <ion-icon name="chatbubbles-outline" slot="icon-only"></ion-icon>
+              <ion-badge *ngIf="unreadCounts[game._id] > 0" class="chat-card-badge">
+                {{ unreadCounts[game._id] > 9 ? '9+' : unreadCounts[game._id] }}
+              </ion-badge>
+            </ion-button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SEARCH / EXPLORE TAB
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeSegment === 'search'">
+
+    <!-- Location search bar -->
+    <div class="location-bar">
+      <div class="location-autocomplete">
+        <div class="location-input-row">
+          <ion-icon name="location-outline" class="loc-icon"></ion-icon>
+          <input
+            class="location-input"
+            type="text"
+            placeholder="City, zip code, or address…"
+            [(ngModel)]="locationInput"
+            (input)="onLocationInput()"
+            (blur)="hideSuggestions()"
+            (keydown.enter)="searchByLocation()"
+            autocomplete="off"
+          />
+          <button *ngIf="locationInput" class="clear-btn" (click)="clearLocation()" type="button">
+            <ion-icon name="close-circle"></ion-icon>
+          </button>
+        </div>
+        <ul class="suggestions-list" *ngIf="showSuggestions">
+          <li
+            *ngFor="let p of predictions"
+            class="suggestion-item"
+            (mousedown)="selectPrediction(p)">
+            <ion-icon name="location-outline" class="sug-icon"></ion-icon>
+            <span class="sug-main">{{ p.mainText }}</span>
+            <span class="sug-secondary" *ngIf="p.secondaryText">{{ p.secondaryText }}</span>
+          </li>
+        </ul>
+      </div>
+      <div class="radius-row">
+        <span class="radius-label">Radius:</span>
+        <button
+          *ngFor="let r of radiusOptions"
+          class="radius-chip"
+          [class.active]="radius === r"
+          (click)="radius = r; loadGames()"
+          type="button">
+          {{ r }} mi
+        </button>
+        <button class="search-btn" (click)="searchByLocation()" type="button">
+          <ion-icon name="search-outline"></ion-icon>
+          Search
         </button>
       </div>
-      <ul class="suggestions-list" *ngIf="showSuggestions">
-        <li
-          *ngFor="let p of predictions"
-          class="suggestion-item"
-          (mousedown)="selectPrediction(p)">
-          <ion-icon name="location-outline" class="sug-icon"></ion-icon>
-          <span class="sug-main">{{ p.mainText }}</span>
-          <span class="sug-secondary" *ngIf="p.secondaryText">{{ p.secondaryText }}</span>
-        </li>
-      </ul>
     </div>
-    <div class="radius-row">
-      <span class="radius-label">Radius:</span>
+
+    <!-- Filter chips -->
+    <div class="filter-bar">
       <button
-        *ngFor="let r of radiusOptions"
-        class="radius-chip"
-        [class.active]="radius === r"
-        (click)="radius = r; loadGames()"
+        *ngFor="let f of filters"
+        class="filter-chip"
+        [class.active]="activeFilter === f.value"
+        (click)="setFilter(f.value)"
         type="button">
-        {{ r }} mi
-      </button>
-      <button class="search-btn" (click)="searchByLocation()" type="button">
-        <ion-icon name="search-outline"></ion-icon>
-        Search
+        <span>{{ f.label }}</span>
       </button>
     </div>
-  </div>
 
-  <!-- Filter chips -->
-  <div class="filter-bar">
-    <button
-      *ngFor="let f of filters"
-      class="filter-chip"
-      [class.active]="activeFilter === f.value"
-      (click)="setFilter(f.value)"
-      (keydown.enter)="setFilter(f.value)"
-      type="button">
-      <ion-icon *ngIf="f.ionIcon" [name]="f.ionIcon" class="filter-icon-ion"></ion-icon>
-      <span *ngIf="f.emoji" class="filter-icon">{{ f.emoji }}</span>
-      <span>{{ f.label }}</span>
-    </button>
-  </div>
+    <div class="state-msg" *ngIf="loading">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Finding games…</p>
+    </div>
 
-  <!-- Loading -->
-  <div class="state-msg" *ngIf="loading">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Finding games…</p>
-  </div>
+    <div class="state-msg state-msg--error" *ngIf="error && !loading">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <p>{{ error }}</p>
+      <ion-button fill="outline" size="small" (click)="loadGames()">Retry</ion-button>
+    </div>
 
-  <!-- Error -->
-  <div class="state-msg state-msg--error" *ngIf="error && !loading">
-    <ion-icon name="alert-circle-outline"></ion-icon>
-    <p>{{ error }}</p>
-    <ion-button fill="outline" size="small" (click)="loadGames()">Retry</ion-button>
-  </div>
+    <div class="state-msg" *ngIf="!loading && !error && noLocationResults">
+      <span class="state-emoji">📍</span>
+      <p>No games found within {{ radius }} miles of "{{ locationInput }}".</p>
+      <ion-button fill="outline" size="small" (click)="clearLocation()">Show all games</ion-button>
+    </div>
 
-  <!-- No results for location search -->
-  <div class="state-msg" *ngIf="!loading && !error && noLocationResults">
-    <span class="state-emoji">📍</span>
-    <p>No games found within {{ radius }} miles of "{{ locationInput }}".</p>
-    <ion-button fill="outline" size="small" (click)="clearLocation()">Show all games</ion-button>
-  </div>
+    <div class="state-msg" *ngIf="!loading && !error && filteredGames.length === 0 && !noLocationResults">
+      <p>No games found. Be the first to create one!</p>
+    </div>
 
-  <!-- Empty state (no location search) -->
-  <div class="state-msg" *ngIf="!loading && !error && filteredGames.length === 0 && !noLocationResults">
-    <p>No games found. Be the first to create one!</p>
-  </div>
+    <div class="cards-list" *ngIf="!loading && !error && filteredGames.length > 0">
+      <div
+        *ngFor="let game of filteredGames"
+        class="game-card"
+        [ngClass]="'game-card--' + game.type">
 
-  <!-- Game Cards -->
-  <div class="cards-list" *ngIf="!loading && !error && filteredGames.length > 0">
-    <div
-      *ngFor="let game of filteredGames"
-      class="game-card"
-      [ngClass]="'game-card--' + game.type">
-
-      <!-- Left: art panel -->
-      <div class="card-art" [ngClass]="'card-art--' + game.type">
-        <div class="card-stack">
-          <div class="stack-card stack-card--back2"></div>
-          <div class="stack-card stack-card--back1"></div>
-          <div class="stack-card stack-card--front"></div>
+        <div class="card-art" [ngClass]="'card-art--' + game.type">
+          <div class="card-stack">
+            <div class="stack-card stack-card--back2"></div>
+            <div class="stack-card stack-card--back1"></div>
+            <div class="stack-card stack-card--front"></div>
+          </div>
+          <div class="art-overlay"></div>
         </div>
-        <div class="art-overlay"></div>
-      </div>
 
-      <!-- Right: info panel -->
-      <div class="card-info">
-        <p class="card-title">{{ game.title }}</p>
-        <p class="card-meta">
-          <ion-icon name="location-outline"></ion-icon>
-          {{ game.location }}
-        </p>
-        <p class="card-meta">
-          <ion-icon name="time-outline"></ion-icon>
-          {{ game.date }}
-        </p>
-        <p class="spots-left">
-          <ion-icon name="people-outline"></ion-icon>
-          {{ game.spotsLeft }} Spots Left
-        </p>
-        <div class="card-actions">
-          <ion-button
-            expand="block"
-            class="join-btn"
-            [ngClass]="'join-btn--' + game.type"
-            (click)="openGameDetail(game)"
-            (keydown.enter)="openGameDetail(game)">
-            View Game
-          </ion-button>
-          <ion-button
-            *ngIf="game.isPlayer || game.isHost"
-            class="chat-btn"
-            (click)="openGameChat(game)"
-            title="Open game chat">
-            <ion-icon name="chatbubbles-outline" slot="icon-only"></ion-icon>
-            <ion-badge *ngIf="unreadCounts[game._id] > 0" class="chat-card-badge">
-              {{ unreadCounts[game._id] > 9 ? '9+' : unreadCounts[game._id] }}
-            </ion-badge>
-          </ion-button>
+        <div class="card-info">
+          <p class="card-title">{{ game.title }}</p>
+          <p class="card-meta">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ game.location }}
+          </p>
+          <p class="card-meta">
+            <ion-icon name="time-outline"></ion-icon>
+            {{ game.date }}
+          </p>
+          <p class="spots-left">
+            <ion-icon name="people-outline"></ion-icon>
+            {{ game.spotsLeft }} Spots Left
+          </p>
+          <div class="card-actions">
+            <ion-button
+              expand="block"
+              class="join-btn"
+              [ngClass]="'join-btn--' + game.type"
+              (click)="openGameDetail(game)">
+              View Game
+            </ion-button>
+            <ion-button
+              *ngIf="game.isPlayer || game.isHost"
+              class="chat-btn"
+              (click)="openGameChat(game)"
+              title="Open game chat">
+              <ion-icon name="chatbubbles-outline" slot="icon-only"></ion-icon>
+              <ion-badge *ngIf="unreadCounts[game._id] > 0" class="chat-card-badge">
+                {{ unreadCounts[game._id] > 9 ? '9+' : unreadCounts[game._id] }}
+              </ion-badge>
+            </ion-button>
+          </div>
         </div>
-      </div>
 
+      </div>
     </div>
   </div>
 

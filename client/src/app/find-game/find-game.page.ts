@@ -39,12 +39,16 @@ interface DisplayGame {
   standalone: false,
 })
 export class FindGamePage implements OnDestroy {
+  // ── Segments ───────────────────────────────────────────────────────────────
+  activeSegment: 'invites' | 'my-games' | 'search' = 'search';
+
+  // ── Search tab state ───────────────────────────────────────────────────────
   filters = [
-    { label: 'All',      value: 'all',     ionIcon: '',         emoji: '' },
-    { label: 'Magic',    value: 'magic',   ionIcon: '',         emoji: '' },
-    { label: 'Pokémon',  value: 'pokemon', ionIcon: '',         emoji: '' },
-    { label: 'Yu-Gi-Oh', value: 'yugioh',  ionIcon: '',         emoji: '' },
-    { label: 'One Piece',value: 'onepiece',ionIcon: '',         emoji: '' },
+    { label: 'All',      value: 'all' },
+    { label: 'Magic',    value: 'magic' },
+    { label: 'Pokémon',  value: 'pokemon' },
+    { label: 'Yu-Gi-Oh', value: 'yugioh' },
+    { label: 'One Piece',value: 'onepiece' },
   ];
   radiusOptions = [10, 25, 50, 100];
   activeFilter = 'all';
@@ -54,10 +58,23 @@ export class FindGamePage implements OnDestroy {
   loading = false;
   error = '';
   noLocationResults = false;
+
+  // ── My Games tab state ─────────────────────────────────────────────────────
+  myGames: DisplayGame[] = [];
+  myGamesLoading = false;
+  myGamesError = '';
   unreadCounts: { [gameId: string]: number } = {};
   private lastMsgTimes: { [gameId: string]: string | null } = {};
   private chatOpenFor: string | null = null;
+
+  // ── Invites tab state ──────────────────────────────────────────────────────
+  invites: ApiGame[] = [];
+  invitesLoading = false;
+  invitesError = '';
+  inviteActioning: { [gameId: string]: boolean } = {};
+
   private readonly destroy$ = new Subject<void>();
+
   // Autocomplete
   predictions: Prediction[] = [];
   showSuggestions = false;
@@ -101,7 +118,11 @@ export class FindGamePage implements OnDestroy {
 
   ionViewWillEnter(): void {
     this.loadGames();
+    this.loadMyGames();
+    this.loadInvites();
   }
+
+  // ── Search tab ─────────────────────────────────────────────────────────────
 
   loadGames(): void {
     this.loading = true;
@@ -122,13 +143,90 @@ export class FindGamePage implements OnDestroy {
     });
   }
 
+  // ── My Games tab ───────────────────────────────────────────────────────────
+
+  loadMyGames(): void {
+    this.myGamesLoading = true;
+    this.myGamesError = '';
+    this.gamesService.getMyGames().subscribe({
+      next: (res) => {
+        this.myGames = res.games.map(g => this.mapGame(g));
+        this.myGamesLoading = false;
+        this.startPolling();
+      },
+      error: () => {
+        this.myGamesError = 'Failed to load your games.';
+        this.myGamesLoading = false;
+      },
+    });
+  }
+
+  // ── Invites tab ────────────────────────────────────────────────────────────
+
+  loadInvites(): void {
+    this.invitesLoading = true;
+    this.invitesError = '';
+    this.gamesService.getGameInvites().subscribe({
+      next: (res) => {
+        this.invites = res.games;
+        this.invitesLoading = false;
+      },
+      error: () => {
+        this.invitesError = 'Failed to load invites.';
+        this.invitesLoading = false;
+      },
+    });
+  }
+
+  acceptInvite(game: ApiGame): void {
+    this.inviteActioning[game._id] = true;
+    this.gamesService.acceptGameInvite(game._id).subscribe({
+      next: () => {
+        this.invites = this.invites.filter(g => g._id !== game._id);
+        this.inviteActioning[game._id] = false;
+        this.loadMyGames();
+      },
+      error: () => { this.inviteActioning[game._id] = false; },
+    });
+  }
+
+  declineInvite(game: ApiGame): void {
+    this.inviteActioning[game._id] = true;
+    this.gamesService.declineGameInvite(game._id).subscribe({
+      next: () => {
+        this.invites = this.invites.filter(g => g._id !== game._id);
+        this.inviteActioning[game._id] = false;
+      },
+      error: () => { this.inviteActioning[game._id] = false; },
+    });
+  }
+
+  formatDate(d: string): string {
+    return new Date(d).toLocaleString('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  }
+
+  typeLabel(type: string): string {
+    const labels: Record<string, string> = {
+      magic: 'Magic', pokemon: 'Pokémon', yugioh: 'Yu-Gi-Oh!', onepiece: 'One Piece',
+    };
+    return labels[type] || type;
+  }
+
+  // ── Polling ────────────────────────────────────────────────────────────────
+
   private startPolling(): void {
     this.destroy$.next(); // cancel existing poll
-    const myGames = this.allGames.filter(g => g.isPlayer || g.isHost);
-    if (!myGames.length) return;
+    const allTracked = [
+      ...this.allGames.filter(g => g.isPlayer || g.isHost),
+      ...this.myGames,
+    ];
+    const unique = allTracked.filter((g, i, arr) => arr.findIndex(x => x._id === g._id) === i);
+    if (!unique.length) return;
 
-    // Seed last message times for new games
-    myGames.forEach(g => {
+    unique.forEach(g => {
       if (this.lastMsgTimes[g._id] === undefined) {
         this.lastMsgTimes[g._id] = null;
         this.chatService.getMessages(g._id).subscribe({
@@ -142,8 +240,7 @@ export class FindGamePage implements OnDestroy {
       }
     });
 
-    // Poll each game independently every 8s
-    myGames.forEach(g => {
+    unique.forEach(g => {
       interval(8000)
         .pipe(
           takeUntil(this.destroy$),
@@ -168,6 +265,8 @@ export class FindGamePage implements OnDestroy {
         });
     });
   }
+
+  // ── Location autocomplete ──────────────────────────────────────────────────
 
   onLocationInput(): void {
     this.locationInput$.next(this.locationInput);
@@ -199,6 +298,8 @@ export class FindGamePage implements OnDestroy {
     this.loadGames();
   }
 
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
   private mapGame(g: ApiGame): DisplayGame {
     const labels: Record<string, string> = {
       magic: 'Magic', pokemon: 'Pokémon', yugioh: 'Yu-Gi-Oh!', onepiece: 'One Piece',
@@ -229,10 +330,11 @@ export class FindGamePage implements OnDestroy {
     this.router.navigate(['/tabs/find-game/create-game']);
   }
 
-  async openGameDetail(game: DisplayGame): Promise<void> {
+  async openGameDetail(game: DisplayGame | ApiGame): Promise<void> {
+    const gameId = (game as any)._id;
     const modal = await this.modalCtrl.create({
       component: GameDetailComponent,
-      componentProps: { gameId: game._id },
+      componentProps: { gameId },
       breakpoints: [0, 0.92, 1],
       initialBreakpoint: 0.92,
       handleBehavior: 'cycle',
@@ -241,6 +343,7 @@ export class FindGamePage implements OnDestroy {
     const { data } = await modal.onWillDismiss();
     if (data?.refreshNeeded) {
       this.loadGames();
+      this.loadMyGames();
     }
   }
 
@@ -256,7 +359,6 @@ export class FindGamePage implements OnDestroy {
     await modal.present();
     await modal.onDidDismiss();
     this.chatOpenFor = null;
-    // Reset lastMsgTime so we don't re-badge messages just read
     this.chatService.getMessages(game._id).subscribe({
       next: (r) => {
         if (r.messages.length) {
@@ -271,4 +373,5 @@ export class FindGamePage implements OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.autoSub.unsubscribe();
-  }}
+  }
+}

@@ -54,6 +54,12 @@ const GameSchema = new mongoose.Schema(
         ref: 'User',
       },
     ],
+    invitedPlayers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
     // GeoJSON point — populated automatically when a game is created
     coordinates: {
       type: {

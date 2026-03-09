@@ -29,6 +29,7 @@ export interface Game {
   host: GameHost;
   players: GamePlayer[];
   applicants: GamePlayer[];
+  invitedPlayers: GamePlayer[];
   spotsLeft: number;
   createdAt: string;
 }
@@ -140,6 +141,37 @@ export class GamesService {
     return this.http.post<{ review: any }>(
       `${environment.apiUrl}/games/${gameId}/review`,
       { rating, comment },
+      this.auth.getAuthHeaders()
+    );
+  }
+
+  getGameInvites(): Observable<{ games: Game[]; total: number }> {
+    return this.http.get<{ games: Game[]; total: number }>(
+      `${environment.apiUrl}/games/invites`,
+      this.auth.getAuthHeaders()
+    );
+  }
+
+  invitePlayerToGame(gameId: string, userId: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/games/${gameId}/invite/${userId}`,
+      {},
+      this.auth.getAuthHeaders()
+    );
+  }
+
+  acceptGameInvite(gameId: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/games/${gameId}/invite/accept`,
+      {},
+      this.auth.getAuthHeaders()
+    );
+  }
+
+  declineGameInvite(gameId: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/games/${gameId}/invite/decline`,
+      {},
       this.auth.getAuthHeaders()
     );
   }

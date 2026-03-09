@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { FriendsService } from '../../services/friends.service';
 import { AuthService } from '../../services/auth.service';
+import { InviteToGameComponent } from '../invite-to-game/invite-to-game.component';
 
 export interface ProfileData {
   user: {
@@ -138,6 +139,21 @@ export class UserProfileCardComponent implements OnInit {
       initialBreakpoint: 0.92,
       handle: true,
       cssClass: 'profile-card-modal',
+    });
+    await modal.present();
+  }
+
+  async inviteToGame(): Promise<void> {
+    if (!this.profile) return;
+    const modal = await this.modalCtrl.create({
+      component: InviteToGameComponent,
+      componentProps: {
+        inviteeId: this.userId,
+        inviteeName: this.profile.user.username,
+      },
+      breakpoints: [0, 0.95, 1],
+      initialBreakpoint: 0.95,
+      handleBehavior: 'cycle',
     });
     await modal.present();
   }

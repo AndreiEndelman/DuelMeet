@@ -1,0 +1,245 @@
+ion-toolbar {
+  --background: #0a0c1a;
+  --border-color: transparent;
+}
+
+ion-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.invite-content {
+  --background: #0c0e1e;
+}
+
+// ── Success ──────────────────────────────────────────────────────────────────
+.success-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  gap: 12px;
+
+  .success-icon {
+    font-size: 64px;
+    color: #4ade80;
+  }
+
+  h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #e0e6ff;
+    margin: 0;
+  }
+
+  p {
+    color: #8b9bb4;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+}
+
+.done-btn {
+  --background: #7c6fff;
+  --border-radius: 12px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  font-weight: 700;
+  margin-top: 16px;
+  width: 100%;
+  max-width: 240px;
+}
+
+// ── Form ─────────────────────────────────────────────────────────────────────
+.form-wrap {
+  padding: 16px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.header-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8b9bb4;
+  font-size: 0.9rem;
+  margin: 0 0 20px;
+
+  ion-icon {
+    color: #7c6fff;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  strong {
+    color: #e0e6ff;
+  }
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.section-label {
+  color: #8b9bb4;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 10px;
+}
+
+// ── Chips ─────────────────────────────────────────────────────────────────────
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: #1a1d35;
+  border: 1px solid #2a2f55;
+  color: #8b9bb4;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &.selected {
+    background: rgba(124, 111, 255, 0.18);
+    border-color: #7c6fff;
+    color: #c4b9ff;
+    font-weight: 600;
+  }
+
+  &--magic.selected   { border-color: #3b82f6; background: rgba(59,130,246,0.14); color: #93c5fd; }
+  &--pokemon.selected { border-color: #f59e0b; background: rgba(245,158,11,0.14); color: #fcd34d; }
+  &--yugioh.selected  { border-color: #8b5cf6; background: rgba(139,92,246,0.14); color: #c4b5fd; }
+  &--onepiece.selected{ border-color: #ef4444; background: rgba(239,68,68,0.14);  color: #fca5a5; }
+
+  &--player {
+    min-width: 50px;
+    text-align: center;
+  }
+}
+
+// ── Date items ────────────────────────────────────────────────────────────────
+.date-item {
+  --background: #1a1d35;
+  --border-color: #2a2f55;
+  --color: #e0e6ff;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+// ── Location ─────────────────────────────────────────────────────────────────
+.location-wrap {
+  position: relative;
+}
+
+.loc-input-row {
+  display: flex;
+  align-items: center;
+  background: #1a1d35;
+  border: 1px solid #2a2f55;
+  border-radius: 10px;
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.loc-icon {
+  color: #7c6fff;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.loc-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e0e6ff;
+  font-size: 0.9rem;
+  padding: 12px 0;
+
+  &::placeholder { color: #4a5568; }
+}
+
+.suggestions-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: #1a1d35;
+  border: 1px solid #2a2f55;
+  border-radius: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+
+  &:hover { background: rgba(124,111,255,0.12); }
+
+  ion-icon { color: #7c6fff; font-size: 0.9rem; flex-shrink: 0; }
+
+  .sug-main {
+    color: #e0e6ff;
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+
+  .sug-sec {
+    color: #6b7280;
+    font-size: 0.78rem;
+  }
+}
+
+// ── Notes ─────────────────────────────────────────────────────────────────────
+.notes-input {
+  --background: #1a1d35;
+  --border-color: #2a2f55;
+  --color: #e0e6ff;
+  --placeholder-color: #4a5568;
+  border-radius: 10px;
+  border: 1px solid #2a2f55;
+  font-size: 0.9rem;
+}
+
+// ── Error ─────────────────────────────────────────────────────────────────────
+.error-msg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #f87171;
+  font-size: 0.85rem;
+  margin: 0 0 12px;
+
+  ion-icon { font-size: 1rem; }
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+.submit-btn {
+  --background: #7c6fff;
+  --border-radius: 14px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 8px;
+}

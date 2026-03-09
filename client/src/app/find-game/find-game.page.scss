@@ -434,3 +434,125 @@ ion-toolbar {
   line-height: 15px;
   pointer-events: none;
 }
+
+// ── Segment bar ───────────────────────────────────────────────
+.segment-toolbar {
+  --background: #0a0c1a;
+  --border-color: transparent;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+.main-segment {
+  --background: #10132a;
+  border-bottom: 1px solid #1e2240;
+  padding: 4px 8px;
+}
+
+.seg-btn {
+  --color: rgba(255,255,255,0.45);
+  --color-checked: #7c6fff;
+  --indicator-color: #7c6fff;
+  --indicator-height: 2px;
+  font-size: 0.78rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.seg-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  ion-icon {
+    font-size: 0.95rem;
+  }
+}
+
+// ── Invite badge (red count pill) ─────────────────────────────
+.invite-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #eb445a;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 7px;
+  line-height: 1;
+  margin-left: 2px;
+}
+
+// ── Invite card accent ────────────────────────────────────────
+.invite-card {
+  border: 1px solid rgba(124, 111, 255, 0.35);
+  box-shadow: 0 0 12px rgba(124, 111, 255, 0.12);
+}
+
+.invite-host-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.host-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.host-avatar-icon {
+  font-size: 1.4rem;
+  color: #7c6fff;
+}
+
+.invite-from {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.55);
+}
+
+.invite-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.accept-btn {
+  --background: #22c55e;
+  --background-activated: #16a34a;
+  --color: #fff;
+  --border-radius: 8px;
+  flex: 1;
+}
+
+.decline-btn {
+  --border-color: rgba(239,68,68,0.5);
+  --color: #ef4444;
+  --border-radius: 8px;
+  flex: 1;
+}
+
+// ── Role badge (HOST / PLAYER) ────────────────────────────────
+.role-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+.host-badge {
+  background: rgba(124, 111, 255, 0.7);
+}

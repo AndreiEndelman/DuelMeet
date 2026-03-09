@@ -295,4 +295,5 @@ ion-toolbar {
   &--accept  { --background: rgba(60,220,130,0.18); --color: #3cdc82; --border-color: rgba(60,220,130,0.4); }
   &--decline { --border-color: rgba(255,107,107,0.35); --color: rgba(255,107,107,0.85); }
   &--friends { --border-color: rgba(124,111,255,0.4); --color: #7c6fff; }
+  &--invite  { --border-color: rgba(52,211,153,0.4); --color: #34d399; margin-top: 8px; }
 }

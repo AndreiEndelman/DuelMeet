@@ -1,0 +1,140 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Invite to Game</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="invite-content">
+
+  <!-- Success state -->
+  <div class="success-wrap" *ngIf="success">
+    <ion-icon name="checkmark-circle-outline" class="success-icon"></ion-icon>
+    <h3>Invite Sent!</h3>
+    <p>{{ inviteeName }} has been invited to your game.</p>
+    <ion-button expand="block" class="done-btn" (click)="dismiss()">Done</ion-button>
+  </div>
+
+  <!-- Form -->
+  <div class="form-wrap" *ngIf="!success">
+    <p class="header-label">
+      <ion-icon name="game-controller-outline"></ion-icon>
+      Create a game and invite <strong>{{ inviteeName }}</strong>
+    </p>
+
+    <!-- Card Game -->
+    <div class="section">
+      <p class="section-label">Card Game *</p>
+      <div class="chip-row">
+        <div
+          *ngFor="let g of cardGames"
+          class="chip"
+          [class.selected]="form.cardGame === g.value"
+          [class]="form.cardGame === g.value ? 'chip selected chip--' + g.value : 'chip'"
+          (click)="form.cardGame = g.value">
+          {{ g.label }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Max Players -->
+    <div class="section">
+      <p class="section-label">Max Players *</p>
+      <div class="chip-row">
+        <div
+          *ngFor="let n of playerOptions"
+          class="chip chip--player"
+          [class.selected]="form.maxPlayers === n"
+          (click)="form.maxPlayers = n">
+          {{ n }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Date -->
+    <div class="section">
+      <p class="section-label">Date *</p>
+      <ion-item lines="full" class="date-item">
+        <ion-label>Date</ion-label>
+        <ion-datetime-button datetime="inviteDatePicker"></ion-datetime-button>
+      </ion-item>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime id="inviteDatePicker" [(ngModel)]="form.date" presentation="date" [min]="today"></ion-datetime>
+        </ng-template>
+      </ion-modal>
+      <ion-item lines="full" class="date-item">
+        <ion-label>Time</ion-label>
+        <ion-datetime-button datetime="inviteTimePicker"></ion-datetime-button>
+      </ion-item>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime id="inviteTimePicker" [(ngModel)]="form.time" presentation="time"></ion-datetime>
+        </ng-template>
+      </ion-modal>
+    </div>
+
+    <!-- Location -->
+    <div class="section">
+      <p class="section-label">Location *</p>
+      <div class="location-wrap">
+        <div class="loc-input-row">
+          <ion-icon name="location-outline" class="loc-icon"></ion-icon>
+          <input
+            class="loc-input"
+            type="text"
+            placeholder="e.g. CoolStuff Games, Miami"
+            [(ngModel)]="form.location"
+            (input)="onLocationInput()"
+            (blur)="hideSuggestions()"
+            autocomplete="off"
+          />
+        </div>
+        <ul class="suggestions-list" *ngIf="showSuggestions">
+          <li
+            *ngFor="let p of predictions"
+            class="suggestion-item"
+            (mousedown)="selectPrediction(p)">
+            <ion-icon name="location-outline"></ion-icon>
+            <span class="sug-main">{{ p.mainText }}</span>
+            <span class="sug-sec" *ngIf="p.secondaryText">{{ p.secondaryText }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="section">
+      <p class="section-label">Notes (optional)</p>
+      <ion-textarea
+        class="notes-input"
+        placeholder="Any special rules, format, etc."
+        [(ngModel)]="form.notes"
+        rows="3"
+        maxlength="500">
+      </ion-textarea>
+    </div>
+
+    <!-- Error -->
+    <p class="error-msg" *ngIf="errorMsg">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      {{ errorMsg }}
+    </p>
+
+    <!-- Submit -->
+    <ion-button
+      expand="block"
+      class="submit-btn"
+      [disabled]="loading"
+      (click)="createAndInvite()">
+      <ion-spinner name="crescent" *ngIf="loading" slot="start"></ion-spinner>
+      <ion-icon name="paper-plane-outline" slot="start" *ngIf="!loading"></ion-icon>
+      {{ loading ? 'Creating…' : 'Create & Invite' }}
+    </ion-button>
+  </div>
+
+</ion-content>

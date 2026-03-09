@@ -84,6 +84,25 @@ router.get('/my', protect, async (req, res) => {
   }
 });
 
+// ── GET /api/games/invites ───────────────────────────────────────────────────
+// Returns upcoming games where the current user is in invitedPlayers
+
+router.get('/invites', protect, async (req, res) => {
+  try {
+    const games = await Game.find({
+      invitedPlayers: req.user._id,
+      date: { $gte: new Date() },
+    })
+      .sort({ date: 1 })
+      .populate('host', 'username avatar location reputation')
+      .populate('players', 'username avatar');
+    res.json({ games, total: games.length });
+  } catch (err) {
+    console.error('[getGameInvites]', err);
+    res.status(500).json({ message: 'Server error fetching invites' });
+  }
+});
+
 // ── GET /api/games/:id ───────────────────────────────────────────────────────
 
 router.get('/:id', async (req, res) => {
@@ -376,8 +395,6 @@ router.delete('/:id', protect, requireVerified, async (req, res) => {
   }
 });
 
-module.exports = router;
-
 // ── GET /api/games/:id/messages ───────────────────────────────────────────────
 // Only players/host of the game can read chat
 
@@ -506,3 +523,86 @@ router.post(
     }
   }
 );
+// ── POST /api/games/:id/invite/accept ───────────────────────────────────────
+// Invited user accepts — moves from invitedPlayers to players
+
+router.post('/:id/invite/accept', protect, requireVerified, async (req, res) => {
+  try {
+    const game = await Game.findById(req.params.id);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+
+    const userId = req.user._id.toString();
+    if (!game.invitedPlayers.map(String).includes(userId)) {
+      return res.status(400).json({ message: 'No invite found for this game' });
+    }
+    if (game.players.length >= game.maxPlayers) {
+      return res.status(400).json({ message: 'This game is now full' });
+    }
+
+    game.invitedPlayers = game.invitedPlayers.filter((u) => u.toString() !== userId);
+    game.players.push(req.user._id);
+    await game.save();
+
+    // Add to the game's GroupChat
+    await GroupChat.findOneAndUpdate(
+      { gameRef: game._id },
+      { $addToSet: { members: req.user._id } }
+    );
+
+    res.json({ message: 'Joined game' });
+  } catch (err) {
+    console.error('[acceptGameInvite]', err);
+    res.status(500).json({ message: 'Server error accepting invite' });
+  }
+});
+
+// ── POST /api/games/:id/invite/decline ──────────────────────────────────────
+// Invited user declines — removes from invitedPlayers
+
+router.post('/:id/invite/decline', protect, requireVerified, async (req, res) => {
+  try {
+    const game = await Game.findById(req.params.id);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+
+    const userId = req.user._id.toString();
+    game.invitedPlayers = game.invitedPlayers.filter((u) => u.toString() !== userId);
+    await game.save();
+    res.json({ message: 'Invite declined' });
+  } catch (err) {
+    console.error('[declineGameInvite]', err);
+    res.status(500).json({ message: 'Server error declining invite' });
+  }
+});
+
+// ── POST /api/games/:id/invite/:userId ───────────────────────────────────────
+// Host directly invites a user to their game (adds to invitedPlayers)
+
+router.post('/:id/invite/:userId', protect, requireVerified, async (req, res) => {
+  try {
+    const game = await Game.findById(req.params.id);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+    if (game.host.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Only the host can invite players' });
+    }
+
+    const targetId = req.params.userId;
+    if (game.players.map(String).includes(targetId)) {
+      return res.status(400).json({ message: 'User is already in this game' });
+    }
+    if (game.invitedPlayers.map(String).includes(targetId)) {
+      return res.status(400).json({ message: 'User has already been invited' });
+    }
+    if (game.players.length >= game.maxPlayers) {
+      return res.status(400).json({ message: 'This game is full' });
+    }
+
+    game.invitedPlayers.push(targetId);
+    await game.save();
+    res.json({ message: 'Invite sent' });
+  } catch (err) {
+    console.error('[invitePlayer]', err);
+    res.status(500).json({ message: 'Server error sending invite' });
+  }
+});
+
+module.exports = router;
