@@ -566,18 +566,18 @@ ion-toolbar {
   display: flex;
   align-items: center;
   gap: 5px;
-  background: rgba(16, 185, 129, 0.88);
-  color: #fff;
+  background: rgba(5, 30, 22, 0.82);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
   font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 3px 10px;
   border-radius: 20px;
   white-space: nowrap;
   pointer-events: none;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 0 10px rgba(16,185,129,0.5);
+  backdrop-filter: blur(6px);
   z-index: 5;
 }
 
@@ -585,7 +585,7 @@ ion-toolbar {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #fff;
+  background: #6ee7b7;
   flex-shrink: 0;
   animation: pulse-anim 1.5s ease-in-out infinite;
 }
