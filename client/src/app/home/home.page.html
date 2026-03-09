@@ -1,66 +1,106 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title class="page-title">Home</ion-title>
+    <div class="toolbar-logo" slot="start">
+      <span class="logo-mark">⚔</span>
+      <span class="logo-text">DuelMeet</span>
+    </div>
     <ion-buttons slot="end">
-      <ion-button>
-        <ion-icon name="notifications-outline" slot="icon-only"></ion-icon>
-      </ion-button>
+      <button class="notif-btn" type="button" (click)="openNotifications()">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span class="notif-dot" *ngIf="hasUnread"></span>
+      </button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
-  <!-- Hero greeting -->
-  <div class="hero">
-    <div class="hero-glow"></div>
-    <p class="hero-sub">Welcome back,</p>
-    <h1 class="hero-name">{{ username }}</h1>
-    <p class="hero-location">
-      <ion-icon name="location"></ion-icon>
-      {{ location }}
-    </p>
+  <!-- ── Profile banner ─────────────────────────────────── -->
+  <div class="profile-banner">
+    <div class="banner-glow"></div>
+
+    <div class="banner-left">
+      <div class="avatar-ring" (click)="goToProfile()">
+        <img *ngIf="avatar" [src]="avatar" alt="avatar" class="avatar-img" />
+        <ion-icon *ngIf="!avatar" name="person-circle-outline" class="avatar-fallback"></ion-icon>
+      </div>
+    </div>
+
+    <div class="banner-right">
+      <p class="banner-greeting">Welcome back</p>
+      <h1 class="banner-name">{{ username }}</h1>
+      <p class="banner-location" *ngIf="location">
+        <ion-icon name="location-outline"></ion-icon>
+        {{ location }}
+      </p>
+      <div class="rep-row">
+        <ion-icon name="star" class="rep-star"></ion-icon>
+        <span class="rep-value">{{ reputation }}</span>
+        <span class="rep-label">reputation</span>
+      </div>
+    </div>
   </div>
 
-  <!-- Quick actions -->
-  <div class="quick-actions">
-    <button class="action-card" type="button" (click)="goToFindGame()">
-      <div class="action-icon action-icon--find">
-        <ion-icon name="search"></ion-icon>
-      </div>
+  <!-- ── Invite alert ───────────────────────────────────── -->
+  <div class="invite-alert" *ngIf="pendingInvites > 0" (click)="goToInvites()">
+    <div class="invite-alert-icon">
+      <ion-icon name="game-controller-outline"></ion-icon>
+    </div>
+    <div class="invite-alert-text">
+      <span class="invite-alert-title">Game invite{{ pendingInvites > 1 ? 's' : '' }} waiting</span>
+      <span class="invite-alert-sub">{{ pendingInvites }} pending — tap to view</span>
+    </div>
+    <ion-icon name="chevron-forward-outline" class="invite-alert-arrow"></ion-icon>
+  </div>
+
+  <!-- ── Quick actions ─────────────────────────────────── -->
+  <div class="actions-grid">
+    <button class="action-tile action-tile--find" type="button" (click)="goToFindGame()">
+      <ion-icon name="search-outline"></ion-icon>
       <span>Find Game</span>
     </button>
-    <button class="action-card" type="button" (click)="goToCreateGame()">
-      <div class="action-icon action-icon--create">
-        <ion-icon name="add-circle"></ion-icon>
-      </div>
+    <button class="action-tile action-tile--create" type="button" (click)="goToCreateGame()">
+      <ion-icon name="add-circle-outline"></ion-icon>
       <span>Create Game</span>
     </button>
-    <button class="action-card" type="button">
-      <div class="action-icon action-icon--profile">
-        <ion-icon name="person"></ion-icon>
-      </div>
+    <button class="action-tile action-tile--friends" type="button" (click)="goToFriends()">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Friends</span>
+    </button>
+    <button class="action-tile action-tile--profile" type="button" (click)="goToProfile()">
+      <ion-icon name="person-outline"></ion-icon>
       <span>Profile</span>
     </button>
   </div>
 
-  <!-- Upcoming games -->
+  <!-- ── My Games ──────────────────────────────────────── -->
   <div class="section">
-    <p class="section-title">My Upcoming Games</p>
+    <div class="section-header">
+      <span class="section-title">My Games</span>
+      <button class="section-link" type="button" (click)="goToFindGame()">See all</button>
+    </div>
 
-    <div *ngFor="let g of upcomingGames"
-         class="mini-card"
-         [ngClass]="'mini-card--' + g.type">
-      <div class="mini-art" [ngClass]="'mini-art--' + g.type"></div>
-      <div class="mini-info">
-        <p class="mini-title">{{ g.title }}</p>
-        <p class="mini-date">
+    <div class="empty-games" *ngIf="upcomingGames.length === 0">
+      <ion-icon name="game-controller-outline"></ion-icon>
+      <p>No upcoming games yet</p>
+      <button class="empty-cta" type="button" (click)="goToFindGame()">Find one now</button>
+    </div>
+
+    <div
+      *ngFor="let g of upcomingGames"
+      class="game-row"
+      [ngClass]="'game-row--' + g.type">
+      <div class="game-row-accent" [ngClass]="'game-row-accent--' + g.type"></div>
+      <div class="game-row-art" [ngClass]="'game-row-art--' + g.type"></div>
+      <div class="game-row-info">
+        <p class="game-row-title">{{ g.title }}</p>
+        <p class="game-row-date">
           <ion-icon name="time-outline"></ion-icon>
           {{ g.date }}
         </p>
       </div>
-      <span class="status-badge" [ngClass]="'status-badge--' + g.status">
-        {{ g.status === 'joined' ? 'Joined' : 'Hosting' }}
+      <span class="role-chip" [ngClass]="'role-chip--' + g.status">
+        {{ g.status === 'hosting' ? 'Host' : 'Player' }}
       </span>
     </div>
   </div>

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService, User } from '../services/auth.service';
 import { GamesService } from '../services/games.service';
+import { NotificationsService } from '../services/notifications.service';
 
 interface UpcomingGame {
   title: string;
@@ -20,28 +21,37 @@ interface UpcomingGame {
 export class HomePage implements OnInit, OnDestroy {
   user: User | null = null;
   upcomingGames: UpcomingGame[] = [];
-  private sub!: Subscription;
+  hasUnread = false;
+  pendingInvites = 0;
+  private subs: Subscription[] = [];
 
   constructor(
     private readonly router: Router,
     private readonly auth: AuthService,
     private readonly gamesService: GamesService,
+    readonly notifications: NotificationsService,
   ) {}
 
   ngOnInit(): void {
-    this.sub = this.auth.currentUser$.subscribe(u => { this.user = u; });
+    this.subs.push(
+      this.auth.currentUser$.subscribe(u => { this.user = u; }),
+      this.notifications.hasUnread$.subscribe(v => { this.hasUnread = v; }),
+    );
   }
 
   ionViewWillEnter(): void {
     this.loadMyGames();
+    this.loadInvites();
   }
 
   ngOnDestroy(): void {
-    this.sub?.unsubscribe();
+    this.subs.forEach(s => s.unsubscribe());
   }
 
-  get username(): string { return this.user?.username ?? ''; }
-  get location(): string { return this.user?.location  ?? ''; }
+  get username(): string    { return this.user?.username   ?? ''; }
+  get location(): string    { return this.user?.location   ?? ''; }
+  get avatar(): string      { return this.user?.avatar     ?? ''; }
+  get reputation(): number  { return this.user?.reputation ?? 0;  }
 
   loadMyGames(): void {
     this.gamesService.getMyGames().subscribe({
@@ -59,6 +69,17 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
-  goToFindGame(): void   { this.router.navigate(['/tabs/find-game']); }
-  goToCreateGame(): void { this.router.navigate(['/tabs/find-game/create-game']); }
+  loadInvites(): void {
+    this.gamesService.getGameInvites().subscribe({
+      next: (res) => { this.pendingInvites = res.total; },
+      error: () => { this.pendingInvites = 0; },
+    });
+  }
+
+  openNotifications(): void { this.router.navigate(['/tabs/profile/notifications']); }
+  goToFindGame(): void      { this.router.navigate(['/tabs/find-game']); }
+  goToCreateGame(): void    { this.router.navigate(['/tabs/find-game/create-game']); }
+  goToFriends(): void       { this.router.navigate(['/tabs/inbox']); }
+  goToProfile(): void       { this.router.navigate(['/tabs/profile']); }
+  goToInvites(): void       { this.router.navigate(['/tabs/find-game'], { state: { segment: 'invites' } }); }
 }
