@@ -1,4 +1,4 @@
-DuelMeet
+# DuelMeet
 
 DuelMeet is a location-aware meetup platform for trading card game (TCG) players.
 It helps players find, host, and join in-person games nearby, eliminating the uncertainty of going to a local game store without knowing if anyone is available to play.
@@ -7,7 +7,7 @@ Think Meetup or Eventbrite for card game players, combined with a social layer t
 
 Players can discover games happening nearby, apply to join them, chat with participants, and build a network of friends within their local TCG community.
 
-The Problem
+## The Problem
 
 Many trading card game players experience this situation:
 
