@@ -30,8 +30,8 @@ ion-content.auth-content {
 .auth-logo-img {
   width: 120px;
   height: auto;
-  mix-blend-mode: multiply;
-  filter: drop-shadow(0 0 14px rgba(124,111,255,0.45));
+  filter: invert(1) hue-rotate(180deg);
+  mix-blend-mode: screen;
   margin-bottom: 8px;
   display: block;
   margin-left: auto;
