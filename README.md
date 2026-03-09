@@ -268,3 +268,36 @@ DuelMeet was built to make it easier for players to coordinate games ahead of ti
 
 ## Screenshots
 
+### Login Page
+<img width="555" height="1173" alt="Screenshot 2026-03-09 093431" src="https://github.com/user-attachments/assets/2e7ccdbf-f889-4636-be80-7359bf050e6f" />
+
+### Sign-up Page
+<img width="521" height="1145" alt="Screenshot 2026-03-09 110152" src="https://github.com/user-attachments/assets/72ae149c-0f1e-48b5-927a-01ea1a436c23" />
+
+### Verification E-mail
+<img width="681" height="681" alt="Screenshot 2026-03-09 110358" src="https://github.com/user-attachments/assets/a7ae9fbc-36b2-4ebe-ae4f-53cc041f4429" />
+
+### Game Creation + Geolocation AutoFill
+<img width="524" height="1148" alt="Screenshot 2026-03-09 094248" src="https://github.com/user-attachments/assets/783f98cc-69b9-486f-b5a8-584b8512568a" />
+<img width="529" height="1145" alt="Screenshot 2026-03-09 094239" src="https://github.com/user-attachments/assets/3048f215-3f87-479b-8232-5b74e07298a9" />
+
+### Profile 
+<img width="522" height="1146" alt="Screenshot 2026-03-09 115023" src="https://github.com/user-attachments/assets/f32583db-8caa-4131-91ea-104755992a5e" />
+
+### Inbox
+<img width="522" height="1144" alt="Screenshot 2026-03-09 110544" src="https://github.com/user-attachments/assets/8fb942d8-c49b-4282-8894-66e3c73bebbc" />
+
+### Home
+<img width="520" height="1146" alt="Screenshot 2026-03-09 115605" src="https://github.com/user-attachments/assets/eabb9d92-19b4-4227-8873-31c5aacb43d4" />
+
+### Find Games
+<img width="523" height="1141" alt="Screenshot 2026-03-09 115551" src="https://github.com/user-attachments/assets/435f1ec2-ca7b-49f3-8f58-c79ac94bf332" />
+
+
+
+
+
+
+
+
+
