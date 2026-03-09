@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject, interval, Subscription } from 'rxjs';
-import { switchMap, startWith } from 'rxjs/operators';
+import { BehaviorSubject, interval, Observable, of, Subscription } from 'rxjs';
+import { catchError, switchMap, startWith, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
@@ -27,12 +27,17 @@ export class NotificationsService {
     this.pollSub = null;
   }
 
-  /** Call when the user opens the Inbox. Clears the indicator. */
-  markRead(): void {
-    this.http.post(`${this.apiUrl}/mark-read`, {}).subscribe({
-      next: () => this.hasUnread$.next(false),
-      error: () => {},
-    });
+  /**
+   * Clears the unread indicator and updates lastInboxAt on the server.
+   * Returns an Observable that completes after the server confirms the write —
+   * callers should chain data fetches to the subscription so they run with the
+   * updated lastInboxAt, avoiding the race condition.
+   */
+  markRead(): Observable<void> {
+    this.hasUnread$.next(false);
+    return this.http.post<void>(`${this.apiUrl}/mark-read`, {}).pipe(
+      catchError(() => of(undefined as void)),
+    );
   }
 
   /** Force a single check (e.g. after tab switch). */

@@ -49,11 +49,10 @@ export class InboxPage implements OnInit {
 
   ngOnInit(): void { this.load(); }
   ionViewWillEnter(): void {
-    // markRead first so lastInboxAt is updated before conversations are fetched,
-    // preventing the race where GET /dm/conversations uses a stale lastInboxAt.
-    this.notificationsService.markRead();
-    // Small yield lets the mark-read request reach the server ahead of the data fetches.
-    setTimeout(() => this.load(), 80);
+    // Wait for the server to confirm lastInboxAt is written before fetching
+    // conversations — prevents the race where GET /dm/conversations uses a
+    // stale lastInboxAt and returns hasUnread:true for already-read messages.
+    this.notificationsService.markRead().subscribe(() => this.load());
   }
 
   load(): void {
@@ -155,7 +154,7 @@ export class InboxPage implements OnInit {
 
   async openDm(conv: DmConversation): Promise<void> {
     this.dmConversations = this.dmConversations.map((c) => c === conv ? { ...c, hasUnread: false } : c);
-    this.notificationsService.markRead();
+    this.notificationsService.markRead().subscribe();
     const modal = await this.modalCtrl.create({
       component: DmThreadComponent,
       componentProps: { userId: conv.user._id, username: conv.user.username, userAvatar: conv.user.avatar ?? '' },
