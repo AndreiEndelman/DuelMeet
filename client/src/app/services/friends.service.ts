@@ -108,6 +108,12 @@ export class FriendsService {
   }
 
   // ── Public user profile (with stats + friend status) ───────────────────────
+  searchUsers(q: string): Observable<{ users: { _id: string; username: string; avatar: string; location: string }[] }> {
+    return this.http.get<{ users: { _id: string; username: string; avatar: string; location: string }[] }>(
+      `${environment.apiUrl}/users/search`, { params: { q } }
+    );
+  }
+
   getUserProfile(userId: string): Observable<ProfileData> {
     return this.http.get<ProfileData>(
       `${this.usersBase}/${userId}`,

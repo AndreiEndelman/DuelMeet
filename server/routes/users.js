@@ -4,6 +4,28 @@ const Game           = require('../models/Game');
 const FriendRequest  = require('../models/FriendRequest');
 const { protect }    = require('../middleware/auth');
 
+// ── GET /api/users/search?q= — search users by username ─────────────────────
+router.get('/search', protect, async (req, res) => {
+  try {
+    const q = (req.query.q || '').toString().trim();
+    if (!q || q.length < 2) return res.json({ users: [] });
+
+    const users = await User
+      .find({
+        _id: { $ne: req.user._id },
+        username: { $regex: q, $options: 'i' },
+      })
+      .select('username avatar location')
+      .limit(10)
+      .lean();
+
+    res.json({ users });
+  } catch (err) {
+    console.error('[users/search]', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // ── GET /api/users/:id — public profile with stats + friendship status ────────
 router.get('/:id', protect, async (req, res) => {
   try {

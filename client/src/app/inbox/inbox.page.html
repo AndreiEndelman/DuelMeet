@@ -20,6 +20,12 @@
       </ion-item>
 
       <div slot="content" class="accordion-body">
+        <div class="sub-section-header">
+          <span class="sub-label">Incoming Requests</span>
+          <button class="new-btn" (click)="sendRequestFlow()">
+            <ion-icon name="person-add-outline"></ion-icon>
+          </button>
+        </div>
         <div class="section-loading" *ngIf="loadingRequests"><ion-spinner name="crescent"></ion-spinner></div>
         <p class="section-error" *ngIf="requestsError && !loadingRequests">
           <ion-icon name="alert-circle-outline"></ion-icon>{{ requestsError }}

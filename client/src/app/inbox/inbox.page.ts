@@ -88,6 +88,58 @@ export class InboxPage implements OnInit {
     });
   }
 
+  async sendRequestFlow(): Promise<void> {
+    const inputAlert = await this.alertCtrl.create({
+      header: 'Add Friend',
+      message: 'Enter a username to search for.',
+      cssClass: 'dark-alert',
+      inputs: [{ name: 'username', type: 'text', placeholder: 'Username…', attributes: { autocorrect: 'off', autocapitalize: 'off' } }],
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Search',
+          handler: (data: { username: string }) => {
+            const q = data.username?.trim();
+            if (!q) return false;
+            this.friendsService.searchUsers(q).subscribe(async (res) => {
+              if (res.users.length === 0) {
+                const err = await this.alertCtrl.create({
+                  header: 'No Users Found',
+                  message: `No users matching "${q}".`,
+                  buttons: ['OK'],
+                  cssClass: 'dark-alert',
+                });
+                await err.present();
+                return;
+              }
+              if (res.users.length === 1) {
+                this.profileCard.open(res.users[0]._id);
+                return;
+              }
+              const picker = await this.alertCtrl.create({
+                header: `Results for "${q}"`,
+                cssClass: 'dark-alert',
+                inputs: res.users.map((u) => ({ type: 'radio' as const, label: u.username, value: u._id })),
+                buttons: [
+                  { text: 'Cancel', role: 'cancel' },
+                  {
+                    text: 'View Profile',
+                    handler: (userId: string) => {
+                      if (userId) this.profileCard.open(userId);
+                    },
+                  },
+                ],
+              });
+              await picker.present();
+            });
+            return true;
+          },
+        },
+      ],
+    });
+    await inputAlert.present();
+  }
+
   // ── DMs ──────────────────────────────────────────────────────
   loadDmConversations(): void {
     this.loadingDms = true;
