@@ -59,6 +59,32 @@
         <p class="stat-value">{{ profile.stats.gamesJoined }}</p>
         <p class="stat-label">Joined</p>
       </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <p class="stat-value">{{ profile.friendCount }}</p>
+        <p class="stat-label">Friends</p>
+      </div>
+    </div>
+
+    <!-- Mutual friends (shown only when there are any) -->
+    <div class="mutuals-section" *ngIf="profile.mutualFriends?.length > 0">
+      <p class="section-label">
+        <ion-icon name="people-outline"></ion-icon>
+        {{ profile.mutualFriends.length }} Mutual Friend{{ profile.mutualFriends.length === 1 ? '' : 's' }}
+      </p>
+      <div class="mutual-avatars">
+        <div
+          *ngFor="let f of profile.mutualFriends.slice(0, 5)"
+          class="mutual-avatar"
+          (click)="openMutualProfile(f._id)">
+          <img *ngIf="f.avatar" [src]="f.avatar" [alt]="f.username" />
+          <ion-icon *ngIf="!f.avatar" name="person"></ion-icon>
+          <span class="mutual-name">{{ f.username }}</span>
+        </div>
+        <div *ngIf="profile.mutualFriends.length > 5" class="mutual-more">
+          +{{ profile.mutualFriends.length - 5 }}
+        </div>
+      </div>
     </div>
 
     <!-- Bio -->

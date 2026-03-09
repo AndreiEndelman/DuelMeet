@@ -6,6 +6,8 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { AlertController } from '@ionic/angular';
 import { AuthService, User } from '../services/auth.service';
 import { GamesService } from '../services/games.service';
+import { FriendsService, PublicUser } from '../services/friends.service';
+import { ProfileCardService } from '../services/profile-card.service';
 import { environment } from '../../environments/environment';
 
 interface UpcomingGame {
@@ -31,6 +33,8 @@ interface Prediction {
 export class ProfilePage implements OnInit, OnDestroy {
   user: User | null = null;
   upcomingGames: UpcomingGame[] = [];
+  friends: PublicUser[] = [];
+  loadingFriends = false;
   reputationStars = [1, 2, 3, 4, 5];
   private sub!: Subscription;
 
@@ -63,6 +67,8 @@ export class ProfilePage implements OnInit, OnDestroy {
   constructor(
     private readonly auth: AuthService,
     private readonly gamesService: GamesService,
+    private readonly friendsService: FriendsService,
+    private readonly profileCardService: ProfileCardService,
     private readonly router: Router,
     private readonly http: HttpClient,
     private readonly alertCtrl: AlertController,
@@ -92,7 +98,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     });
   }
 
-  ionViewWillEnter(): void { this.loadMyGames(); }
+  ionViewWillEnter(): void { this.loadMyGames(); this.loadFriends(); }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
@@ -133,6 +139,18 @@ export class ProfilePage implements OnInit, OnDestroy {
         }));
       },
     });
+  }
+
+  loadFriends(): void {
+    this.loadingFriends = true;
+    this.friendsService.getFriends().subscribe({
+      next: (res) => { this.friends = res.friends; this.loadingFriends = false; },
+      error: () => { this.loadingFriends = false; },
+    });
+  }
+
+  openFriendProfile(userId: string): void {
+    void this.profileCardService.open(userId);
   }
 
   openEdit(): void {

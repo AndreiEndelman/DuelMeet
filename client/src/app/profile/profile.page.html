@@ -65,6 +65,35 @@
       </div>
     </div>
 
+    <!-- Friends list (private — only visible to self) -->
+    <div class="section friends-section">
+      <p class="section-title">
+        <ion-icon name="people-outline"></ion-icon>
+        Friends
+        <span class="friends-count-badge" *ngIf="friends.length">{{ friends.length }}</span>
+      </p>
+      <div *ngIf="loadingFriends" class="friends-loading">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+      <p *ngIf="!loadingFriends && friends.length === 0" class="friends-empty">
+        You haven't added any friends yet.
+      </p>
+      <div *ngFor="let f of friends" class="friend-row" (click)="openFriendProfile(f._id)">
+        <div class="friend-avatar">
+          <img *ngIf="f.avatar" [src]="f.avatar" [alt]="f.username" />
+          <ion-icon *ngIf="!f.avatar" name="person"></ion-icon>
+        </div>
+        <div class="friend-info">
+          <p class="friend-name">{{ f.username }}</p>
+          <p class="friend-location" *ngIf="f.location">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ f.location }}
+          </p>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="friend-chevron"></ion-icon>
+      </div>
+    </div>
+
     <!-- Upcoming games -->
     <div class="section">
       <p class="section-title">My Upcoming Games</p>

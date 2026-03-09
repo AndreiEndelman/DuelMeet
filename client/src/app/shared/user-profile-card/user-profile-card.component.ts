@@ -18,6 +18,15 @@ export interface ProfileData {
   stats: { gamesHosted: number; gamesJoined: number };
   friendStatus: 'none' | 'pending_sent' | 'pending_received' | 'friends';
   friendRequestId: string | null;
+  friendCount: number;
+  mutualFriends: {
+    _id: string;
+    username: string;
+    avatar: string;
+    location: string;
+    reputation: number;
+    reputationCount: number;
+  }[];
 }
 
 @Component({
@@ -119,5 +128,17 @@ export class UserProfileCardComponent implements OnInit {
       next: () => { this.friendStatus = 'none'; this.friendRequestId = null; this.actionLoading = false; },
       error: () => { this.actionLoading = false; },
     });
+  }
+
+  async openMutualProfile(userId: string): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: UserProfileCardComponent,
+      componentProps: { userId },
+      breakpoints: [0, 0.92],
+      initialBreakpoint: 0.92,
+      handle: true,
+      cssClass: 'profile-card-modal',
+    });
+    await modal.present();
   }
 }
